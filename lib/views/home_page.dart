@@ -19,31 +19,26 @@ class HomePage extends StatelessWidget {
           return Stack(
             children: [
               Container(
-                height: height,
+                height: height*0.35,
                 width: width,
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
-                      Color(0xFF022150), // 60% Navy Blue
-                      Color(0x6620ABE7), // 40% Teal Blue with 40% opacity
+                      Color(0xFF6CA8CB), // Light teal blue first
+                      Color(0xFF022150),// Dark navy blue second
+                      Color(0xFF022150),// Dark navy blue second
                     ],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
+                    begin: Alignment.bottomLeft,
+                    end: Alignment.centerRight,
                   ),
                 ),
                 child: Padding(
                   padding: EdgeInsets.only(
-                    top: height * 0.1,
-                    left: width * 0.05,
+                    top: height * 0.15,
+                    left: width * 0.0,
+                    bottom: width*0.15
                   ),
-                  child: const Text(
-                    "DOMUS \n HOMEOPATHICA",
-                    style: TextStyle(
-                      fontSize: 30,
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+                  child: Image.asset('assets/logo.png',alignment: Alignment.center,fit: BoxFit.contain,),
                 ),
               ),
               Padding(
