@@ -3,7 +3,7 @@ import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 import 'package:provider/provider.dart';
 
-import '../../domain/view model/auth_view_model.dart';
+import '../../domain/view model/home_auth_model.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -207,7 +207,8 @@ class HomePage extends StatelessWidget {
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                               ),
-                              onPressed: () {/*
+                              onPressed: () {
+                                /*
                                 // Handle verify logic
                                 if (viewModel.validateForm()) {
                                   Navigator.push(

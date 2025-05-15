@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'features/authentication/domain/view model/home_auth_model.dart';
 import 'features/authentication/presentation/screens/home_page.dart';
-import 'features/authentication/domain/view model/auth_view_model.dart';
+
 void main() {
   runApp(
     ChangeNotifierProvider(

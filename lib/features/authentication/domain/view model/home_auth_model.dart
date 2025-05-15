@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'user_model.dart';
+import 'home_user_model.dart';
 
 class AuthViewModel extends ChangeNotifier {
   // The data that holds the data
