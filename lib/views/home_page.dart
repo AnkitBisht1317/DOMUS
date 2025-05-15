@@ -1,3 +1,4 @@
+import 'package:domus/views/personal_details.dart';
 import 'package:flutter/material.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
@@ -19,14 +20,14 @@ class HomePage extends StatelessWidget {
           return Stack(
             children: [
               Container(
-                height: height*0.35,
+                height: height * 0.35,
                 width: width,
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
                       Color(0xFF6CA8CB), // Light teal blue first
-                      Color(0xFF022150),// Dark navy blue second
-                      Color(0xFF022150),// Dark navy blue second
+                      Color(0xFF022150), // Dark navy blue second
+                      Color(0xFF022150), // Dark navy blue second
                     ],
                     begin: Alignment.bottomLeft,
                     end: Alignment.centerRight,
@@ -36,9 +37,13 @@ class HomePage extends StatelessWidget {
                   padding: EdgeInsets.only(
                     top: height * 0.15,
                     left: width * 0.0,
-                    bottom: width*0.15
+                    bottom: width * 0.15,
                   ),
-                  child: Image.asset('assets/logo.png',alignment: Alignment.center,fit: BoxFit.contain,),
+                  child: Image.asset(
+                    'assets/logo.png',
+                    alignment: Alignment.center,
+                    fit: BoxFit.contain,
+                  ),
                 ),
               ),
               Padding(
@@ -51,7 +56,7 @@ class HomePage extends StatelessWidget {
                     ),
                     color: Colors.white,
                   ),
-                  height: height * 0.7,
+                  height: height * 0.9,
                   width: width,
                   child: SingleChildScrollView(
                     child: Column(
@@ -206,7 +211,12 @@ class HomePage extends StatelessWidget {
                               onPressed: () {
                                 // Handle verify logic
                                 if (viewModel.validateForm()) {
-                                  print("Verified: ${viewModel.otp}");
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => PersonalDetails(),
+                                    ),
+                                  );
                                 } else {
                                   print("Please complete all fields");
                                 }
