@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-import '../model/user_model.dart';
+import 'user_model.dart';
 
 class AuthViewModel extends ChangeNotifier {
-  // The model that holds the data
+  // The data that holds the data
   UserModel _user = UserModel(phoneNumber: '', otp: '', isChecked: false);
 
   // Getters

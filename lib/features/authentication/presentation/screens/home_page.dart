@@ -1,10 +1,9 @@
-import 'package:domus/views/personal_details.dart';
 import 'package:flutter/material.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 import 'package:provider/provider.dart';
 
-import '../view/auth_view_model.dart';
+import '../../domain/view model/auth_view_model.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -208,7 +207,7 @@ class HomePage extends StatelessWidget {
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                               ),
-                              onPressed: () {
+                              onPressed: () {/*
                                 // Handle verify logic
                                 if (viewModel.validateForm()) {
                                   Navigator.push(
@@ -219,7 +218,7 @@ class HomePage extends StatelessWidget {
                                   );
                                 } else {
                                   print("Please complete all fields");
-                                }
+                                }*/
                               },
                               child: const Text(
                                 'VERIFY',
