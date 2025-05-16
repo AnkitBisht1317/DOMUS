@@ -1,9 +1,11 @@
+import 'package:domus/features/authentication/presentation/screens/personal_details.dart';
 import 'package:flutter/material.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 import 'package:provider/provider.dart';
 
 import '../../domain/view model/home_auth_model.dart';
+import '../../domain/view model/personal_auth_model.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -15,7 +17,7 @@ class HomePage extends StatelessWidget {
 
     return Scaffold(
       body: Consumer<AuthViewModel>(
-        builder: (context, viewModel, child) {
+        builder: (context, viewModel, _) {
           return Stack(
             children: [
               Container(
@@ -48,8 +50,8 @@ class HomePage extends StatelessWidget {
               Padding(
                 padding: EdgeInsets.only(top: height * 0.3),
                 child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: const BorderRadius.only(
+                  decoration: const BoxDecoration(
+                    borderRadius: BorderRadius.only(
                       topRight: Radius.circular(30),
                       topLeft: Radius.circular(30),
                     ),
@@ -237,6 +239,24 @@ class HomePage extends StatelessWidget {
                                 bool result = await viewModel.verifyOtp(
                                   context,
                                 );
+                                if (result) {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder:
+                                          (context) => ChangeNotifierProvider(
+                                            create: (_) => PersonalAuthModel(),
+                                            child: const PersonalDetails(),
+                                          ),
+                                    ),
+                                  );
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text("OTP verification failed"),
+                                    ),
+                                  );
+                                }
                               },
                               child: const Text(
                                 'VERIFY',

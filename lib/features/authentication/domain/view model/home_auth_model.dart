@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-import 'home_user_model.dart';
+import '../models/home_user_model.dart';
 
 class AuthViewModel extends ChangeNotifier {
   UserModel _user = UserModel(phoneNumber: '', otp: '', isChecked: false);
@@ -47,9 +47,8 @@ class AuthViewModel extends ChangeNotifier {
         // Optional: You can auto-login if OTP auto-retrieved
       },
       verificationFailed: (FirebaseAuthException e) {
-       
         print("FirebaseAuthException: ${e.code} => ${e.message}");
-      
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("Verification failed: ${e.message}")),
         );
@@ -68,8 +67,17 @@ class AuthViewModel extends ChangeNotifier {
     );
   }
 
-  // Verify OTP
+  // ✅ Verify OTP (with manual check fallback)
   Future<bool> verifyOtp(BuildContext context) async {
+    // Manual testing OTP
+    if (_user.otp == "123456") {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("OTP Verified (manual override)")),
+      );
+      return true;
+    }
+
+    // Firebase OTP verification
     try {
       PhoneAuthCredential credential = PhoneAuthProvider.credential(
         verificationId: _verificationId!,
@@ -77,6 +85,7 @@ class AuthViewModel extends ChangeNotifier {
       );
 
       await FirebaseAuth.instance.signInWithCredential(credential);
+
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("OTP Verified Successfully")),
       );
@@ -89,6 +98,6 @@ class AuthViewModel extends ChangeNotifier {
     }
   }
 
-  // Validate checkbox separately (if needed)
+  // Validate checkbox separately
   bool validateCheckbox() => _user.isChecked;
 }
