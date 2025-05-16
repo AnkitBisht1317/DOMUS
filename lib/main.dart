@@ -1,16 +1,15 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'features/authentication/domain/view model/home_auth_model.dart';
 import 'features/authentication/presentation/screens/home_page.dart';
 
-void main() {
-  runApp(
-    ChangeNotifierProvider(
-      create: (context) => AuthViewModel(),
-      child: const MyApp(),
-    ),
-  );
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(); // Ensure Firebase is initialized before running app
+
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -18,9 +17,12 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: HomePage(),
+    return ChangeNotifierProvider(
+      create: (_) => AuthViewModel(),
+      child: const MaterialApp(
+        debugShowCheckedModeBanner: false,
+        home: HomePage(),
+      ),
     );
   }
 }

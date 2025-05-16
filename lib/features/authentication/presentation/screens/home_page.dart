@@ -24,9 +24,9 @@ class HomePage extends StatelessWidget {
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
-                      Color(0xFF6CA8CB), // Light teal blue first
-                      Color(0xFF022150), // Dark navy blue second
-                      Color(0xFF022150), // Dark navy blue second
+                      Color(0xFF6CA8CB),
+                      Color(0xFF022150),
+                      Color(0xFF022150),
                     ],
                     begin: Alignment.bottomLeft,
                     end: Alignment.centerRight,
@@ -112,16 +112,31 @@ class HomePage extends StatelessWidget {
                             },
                           ),
                         ),
-                        const Align(
-                          alignment: Alignment.centerRight,
-                          child: Padding(
-                            padding: EdgeInsets.only(right: 30, top: 5),
-                            child: Text(
-                              'Get OTP',
-                              style: TextStyle(
-                                color: Colors.blue,
-                                fontSize: 12.5,
-                                fontWeight: FontWeight.w500,
+                        Padding(
+                          padding: const EdgeInsets.only(right: 30, top: 5),
+                          child: Align(
+                            alignment: Alignment.centerRight,
+                            child: GestureDetector(
+                              onTap: () {
+                                if (viewModel.phoneNumber.isNotEmpty) {
+                                  viewModel.sendOtp(context);
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text(
+                                        "Please enter a phone number",
+                                      ),
+                                    ),
+                                  );
+                                }
+                              },
+                              child: const Text(
+                                'Get OTP',
+                                style: TextStyle(
+                                  color: Colors.blue,
+                                  fontSize: 12.5,
+                                  fontWeight: FontWeight.w500,
+                                ),
                               ),
                             ),
                           ),
@@ -207,19 +222,21 @@ class HomePage extends StatelessWidget {
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                               ),
-                              onPressed: () {
-                                /*
-                                // Handle verify logic
-                                if (viewModel.validateForm()) {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => PersonalDetails(),
+                              onPressed: () async {
+                                if (!viewModel.validateCheckbox()) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text(
+                                        "Please accept terms and conditions",
+                                      ),
                                     ),
                                   );
-                                } else {
-                                  print("Please complete all fields");
-                                }*/
+                                  return;
+                                }
+
+                                bool result = await viewModel.verifyOtp(
+                                  context,
+                                );
                               },
                               child: const Text(
                                 'VERIFY',
@@ -233,6 +250,7 @@ class HomePage extends StatelessWidget {
                             ),
                           ),
                         ),
+                        const SizedBox(height: 20),
                       ],
                     ),
                   ),

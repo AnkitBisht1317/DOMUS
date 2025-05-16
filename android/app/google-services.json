@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "333881953865",
+    "project_id": "domus-46d89",
+    "storage_bucket": "domus-46d89.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:333881953865:android:6d9633a2c19f45e3273998",
+        "android_client_info": {
+          "package_name": "com.example.domus"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBI935auCstDdquTg5bnYyIReXCbMUSbII"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
