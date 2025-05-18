@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-
 import '../models/personal_user_model.dart';
+import '../repositories/user_repository.dart';
 
 class PersonalAuthModel extends ChangeNotifier {
   final formKey = GlobalKey<FormState>();
+  final UserRepository _userRepository;
 
   final fullNameController = TextEditingController();
   final phoneController = TextEditingController();
@@ -14,6 +15,12 @@ class PersonalAuthModel extends ChangeNotifier {
 
   String selectedGender = 'Other';
   String selectedCountry = 'India';
+  bool isPhoneEditable = false;
+  bool isSaving = false;
+  String? error;
+
+  PersonalAuthModel({required UserRepository userRepository}) 
+      : _userRepository = userRepository;
 
   void setGender(String value) {
     selectedGender = value;
@@ -25,6 +32,11 @@ class PersonalAuthModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  void togglePhoneEditable() {
+    isPhoneEditable = !isPhoneEditable;
+    notifyListeners();
+  }
+
   void setDOB(String dob) {
     dobController.text = dob;
     notifyListeners();
@@ -32,6 +44,27 @@ class PersonalAuthModel extends ChangeNotifier {
 
   bool validateAndSave() {
     return formKey.currentState?.validate() ?? false;
+  }
+
+  Future<bool> saveUserDetails() async {
+    if (!validateAndSave()) return false;
+    
+    try {
+      isSaving = true;
+      error = null;
+      notifyListeners();
+
+      final userDetails = collectUserDetails();
+      await _userRepository.saveUserDetails(userDetails);
+      
+      return true;
+    } catch (e) {
+      error = e.toString();
+      return false;
+    } finally {
+      isSaving = false;
+      notifyListeners();
+    }
   }
 
   UserDetails collectUserDetails() {

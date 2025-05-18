@@ -44,7 +44,7 @@ class PersonalDetails extends StatelessWidget {
                       Align(
                         alignment: Alignment.centerRight,
                         child: TextButton(
-                          onPressed: () {},
+                          onPressed: () => viewModel.togglePhoneEditable(),
                           child: Text(
                             'Change Mobile no.',
                             style: TextStyle(fontSize: width * 0.035),
@@ -53,6 +53,8 @@ class PersonalDetails extends StatelessWidget {
                       ),
                       IntlPhoneField(
                         initialCountryCode: 'IN',
+                        enabled: viewModel.isPhoneEditable,
+                        initialValue: viewModel.phoneController.text,
                         decoration: InputDecoration(
                           hintText: 'Enter Mobile Number',
                           counterText: '',
@@ -166,16 +168,32 @@ class PersonalDetails extends StatelessWidget {
                               borderRadius: BorderRadius.circular(10),
                             ),
                           ),
-                          onPressed: () {
-                            if (viewModel.validateAndSave()) {
-                              final data = viewModel.collectUserDetails();
-                              // Pass to next screen or use
-                            }
-                          },
-                          child: Text(
-                            'NEXT',
-                            style: TextStyle(fontSize: width * 0.045),
-                          ),
+                          onPressed: viewModel.isSaving 
+                              ? null 
+                              : () async {
+                                  if (await viewModel.saveUserDetails()) {
+                                    // Navigate to next screen or show success
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text('Details saved successfully!'),
+                                        backgroundColor: Colors.green,
+                                      ),
+                                    );
+                                  } else if (viewModel.error != null) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(viewModel.error!),
+                                        backgroundColor: Colors.red,
+                                      ),
+                                    );
+                                  }
+                                },
+                          child: viewModel.isSaving
+                              ? const CircularProgressIndicator(color: Colors.white)
+                              : Text(
+                                  'NEXT',
+                                  style: TextStyle(fontSize: width * 0.045, color: Colors.white),
+                                ),
                         ),
                       ),
                     ],
@@ -212,27 +230,45 @@ class PersonalDetails extends StatelessWidget {
   }
 
   Widget _buildHeaderRow(double width) {
-    return Center(
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // ******************** avtar ka code ye hai ************************
-          CircleAvatar(
-            radius: width * 0.08,
-            backgroundColor: const Color(0xFF022150),
-            // ************************ ye change hoga agr male huaa to male ki photo wrna female *****************************
-            child: Icon(Icons.person, size: width * 0.1, color: Colors.white),
-          ),
-          SizedBox(width: width * 0.04),
-          Text(
-            'Personal Details',
-            style: TextStyle(
-              color: const Color(0xFF022150),
-              fontSize: width * 0.06,
-              fontWeight: FontWeight.bold,
+    return Consumer<PersonalAuthModel>(
+      builder: (context, viewModel, _) => Center(
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CircleAvatar(
+              radius: width * 0.08,
+              backgroundColor: const Color(0xFF022150),
+              child: viewModel.selectedGender == 'Male'
+                  ? ClipOval(
+                      child: Image.asset(
+                        'assets/male.png',
+                        width: width * 0.16,
+                        height: width * 0.16,
+                        fit: BoxFit.cover,
+                      ),
+                    )
+                  : viewModel.selectedGender == 'Female'
+                      ? ClipOval(
+                          child: Image.asset(
+                            'assets/female.png',
+                            width: width * 0.16,
+                            height: width * 0.16,
+                            fit: BoxFit.cover,
+                          ),
+                        )
+                      : Icon(Icons.person, size: width * 0.1, color: Colors.white),
             ),
-          ),
-        ],
+            SizedBox(width: width * 0.04),
+            Text(
+              'Personal Details',
+              style: TextStyle(
+                color: const Color(0xFF022150),
+                fontSize: width * 0.06,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -250,7 +286,7 @@ class PersonalDetails extends StatelessWidget {
       ),
       child: Center(
         child: Padding(
-          padding: EdgeInsets.only(top: height * 0.1),
+          padding: EdgeInsets.only(top: height * 0.1,bottom: height*0.1),
           child: Image.asset(
             'assets/logo.png',
             alignment: Alignment.center,

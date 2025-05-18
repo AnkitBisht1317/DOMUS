@@ -4,12 +4,20 @@ import 'package:provider/provider.dart';
 
 import 'features/authentication/domain/view model/home_auth_model.dart';
 import 'features/authentication/presentation/screens/home_page.dart';
+import 'firebase_options.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(); // Ensure Firebase is initialized before running app
-
-  runApp(const MyApp());
+  try {
+    WidgetsFlutterBinding.ensureInitialized();
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+    runApp(const MyApp());
+  } catch (e) {
+    print('Error initializing Firebase: $e');
+    // Still run the app, but it will be in a degraded state
+    runApp(const MyApp());
+  }
 }
 
 class MyApp extends StatelessWidget {

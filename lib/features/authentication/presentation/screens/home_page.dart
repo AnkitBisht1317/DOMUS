@@ -6,6 +6,8 @@ import 'package:provider/provider.dart';
 
 import '../../domain/view model/home_auth_model.dart';
 import '../../domain/view model/personal_auth_model.dart';
+import '../../domain/repositories/user_repository.dart';
+import '../../data/repositories/user_repository_impl.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -243,11 +245,19 @@ class HomePage extends StatelessWidget {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder:
-                                          (context) => ChangeNotifierProvider(
-                                            create: (_) => PersonalAuthModel(),
-                                            child: const PersonalDetails(),
+                                      builder: (context) => MultiProvider(
+                                        providers: [
+                                          Provider<UserRepository>(
+                                            create: (_) => UserRepositoryImpl(),
                                           ),
+                                          ChangeNotifierProvider<PersonalAuthModel>(
+                                            create: (context) => PersonalAuthModel(
+                                              userRepository: context.read<UserRepository>(),
+                                            )..phoneController.text = viewModel.phoneNumber,
+                                          ),
+                                        ],
+                                        child: const PersonalDetails(),
+                                      ),
                                     ),
                                   );
                                 } else {
