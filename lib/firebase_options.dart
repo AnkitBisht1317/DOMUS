@@ -50,19 +50,19 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyD-t_kI1WqhNcqsYGYOcMegHHJ-mBeWp6U',
-    appId: '1:463757095392:android:73126a8647bb4894403b85',
-    messagingSenderId: '463757095392',
-    projectId: 'domus-53e21',
-    storageBucket: 'domus-53e21.firebasestorage.app',
+    apiKey: 'AIzaSyCiZvjMkDh6Ncieeo7O4JEZ_OgH9DQMQLI',
+    appId: '1:352094025897:android:fa036a8952248f01f251b8',
+    messagingSenderId: '352094025897',
+    projectId: 'domus-6cc15',
+    storageBucket: 'domus-6cc15.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyC2b6jEK0l1BnjE7jWAguvKEKuziW7ogbc',
-    appId: '1:463757095392:ios:98eecf8128e821e2403b85',
-    messagingSenderId: '463757095392',
-    projectId: 'domus-53e21',
-    storageBucket: 'domus-53e21.firebasestorage.app',
+    apiKey: 'AIzaSyDyce8au_A0VHcYWxclmMcgAh8H_lJM50Q',
+    appId: '1:352094025897:ios:1678bbb9385b20c0f251b8',
+    messagingSenderId: '352094025897',
+    projectId: 'domus-6cc15',
+    storageBucket: 'domus-6cc15.firebasestorage.app',
     iosBundleId: 'com.example.domus',
   );
 }

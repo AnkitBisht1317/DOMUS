@@ -1,4 +1,6 @@
 import 'package:domus/features/authentication/domain/view%20model/personal_auth_model.dart';
+import 'package:domus/features/authentication/domain/view%20model/select_auth_model.dart';
+import 'package:domus/features/authentication/presentation/screens/select_option.dart';
 import 'package:flutter/material.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:provider/provider.dart';
@@ -40,7 +42,9 @@ class PersonalDetails extends StatelessWidget {
                         'Enter Your Full Name',
                         controller: viewModel.fullNameController,
                       ),
-                      SizedBox(height: height * 0.007), // in box ka size reduced kr dena
+                      SizedBox(
+                        height: height * 0.0005,
+                      ), // in box ka size reduced kr dena
                       Align(
                         alignment: Alignment.centerRight,
                         child: TextButton(
@@ -116,7 +120,9 @@ class PersonalDetails extends StatelessWidget {
                       ),
                       SizedBox(height: height * 0.012),
                       DropdownButtonFormField<String>(
-                        value: viewModel.selectedCountry, // select contry ka dropdown mene manully bnaya hai ye agr kise or method se hoga thik hai wrna rhn dena
+                        value:
+                            viewModel
+                                .selectedCountry, // select contry ka dropdown mene manully bnaya hai ye agr kise or method se hoga thik hai wrna rhn dena
                         onChanged: (val) => viewModel.setCountry(val!),
                         decoration: _inputDecoration(
                           hint: 'Select Your Country',
@@ -168,32 +174,58 @@ class PersonalDetails extends StatelessWidget {
                               borderRadius: BorderRadius.circular(10),
                             ),
                           ),
-                          onPressed: viewModel.isSaving 
-                              ? null 
-                              : () async {
-                                  if (await viewModel.saveUserDetails()) {
-                                    // Navigate to next screen or show success
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text('Details saved successfully!'),
-                                        backgroundColor: Colors.green,
-                                      ),
-                                    );
-                                  } else if (viewModel.error != null) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text(viewModel.error!),
-                                        backgroundColor: Colors.red,
-                                      ),
-                                    );
-                                  }
-                                },
-                          child: viewModel.isSaving
-                              ? const CircularProgressIndicator(color: Colors.white)
-                              : Text(
-                                  'NEXT',
-                                  style: TextStyle(fontSize: width * 0.045, color: Colors.white),
-                                ),
+                          onPressed:
+                              viewModel.isSaving
+                                  ? null
+                                  : () async {
+                                    if (await viewModel.saveUserDetails()) {
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
+                                        const SnackBar(
+                                          content: Text(
+                                            'Details saved successfully!',
+                                          ),
+                                          backgroundColor: Colors.green,
+                                        ),
+                                      );
+                                      // Navigate to the next page
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder:
+                                              (context) =>
+                                                  ChangeNotifierProvider(
+                                                    create:
+                                                        (_) =>
+                                                            SelectAuthModel(),
+                                                    child: const SelectOption(),
+                                                  ),
+                                        ),
+                                      );
+                                    } else if (viewModel.error != null) {
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
+                                        SnackBar(
+                                          content: Text(viewModel.error!),
+                                          backgroundColor: Colors.red,
+                                        ),
+                                      );
+                                    }
+                                  },
+                          child:
+                              viewModel.isSaving
+                                  ? const CircularProgressIndicator(
+                                    color: Colors.white,
+                                  )
+                                  : Text(
+                                    'NEXT',
+                                    style: TextStyle(
+                                      fontSize: width * 0.045,
+                                      color: Colors.white,
+                                    ),
+                                  ),
                         ),
                       ),
                     ],
@@ -231,45 +263,51 @@ class PersonalDetails extends StatelessWidget {
 
   Widget _buildHeaderRow(double width) {
     return Consumer<PersonalAuthModel>(
-      builder: (context, viewModel, _) => Center(
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            CircleAvatar(
-              radius: width * 0.08,
-              backgroundColor: const Color(0xFF022150),
-              child: viewModel.selectedGender == 'Male'
-                  ? ClipOval(
-                      child: Image.asset(
-                        'assets/male.png',
-                        width: width * 0.16,
-                        height: width * 0.16,
-                        fit: BoxFit.cover,
-                      ),
-                    )
-                  : viewModel.selectedGender == 'Female'
-                      ? ClipOval(
-                          child: Image.asset(
-                            'assets/female.png',
-                            width: width * 0.16,
-                            height: width * 0.16,
-                            fit: BoxFit.cover,
+      builder:
+          (context, viewModel, _) => Center(
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CircleAvatar(
+                  radius: width * 0.08,
+                  backgroundColor: const Color(0xFF022150),
+                  child:
+                      viewModel.selectedGender == 'Male'
+                          ? ClipOval(
+                            child: Image.asset(
+                              'assets/male.png',
+                              width: width * 0.16,
+                              height: width * 0.16,
+                              fit: BoxFit.cover,
+                            ),
+                          )
+                          : viewModel.selectedGender == 'Female'
+                          ? ClipOval(
+                            child: Image.asset(
+                              'assets/female.png',
+                              width: width * 0.16,
+                              height: width * 0.16,
+                              fit: BoxFit.cover,
+                            ),
+                          )
+                          : Icon(
+                            Icons.person,
+                            size: width * 0.1,
+                            color: Colors.white,
                           ),
-                        )
-                      : Icon(Icons.person, size: width * 0.1, color: Colors.white),
+                ),
+                SizedBox(width: width * 0.04),
+                Text(
+                  'Personal Details',
+                  style: TextStyle(
+                    color: const Color(0xFF022150),
+                    fontSize: width * 0.06,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
             ),
-            SizedBox(width: width * 0.04),
-            Text(
-              'Personal Details',
-              style: TextStyle(
-                color: const Color(0xFF022150),
-                fontSize: width * 0.06,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
-        ),
-      ),
+          ),
     );
   }
 
@@ -286,7 +324,7 @@ class PersonalDetails extends StatelessWidget {
       ),
       child: Center(
         child: Padding(
-          padding: EdgeInsets.only(top: height * 0.1,bottom: height*0.1),
+          padding: EdgeInsets.only(top: height * 0.1, bottom: height * 0.1),
           child: Image.asset(
             'assets/logo.png',
             alignment: Alignment.center,
