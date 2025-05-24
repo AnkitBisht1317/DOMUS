@@ -193,14 +193,12 @@ class PersonalDetails extends StatelessWidget {
                                       Navigator.push(
                                         context,
                                         MaterialPageRoute(
-                                          builder:
-                                              (context) =>
-                                                  ChangeNotifierProvider(
-                                                    create:
-                                                        (_) =>
-                                                            SelectAuthModel(),
-                                                    child: const SelectOption(),
-                                                  ),
+                                          builder: (context) => ChangeNotifierProvider(
+                                            create: (_) => SelectAuthModel(),
+                                            child: SelectOption(
+                                              gender: viewModel.selectedGender,
+                                            ),
+                                          ),
                                         ),
                                       );
                                     } else if (viewModel.error != null) {

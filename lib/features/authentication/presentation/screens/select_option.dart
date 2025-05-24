@@ -3,11 +3,16 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class SelectOption extends StatelessWidget {
-  const SelectOption({super.key});
+  final String gender;
+  
+  const SelectOption({
+    super.key,
+    required this.gender,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final viewModel = Provider.of<SelectAuthModel>(context);
+    final viewModel = Provider.of<SelectAuthModel>(context)..setGender(gender);
     final width = MediaQuery.of(context).size.width;
     final height = MediaQuery.of(context).size.height;
 
@@ -108,32 +113,49 @@ class SelectOption extends StatelessWidget {
 
   Widget _buildHeaderRow(double width) {
     return Consumer<SelectAuthModel>(
-      builder:
-          (context, viewModel, _) => Center(
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                CircleAvatar(
-                  radius: width * 0.08,
-                  backgroundColor: const Color(0xFF022150),
-                  child: Icon(
-                    Icons.person,
-                    size: width * 0.1,
-                    color: Colors.white,
-                  ),
-                ),
-                SizedBox(width: width * 0.04),
-                Text(
-                  'Personal Details',
-                  style: TextStyle(
-                    color: const Color(0xFF022150),
-                    fontSize: width * 0.06,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
+      builder: (context, viewModel, _) => Center(
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CircleAvatar(
+              radius: width * 0.08,
+              backgroundColor: const Color(0xFF022150),
+              child: viewModel.gender == 'Male'
+                  ? ClipOval(
+                      child: Image.asset(
+                        'assets/male.png',
+                        width: width * 0.16,
+                        height: width * 0.16,
+                        fit: BoxFit.cover,
+                      ),
+                    )
+                  : viewModel.gender == 'Female'
+                      ? ClipOval(
+                          child: Image.asset(
+                            'assets/female.png',
+                            width: width * 0.16,
+                            height: width * 0.16,
+                            fit: BoxFit.cover,
+                          ),
+                        )
+                      : Icon(
+                          Icons.person,
+                          size: width * 0.1,
+                          color: Colors.white,
+                        ),
             ),
-          ),
+            SizedBox(width: width * 0.04),
+            Text(
+              'Personal Details',
+              style: TextStyle(
+                color: const Color(0xFF022150),
+                fontSize: width * 0.06,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
