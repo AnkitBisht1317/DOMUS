@@ -1,13 +1,20 @@
 import 'package:domus/features/authentication/domain/view%20model/select_auth_model.dart';
+import 'package:domus/features/authentication/presentation/screens/professional_details.dart';
+import 'package:domus/features/authentication/presentation/screens/students_details.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../domain/view model/student_auth_model.dart';
+import '../../domain/repositories/user_repository.dart';
+import '../../data/repositories/user_repository_impl.dart';
 
 class SelectOption extends StatelessWidget {
   final String gender;
+  final String phoneNumber;
   
   const SelectOption({
     super.key,
     required this.gender,
+    required this.phoneNumber,
   });
 
   @override
@@ -80,16 +87,32 @@ class SelectOption extends StatelessWidget {
                               ),
                             );
                           } else {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  '${viewModel.userType == 'student' ? "Medical Student" : "Medical Professional"} selected',
-                                ),
-                                backgroundColor: Colors.green,
+                            // Navigate based on user type
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => viewModel.userType == 'student'
+                                    ? MultiProvider(
+                                        providers: [
+                                          Provider<UserRepository>(
+                                            create: (_) => UserRepositoryImpl(),
+                                          ),
+                                          ChangeNotifierProxyProvider<UserRepository, StudentAuthModel>(
+                                            create: (context) => StudentAuthModel(
+                                              userRepository: context.read<UserRepository>(),
+                                            ),
+                                            update: (context, repository, previous) =>
+                                                previous ?? StudentAuthModel(userRepository: repository),
+                                          ),
+                                        ],
+                                        child: StudentDetails(
+                                          gender: gender,
+                                          phoneNumber: phoneNumber,
+                                        ),
+                                      )
+                                    : ProfessionalDetails(gender: gender),
                               ),
                             );
-
-                            // TODO: Navigate to the next screen
                           }
                         },
                         child: Text(

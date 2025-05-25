@@ -17,7 +17,6 @@ class PersonalDetails extends StatelessWidget {
     return Scaffold(
       body: Stack(
         children: [
-          // ********************* avtar or personal details ka or white blue container ka code last me hai ***************************
           _buildHeader(height, width),
           Padding(
             padding: EdgeInsets.only(top: height * 0.3),
@@ -65,12 +64,32 @@ class PersonalDetails extends StatelessWidget {
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),
+                          suffixIcon: viewModel.isLoading 
+                              ? const SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
+                                )
+                              : null,
                         ),
                         onChanged:
                             (phone) =>
                                 viewModel.phoneController.text =
                                     phone.completeNumber,
                       ),
+                      if (viewModel.error != null)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 8.0),
+                          child: Text(
+                            viewModel.error!,
+                            style: const TextStyle(
+                              color: Colors.red,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ),
                       SizedBox(height: height * 0.012),
                       _buildTextField(
                         'Email Address',
@@ -196,6 +215,7 @@ class PersonalDetails extends StatelessWidget {
                                           builder: (context) => ChangeNotifierProvider(
                                             create: (_) => SelectAuthModel(),
                                             child: SelectOption(
+                                              phoneNumber: viewModel.phoneController.text,
                                               gender: viewModel.selectedGender,
                                             ),
                                           ),

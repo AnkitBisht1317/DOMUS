@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../domain/models/personal_user_model.dart';
+import '../../domain/models/student_academic_details.dart';
 import '../../domain/repositories/user_repository.dart';
 
 class UserRepositoryImpl implements UserRepository {
@@ -11,7 +12,19 @@ class UserRepositoryImpl implements UserRepository {
   @override
   Future<void> saveUserDetails(UserDetails userDetails) async {
     try {
+      // First create/update the main user document with just the phone number
       await _firestore.collection('users').doc(userDetails.phoneNumber).set({
+        'phoneNumber': userDetails.phoneNumber,
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+
+      // Update the personal details document with a fixed ID 'current'
+      await _firestore
+          .collection('users')
+          .doc(userDetails.phoneNumber)
+          .collection('personalDetails')
+          .doc('current')  // Using a fixed document ID
+          .set({          // Using set instead of add
         'fullName': userDetails.fullName,
         'phoneNumber': userDetails.phoneNumber,
         'email': userDetails.email,
@@ -20,7 +33,7 @@ class UserRepositoryImpl implements UserRepository {
         'country': userDetails.country,
         'domicileState': userDetails.domicileState,
         'district': userDetails.district,
-        'createdAt': FieldValue.serverTimestamp(),
+        'lastUpdated': FieldValue.serverTimestamp(),
       });
     } catch (e) {
       throw Exception('Failed to save user details: $e');
@@ -30,10 +43,17 @@ class UserRepositoryImpl implements UserRepository {
   @override
   Future<UserDetails?> getUserDetails(String phoneNumber) async {
     try {
-      final doc = await _firestore.collection('users').doc(phoneNumber).get();
-      if (!doc.exists) return null;
+      // Get the current personal details document
+      final docSnapshot = await _firestore
+          .collection('users')
+          .doc(phoneNumber)
+          .collection('personalDetails')
+          .doc('current')
+          .get();
+
+      if (!docSnapshot.exists) return null;
       
-      final data = doc.data()!;
+      final data = docSnapshot.data()!;
       return UserDetails(
         fullName: data['fullName'] as String,
         phoneNumber: data['phoneNumber'] as String,
@@ -46,6 +66,24 @@ class UserRepositoryImpl implements UserRepository {
       );
     } catch (e) {
       throw Exception('Failed to get user details: $e');
+    }
+  }
+
+  @override
+  Future<void> saveAcademicDetails(String phoneNumber, StudentAcademicDetails academicDetails) async {
+    try {
+      // Update the academic details document with a fixed ID 'current'
+      await _firestore
+          .collection('users')
+          .doc(phoneNumber)
+          .collection('academicDetails')
+          .doc('current')  // Using a fixed document ID
+          .set({          // Using set instead of add
+        ...academicDetails.toMap(),
+        'lastUpdated': FieldValue.serverTimestamp(),
+      });
+    } catch (e) {
+      throw Exception('Failed to save academic details: $e');
     }
   }
 } 
