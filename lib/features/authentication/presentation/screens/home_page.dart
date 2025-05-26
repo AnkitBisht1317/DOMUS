@@ -1,8 +1,10 @@
 import 'package:domus/features/authentication/presentation/screens/personal_details.dart';
+import 'package:domus/features/authentication/presentation/screens/welcome_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 import 'package:provider/provider.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../../domain/view model/home_auth_model.dart';
 import '../../domain/view model/personal_auth_model.dart';
@@ -11,6 +13,26 @@ import '../../data/repositories/user_repository_impl.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
+
+  // Check if user data exists in Firestore
+  Future<Map<String, dynamic>?> _checkExistingUserData(String phoneNumber) async {
+    try {
+      final docSnapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(phoneNumber)
+          .collection('personalDetails')
+          .doc('current')
+          .get();
+
+      if (docSnapshot.exists && docSnapshot.data() != null) {
+        return docSnapshot.data();
+      }
+      return null;
+    } catch (e) {
+      print('Error checking user data: $e');
+      return null;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -238,28 +260,45 @@ class HomePage extends StatelessWidget {
                                   return;
                                 }
 
-                                bool result = await viewModel.verifyOtp(
-                                  context,
-                                );
+                                bool result = await viewModel.verifyOtp(context);
                                 if (result) {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => MultiProvider(
-                                        providers: [
-                                          Provider<UserRepository>(
-                                            create: (_) => UserRepositoryImpl(),
-                                          ),
-                                          ChangeNotifierProvider<PersonalAuthModel>(
-                                            create: (context) => PersonalAuthModel(
-                                              userRepository: context.read<UserRepository>(),
-                                            )..phoneController.text = viewModel.phoneNumber,
-                                          ),
-                                        ],
-                                        child: const PersonalDetails(),
+                                  // Check if user data exists
+                                  final userData = await _checkExistingUserData(viewModel.phoneNumber);
+                                  
+                                  if (userData != null) {
+                                    // User exists, navigate directly to WelcomeScreen
+                                    if (!context.mounted) return;
+                                    Navigator.pushReplacement(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => WelcomeScreen(
+                                          fullName: userData['fullName'] as String,
+                                          gender: userData['gender'] as String,
+                                        ),
                                       ),
-                                    ),
-                                  );
+                                    );
+                                  } else {
+                                    // New user, go to PersonalDetails
+                                    if (!context.mounted) return;
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => MultiProvider(
+                                          providers: [
+                                            Provider<UserRepository>(
+                                              create: (_) => UserRepositoryImpl(),
+                                            ),
+                                            ChangeNotifierProvider<PersonalAuthModel>(
+                                              create: (context) => PersonalAuthModel(
+                                                userRepository: context.read<UserRepository>(),
+                                              )..phoneController.text = viewModel.phoneNumber,
+                                            ),
+                                          ],
+                                          child: const PersonalDetails(),
+                                        ),
+                                      ),
+                                    );
+                                  }
                                 } else {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     const SnackBar(

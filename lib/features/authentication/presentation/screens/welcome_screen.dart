@@ -3,11 +3,19 @@ import 'package:domus/features/authentication/presentation/screens/professional_
 import 'package:domus/features/authentication/presentation/screens/students_details.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import '../../domain/view model/personal_auth_model.dart';
 import '../../domain/view model/student_auth_model.dart';
 import '../../domain/repositories/user_repository.dart';
 import '../../data/repositories/user_repository_impl.dart';
+import 'package:domus/features/home/presentation/screens/home_screen.dart';
+import 'package:domus/features/home/domain/view_models/home_view_model.dart';
+import 'package:domus/features/home/domain/repositories/home_repository.dart';
+import 'package:domus/features/home/data/repositories/home_repository_impl.dart';
+import 'package:domus/features/authentication/presentation/screens/personal_details.dart';
 
-class WelcomeScreen extends StatelessWidget {
+class WelcomeScreen extends StatefulWidget {
   final String fullName;
   final String gender;
 
@@ -16,6 +24,36 @@ class WelcomeScreen extends StatelessWidget {
     required this.fullName,
     required this.gender,
   });
+
+  @override
+  State<WelcomeScreen> createState() => _WelcomeScreenState();
+}
+
+class _WelcomeScreenState extends State<WelcomeScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // Navigate to HomeScreen after 3.5 seconds
+    Future.delayed(const Duration(milliseconds: 3500), () {
+      if (mounted) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (context) => MultiProvider(
+              providers: [
+                Provider<HomeRepository>(
+                  create: (_) => HomeRepositoryImpl(),
+                ),
+                ChangeNotifierProvider(
+                  create: (context) => HomeViewModel(context.read<HomeRepository>()),
+                ),
+              ],
+              child: const HomeScreen(),
+            ),
+          ),
+        );
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +79,7 @@ class WelcomeScreen extends StatelessWidget {
                     bottom: 0,
                     left: 0,
                     child: Image.asset(
-                      gender == 'Female' 
+                      widget.gender == 'Female' 
                           ? 'assets/girl_doctor.png'
                           : 'assets/boy_doctor.png',
                       height: height * 0.4,
@@ -87,7 +125,7 @@ class WelcomeScreen extends StatelessWidget {
                                 ),
                               ),
                               Text(
-                                fullName,
+                                widget.fullName,
                                 style: TextStyle(
                                   fontSize: width * 0.06,
                                   fontWeight: FontWeight.w500,

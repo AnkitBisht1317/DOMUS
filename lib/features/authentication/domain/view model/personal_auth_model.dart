@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../models/personal_user_model.dart';
 import '../repositories/user_repository.dart';
 
 class PersonalAuthModel extends ChangeNotifier {
   final formKey = GlobalKey<FormState>();
   final UserRepository _userRepository;
+  final FirebaseAuth _auth;
 
   final fullNameController = TextEditingController();
   final phoneController = TextEditingController();
@@ -20,19 +22,23 @@ class PersonalAuthModel extends ChangeNotifier {
   String? error;
   bool isLoading = false;
 
-  PersonalAuthModel({required UserRepository userRepository}) 
-      : _userRepository = userRepository {
-    // Listen to phone number changes
-    phoneController.addListener(_onPhoneNumberChanged);
-  }
-
-  void _onPhoneNumberChanged() {
-    if (phoneController.text.length >= 10) {
+  PersonalAuthModel({
+    required UserRepository userRepository,
+    FirebaseAuth? auth,
+  }) : _userRepository = userRepository,
+       _auth = auth ?? FirebaseAuth.instance {
+    // Initialize phone number from Firebase Auth
+    final user = _auth.currentUser;
+    if (user?.phoneNumber != null) {
+      phoneController.text = user!.phoneNumber!;
+      // Fetch user details if phone number exists
       fetchUserDetails();
     }
   }
 
   Future<void> fetchUserDetails() async {
+    if (_auth.currentUser == null) return;
+
     try {
       isLoading = true;
       error = null;
@@ -69,18 +75,12 @@ class PersonalAuthModel extends ChangeNotifier {
   }
 
   void togglePhoneEditable() {
-    isPhoneEditable = !isPhoneEditable;
-    if (isPhoneEditable) {
-      // Clear all fields when phone becomes editable
-      fullNameController.clear();
-      emailController.clear();
-      dobController.clear();
-      domicileStateController.clear();
-      districtController.clear();
-      selectedGender = 'Other';
-      selectedCountry = 'India';
-    }
-    notifyListeners();
+    // Phone number should not be editable as it comes from Firebase Auth
+    ScaffoldMessenger.of(formKey.currentContext!).showSnackBar(
+      const SnackBar(
+        content: Text('Phone number cannot be changed here. Please sign out and sign in with a different number.'),
+      ),
+    );
   }
 
   void setDOB(String dob) {
@@ -89,6 +89,11 @@ class PersonalAuthModel extends ChangeNotifier {
   }
 
   bool validateAndSave() {
+    if (_auth.currentUser == null) {
+      error = 'No authenticated user found';
+      notifyListeners();
+      return false;
+    }
     return formKey.currentState?.validate() ?? false;
   }
 
@@ -128,7 +133,6 @@ class PersonalAuthModel extends ChangeNotifier {
 
   @override
   void dispose() {
-    phoneController.removeListener(_onPhoneNumberChanged);
     fullNameController.dispose();
     phoneController.dispose();
     emailController.dispose();
