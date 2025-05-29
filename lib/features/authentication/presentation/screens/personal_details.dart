@@ -217,6 +217,7 @@ class PersonalDetails extends StatelessWidget {
                                             child: SelectOption(
                                               phoneNumber: viewModel.phoneController.text,
                                               gender: viewModel.selectedGender,
+                                              fullname: viewModel.fullNameController.text,
                                             ),
                                           ),
                                         ),

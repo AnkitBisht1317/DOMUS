@@ -5,6 +5,7 @@ import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 import 'package:provider/provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 import '../../domain/view model/home_auth_model.dart';
 import '../../domain/view model/personal_auth_model.dart';
@@ -262,8 +263,25 @@ class HomePage extends StatelessWidget {
 
                                 bool result = await viewModel.verifyOtp(context);
                                 if (result) {
+                                  // Show loading indicator while checking user data
+                                  if (!context.mounted) return;
+                                  showDialog(
+                                    context: context,
+                                    barrierDismissible: false,
+                                    builder: (context) => const Center(
+                                      child: SpinKitPouringHourGlassRefined(
+                                        color: Color(0xFF022150),
+                                        size: 50.0,
+                                      ),
+                                    ),
+                                  );
+                                  
                                   // Check if user data exists
                                   final userData = await _checkExistingUserData(viewModel.phoneNumber);
+                                  
+                                  // Close loading dialog
+                                  if (!context.mounted) return;
+                                  Navigator.pop(context);
                                   
                                   if (userData != null) {
                                     // User exists, navigate directly to WelcomeScreen

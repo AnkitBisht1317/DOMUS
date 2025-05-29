@@ -1,5 +1,5 @@
 import 'package:domus/features/authentication/domain/view%20model/select_auth_model.dart';
-import 'package:domus/features/authentication/presentation/screens/professional_details.dart';
+import 'package:domus/features/authentication/presentation/screens/professional_details_designation.dart';
 import 'package:domus/features/authentication/presentation/screens/students_details.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -10,11 +10,13 @@ import '../../data/repositories/user_repository_impl.dart';
 class SelectOption extends StatelessWidget {
   final String gender;
   final String phoneNumber;
+  final String fullname;
   
   const SelectOption({
     super.key,
     required this.gender,
     required this.phoneNumber,
+    required this.fullname
   });
 
   @override
@@ -110,7 +112,7 @@ class SelectOption extends StatelessWidget {
                                           phoneNumber: phoneNumber,
                                         ),
                                       )
-                                    : ProfessionalDetails(gender: gender),
+                                    : ProfessionalDetails(gender: gender,fullName: fullname, mobileNumber: phoneNumber),
                               ),
                             );
                           }

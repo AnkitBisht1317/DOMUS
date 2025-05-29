@@ -28,7 +28,26 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+    _configureSystemUI();
     _initializeCards();
+  }
+
+  void _configureSystemUI() {
+    // Set the status bar and navigation bar to be transparent
+    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarBrightness: Brightness.dark,
+      statusBarIconBrightness: Brightness.light,
+      systemNavigationBarColor: Colors.transparent,
+      systemNavigationBarDividerColor: Colors.transparent,
+      systemNavigationBarIconBrightness: Brightness.light,
+    ));
+
+    // Enable edge-to-edge mode
+    SystemChrome.setEnabledSystemUIMode(
+      SystemUiMode.edgeToEdge,
+      overlays: [SystemUiOverlay.top],
+    );
   }
 
   void _initializeCards() {
@@ -242,12 +261,6 @@ class _HomeScreenState extends State<HomeScreen> {
     final width = MediaQuery.of(context).size.width;
     final height = MediaQuery.of(context).size.height;
 
-    // Set status bar color to match app theme
-    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-      statusBarColor: Color(0xFF001F54), // Same as the app's blue background
-      statusBarIconBrightness: Brightness.light, // White icons
-    ));
-
     // List of book items with their details
     List<Book> bookItems = [
       Book(
@@ -302,23 +315,56 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     ];
 
-    return Scaffold(
-      backgroundColor: const Color(0xFFF8F8F8),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Stack(
-            children: [
-              // Background blue layer
-              Container(height: 300, color: const Color(0xFF001F54)),
-              Column(
-                children: [
-                  _buildTopBar(),
-                  _buildHeroBanner(),
-                  _buildMainContent(bookItems),
-                ],
-              ),
-            ],
+    return Theme(
+      data: ThemeData(
+        useMaterial3: true,
+        brightness: Brightness.light,
+        appBarTheme: const AppBarTheme(
+          systemOverlayStyle: SystemUiOverlayStyle(
+            statusBarColor: Colors.transparent,
+            statusBarBrightness: Brightness.dark,
+            statusBarIconBrightness: Brightness.light,
           ),
+        ),
+      ),
+      child: Scaffold(
+        backgroundColor: const Color(0xFFF8F8F8),
+        extendBodyBehindAppBar: true,
+        extendBody: true,
+        body: Stack(
+          children: [
+            // Background blue gradient that extends behind the status bar
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              height: height * 0.35,
+              child: Container(
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      Color(0xFF022150),
+                      Color(0xFF022150),
+                      Color(0xFF022150),
+                    ],
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                  ),
+                ),
+              ),
+            ),
+            SafeArea(
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    _buildTopBar(),
+                    _buildHeroBanner(),
+                    _buildMainContent(bookItems),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

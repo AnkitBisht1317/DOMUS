@@ -4,11 +4,12 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:domus/features/home/presentation/screens/home_screen.dart';
-import 'package:domus/features/home/domain/view_models/home_view_model.dart';
-import 'package:domus/features/home/domain/repositories/home_repository.dart';
-import 'package:domus/features/home/data/repositories/home_repository_impl.dart';
-import 'package:domus/features/authentication/presentation/screens/personal_details.dart';
+import 'features/home/domain/view_models/home_view_model.dart';
+import 'features/home/domain/repositories/home_repository.dart';
+import 'features/home/data/repositories/home_repository_impl.dart';
+import 'features/authentication/presentation/screens/personal_details.dart';
 
 import 'features/authentication/data/repositories/user_repository_impl.dart';
 import 'features/authentication/domain/repositories/user_repository.dart';
@@ -25,7 +26,6 @@ void main() async {
     runApp(const MyApp());
   } catch (e) {
     print('Error initializing Firebase: $e');
-    // Still run the app, but it will be in a degraded state
     runApp(const MyApp());
   }
 }
@@ -76,7 +76,10 @@ class MyApp extends StatelessWidget {
               // Show a loading screen while checking auth state
               return const Scaffold(
                 body: Center(
-                  child: CircularProgressIndicator(),
+                  child: SpinKitPouringHourGlassRefined(
+                    color: Color(0xFF022150),
+                    size: 50.0,
+                  ),
                 ),
               );
             }
@@ -89,7 +92,10 @@ class MyApp extends StatelessWidget {
                   if (dataSnapshot.connectionState == ConnectionState.waiting) {
                     return const Scaffold(
                       body: Center(
-                        child: CircularProgressIndicator(),
+                        child: SpinKitPouringHourGlassRefined(
+                          color: Color(0xFF022150),
+                          size: 50.0,
+                        ),
                       ),
                     );
                   }
