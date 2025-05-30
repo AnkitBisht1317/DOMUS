@@ -10,12 +10,16 @@ import 'features/home/domain/view_models/home_view_model.dart';
 import 'features/home/domain/repositories/home_repository.dart';
 import 'features/home/data/repositories/home_repository_impl.dart';
 import 'features/authentication/presentation/screens/personal_details.dart';
+import 'features/home/presentation/viewmodels/lectures_view_model.dart';
 
 import 'features/authentication/data/repositories/user_repository_impl.dart';
 import 'features/authentication/domain/repositories/user_repository.dart';
 import 'features/authentication/domain/view model/home_auth_model.dart';
 import 'features/authentication/domain/view model/personal_auth_model.dart';
 import 'firebase_options.dart';
+import 'features/home/presentation/viewmodels/doctor_writings_view_model.dart';
+import 'features/home/presentation/viewmodels/job_portal_view_model.dart';
+import 'config/routes/routes.dart';
 
 void main() async {
   try {
@@ -33,7 +37,6 @@ void main() async {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // Check if user data exists in Firestore
   Future<bool> _checkUserDataExists(String uid) async {
     try {
       final user = FirebaseAuth.instance.currentUser;
@@ -66,9 +69,19 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(
           create: (context) => HomeViewModel(context.read<HomeRepository>()),
         ),
+        ChangeNotifierProvider(
+          create: (_) => LecturesViewModel(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => DoctorWritingsViewModel(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => JobPortalViewModel(),
+        ),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
+        onGenerateRoute: AppRoutes.onGenerateRoute,
         home: StreamBuilder<User?>(
           stream: FirebaseAuth.instance.authStateChanges(),
           builder: (context, snapshot) {
