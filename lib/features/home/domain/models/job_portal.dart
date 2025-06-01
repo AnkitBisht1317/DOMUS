@@ -1,13 +1,11 @@
 class JobPortal {
   final String title;
   final String iconPath;
-  final String bannerPath;
-  final String? description;
+  final List<String> carouselImages;
 
   const JobPortal({
     required this.title,
     required this.iconPath,
-    required this.bannerPath,
-    this.description,
+    required this.carouselImages,
   });
 } 

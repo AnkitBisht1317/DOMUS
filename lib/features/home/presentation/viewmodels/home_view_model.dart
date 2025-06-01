@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import '../../domain/models/category_icon.dart';
 import '../../domain/models/home_banner.dart';
 import '../../domain/models/category_tab.dart';
 import '../../domain/models/course_item.dart';
@@ -26,21 +27,22 @@ class HomeViewModel extends ChangeNotifier {
 
   void _initializeBanners() {
     _banners = [
-      const HomeBanner(
-        imagePath: 'assets/home_page_banner.png',
-        title: 'Welcome to DOMUS',
-        description: 'Your gateway to homeopathic education',
-      ),
+      const HomeBanner(imagePath: 'assets/home_page_banner.png'),
+      const HomeBanner(imagePath: 'assets/banner_varient_second.png'),
+      const HomeBanner(imagePath: 'assets/banner_varient_third.png'),
+      const HomeBanner(imagePath: 'assets/banner_varient_fourth.png'),
+      const HomeBanner(imagePath: 'assets/banner_varient_fifth.png'),
+      const HomeBanner(imagePath: 'assets/banner_varient_sixth.png'),
     ];
   }
 
   void _initializeCategoryTabs() {
     _categoryTabs = [
-      CategoryTab(title: "All", isSelected: true),
-      CategoryTab(title: "Exam"),
-      CategoryTab(title: "Study"),
-      CategoryTab(title: "Revision"),
-      CategoryTab(title: "Community"),
+      CategoryTab(type: CategoryType.all, title: "All", isSelected: true),
+      CategoryTab(type: CategoryType.exam, title: "Exam"),
+      CategoryTab(type: CategoryType.study, title: "Study"),
+      CategoryTab(type: CategoryType.revision, title: "Revision"),
+      CategoryTab(type: CategoryType.community, title: "Community"),
     ];
   }
 

@@ -9,24 +9,33 @@ class CategoryTabs extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<CategoryTabsViewModel>(
-      builder: (context, viewModel, _) {
-        return Column(
-          children: [
-            _buildTabs(viewModel),
-            _buildIconGrid(viewModel),
-          ],
-        );
-      },
+    return Card(
+      margin: const EdgeInsets.fromLTRB(2, 0, 2, 24),
+      elevation: 2,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(6),
+        child: Consumer<CategoryTabsViewModel>(
+          builder: (context, viewModel, _) {
+            return Column(
+              children: [
+                _buildTabs(viewModel),
+                _buildIconGrid(viewModel),
+              ],
+            );
+          },
+        ),
+      ),
     );
   }
 
   Widget _buildTabs(CategoryTabsViewModel viewModel) {
-    return Container(
+    return SizedBox(
       height: 40,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
         itemCount: viewModel.tabs.length,
         itemBuilder: (context, index) {
           final tab = viewModel.tabs[index];
@@ -40,32 +49,29 @@ class CategoryTabs extends StatelessWidget {
   }
 
   Widget _buildIconGrid(CategoryTabsViewModel viewModel) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
-      child: Column(
-        children: [
-          // First row of icons
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: viewModel.icons.take(5).map((icon) => _buildIconItem(icon)).toList(),
-          ),
-          const SizedBox(height: 16),
-          // Second row of icons
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: viewModel.icons.skip(5).take(5).map((icon) => _buildIconItem(icon)).toList(),
-          ),
-        ],
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 5,
+        childAspectRatio: 0.6,
+        crossAxisSpacing: 16,
+        mainAxisSpacing: 12,
       ),
+      itemCount: viewModel.icons.length,
+      itemBuilder: (context, index) => _buildIconItem(viewModel.icons[index]),
     );
   }
 
   Widget _buildIconItem(CategoryIcon icon) {
+    final words = icon.title.split(' ');
+    
     return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
       children: [
         Container(
-          width: 65,
-          height: 65,
+          width: 58,
+          height: 58,
           decoration: BoxDecoration(
             color: const Color(0xFF1B3A63),
             borderRadius: BorderRadius.circular(12),
@@ -76,7 +82,7 @@ class CategoryTabs extends StatelessWidget {
               onTap: icon.onTap,
               borderRadius: BorderRadius.circular(12),
               child: Padding(
-                padding: const EdgeInsets.all(8),
+                padding: const EdgeInsets.all(12),
                 child: Image.asset(
                   icon.imagePath,
                   fit: BoxFit.contain,
@@ -85,19 +91,28 @@ class CategoryTabs extends StatelessWidget {
             ),
           ),
         ),
-        const SizedBox(height: 4),
-        SizedBox(
-          width: 65,
-          child: Text(
-            icon.title,
-            style: TextStyle(
-              fontSize: icon.fontSize,
-              fontWeight: FontWeight.w500,
-              color: Colors.black87,
-            ),
-            textAlign: TextAlign.center,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
+        const SizedBox(height: 8),
+        Expanded(
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              return Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: words.map((word) => Container(
+                  width: constraints.maxWidth,
+                  child: Text(
+                    word,
+                    style: const TextStyle(
+                      fontSize: 8,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.black87,
+                      height: 1.0,
+                    ),
+                    textAlign: TextAlign.center,
+                    softWrap: true,
+                  ),
+                )).toList(),
+              );
+            }
           ),
         ),
       ],
@@ -124,28 +139,21 @@ class _TabItem extends StatelessWidget {
           onTap: onTap,
           borderRadius: BorderRadius.circular(8),
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            constraints: const BoxConstraints(
-              minWidth: 80,
-              minHeight: 32,
-            ),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             decoration: BoxDecoration(
               color: tab.isSelected ? const Color(0xFFE7F0FF) : Colors.white,
               border: Border.all(
                 color: const Color(0xFF001F54),
-                width: 0.8,
+                width: 1,
               ),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Center(
-              child: Text(
-                tab.title,
-                style: TextStyle(
-                  color: const Color(0xFF001F54),
-                  fontSize: 13,
-                  fontWeight: tab.isSelected ? FontWeight.w600 : FontWeight.w500,
-                ),
-                textAlign: TextAlign.center,
+            child: Text(
+              tab.title,
+              style: TextStyle(
+                color: const Color(0xFF001F54),
+                fontSize: 14,
+                fontWeight: tab.isSelected ? FontWeight.w600 : FontWeight.w500,
               ),
             ),
           ),

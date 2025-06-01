@@ -29,25 +29,24 @@ class JobPortalScreen extends StatelessWidget {
                   width: double.infinity,
                   decoration: BoxDecoration(
                     image: DecorationImage(
-                      image: AssetImage(jobPortal.bannerPath),
+                      image: AssetImage(jobPortal.carouselImages.first),
                       fit: BoxFit.cover,
                     ),
                   ),
                 ),
-                // Description
-                if (jobPortal.description != null)
-                  Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Text(
-                      jobPortal.description!,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        color: Colors.black87,
-                      ),
+                // Job Listings Section (to be implemented)
+                const Padding(
+                  padding: EdgeInsets.all(16),
+                  child: Text(
+                    'Available Positions',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF001F54),
                     ),
                   ),
-                // Add more job portal content here
-                // For example: job listings, filters, search bar, etc.
+                ),
+                // Add job listings here
               ],
             ),
           ),

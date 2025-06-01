@@ -13,11 +13,17 @@ class JobPortalViewModel extends ChangeNotifier {
   }
 
   void _initializeJobPortal() {
-    _jobPortal = const JobPortal(
+    _jobPortal = JobPortal(
       title: "Job Portal",
       iconPath: "assets/books.png",
-      bannerPath: "assets/home_page_banner.png",
-      description: "Find the best opportunities in homeopathy",
+      carouselImages: [
+        'assets/home_page_banner.png',
+        'assets/banner_varient_second.png',
+        'assets/banner_varient_third.png',
+        'assets/banner_varient_fourth.png',
+        'assets/banner_varient_fifth.png',
+        'assets/banner_varient_sixth.png',
+      ],
     );
     notifyListeners();
   }

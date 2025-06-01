@@ -4,12 +4,13 @@ import '../../domain/models/category_icon.dart';
 
 class CategoryTabsViewModel extends ChangeNotifier {
   List<CategoryTab> _tabs = [];
-  List<CategoryIcon> _icons = [];
-  int _selectedTabIndex = 0;
+  List<CategoryIcon> _allIcons = [];
+  List<CategoryIcon> _filteredIcons = [];
+  CategoryType _selectedCategory = CategoryType.all;
 
   List<CategoryTab> get tabs => _tabs;
-  List<CategoryIcon> get icons => _icons;
-  int get selectedTabIndex => _selectedTabIndex;
+  List<CategoryIcon> get icons => _filteredIcons;
+  CategoryType get selectedCategory => _selectedCategory;
 
   CategoryTabsViewModel() {
     _initializeTabs();
@@ -18,74 +19,94 @@ class CategoryTabsViewModel extends ChangeNotifier {
 
   void _initializeTabs() {
     _tabs = [
-      CategoryTab(title: "All", isSelected: true),
-      CategoryTab(title: "Exam"),
-      CategoryTab(title: "Study"),
-      CategoryTab(title: "Revision"),
-      CategoryTab(title: "Community"),
+      CategoryTab(type: CategoryType.all, title: "All", isSelected: true),
+      CategoryTab(type: CategoryType.exam, title: "Exam"),
+      CategoryTab(type: CategoryType.study, title: "Study"),
+      CategoryTab(type: CategoryType.revision, title: "Revision"),
+      CategoryTab(type: CategoryType.community, title: "Community"),
     ];
   }
 
   void _initializeIcons() {
-    _icons = [
+    _allIcons = [
       CategoryIcon(
         title: 'NTET',
         imagePath: 'assets/books.png',
+        categories: [CategoryType.exam],
       ),
       CategoryIcon(
         title: 'Entrance',
         imagePath: 'assets/exam.png',
+        categories: [CategoryType.exam],
       ),
       CategoryIcon(
         title: 'Subject Wise MCQ',
         imagePath: 'assets/test.png',
-        fontSize: 9,
+        categories: [CategoryType.exam, CategoryType.study],
       ),
       CategoryIcon(
         title: 'Professionals Corner',
         imagePath: 'assets/medicos_corner.png',
-        fontSize: 9,
+        categories: [CategoryType.community],
       ),
       CategoryIcon(
         title: 'CBDC',
         imagePath: 'assets/medicine.png',
+        categories: [CategoryType.exam],
       ),
       CategoryIcon(
         title: 'Study Notes',
         imagePath: 'assets/study_notes.png',
-        fontSize: 11,
+        categories: [CategoryType.study],
       ),
       CategoryIcon(
         title: 'HMM',
         imagePath: 'assets/hmm.png',
+        categories: [CategoryType.study],
       ),
       CategoryIcon(
         title: 'Aphorism',
         imagePath: 'assets/aphorism.png',
-        fontSize: 11,
+        categories: [CategoryType.study],
       ),
       CategoryIcon(
         title: 'OP',
         imagePath: 'assets/op.png',
+        categories: [CategoryType.study, CategoryType.revision],
       ),
       CategoryIcon(
         title: 'Therapeutics',
         imagePath: 'assets/therapeutic.png',
-        fontSize: 9,
+        categories: [CategoryType.study, CategoryType.revision],
       ),
     ];
+    _filterIcons();
+  }
+
+  void _filterIcons() {
+    if (_selectedCategory == CategoryType.all) {
+      _filteredIcons = List.from(_allIcons);
+    } else {
+      _filteredIcons = _allIcons.where((icon) => 
+        icon.categories.contains(_selectedCategory)
+      ).toList();
+    }
+    notifyListeners();
   }
 
   void selectTab(int index) {
-    if (index != _selectedTabIndex && index < _tabs.length) {
-      _tabs = _tabs.asMap().map((i, tab) {
-        return MapEntry(
-          i,
-          tab.copyWith(isSelected: i == index),
-        );
-      }).values.toList();
-      _selectedTabIndex = index;
-      notifyListeners();
+    if (index < _tabs.length) {
+      final newCategory = _tabs[index].type;
+      if (newCategory != _selectedCategory) {
+        _selectedCategory = newCategory;
+        _tabs = _tabs.asMap().map((i, tab) {
+          return MapEntry(
+            i,
+            tab.copyWith(isSelected: i == index),
+          );
+        }).values.toList();
+        _filterIcons();
+      }
     }
   }
 

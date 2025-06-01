@@ -18,6 +18,10 @@ class QuestionOfDaySection extends StatelessWidget {
           decoration: BoxDecoration(
             color: const Color(0xFF001F54),
             borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: Colors.black,
+              width: 1,
+            ),
           ),
           child: Column(
             children: [
@@ -48,10 +52,17 @@ class QuestionOfDaySection extends StatelessWidget {
               
               // Content Card
               Container(
-                margin: const EdgeInsets.only(bottom: 1),
-                decoration: const BoxDecoration(
+                margin: const EdgeInsets.fromLTRB(1, 0, 1, 1),
+                decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.all(Radius.circular(20)),
+                  borderRadius: const BorderRadius.only(
+                    bottomLeft: Radius.circular(19),
+                    bottomRight: Radius.circular(19),
+                  ),
+                  border: Border.all(
+                    color: Colors.black,
+                    width: 1,
+                  ),
                 ),
                 child: Padding(
                   padding: const EdgeInsets.all(20),

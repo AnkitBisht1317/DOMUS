@@ -17,6 +17,7 @@ import '../widgets/doctor_writings_section.dart';
 import '../widgets/job_portal_section.dart';
 import '../widgets/testimonials_section.dart';
 import '../widgets/my_lectures_section.dart';
+import 'package:carousel_slider/carousel_slider.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -101,51 +102,59 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               // Main content
-              SafeArea(
-                child: SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      const HomeAppBar(),
-                      _buildHeroBanner(),
-                      Container(
-                        width: double.infinity,
-                        margin: const EdgeInsets.only(top: 8),
-                        decoration: const BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(24),
-                            topRight: Radius.circular(24),
-                          ),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: const [
-                            SizedBox(height: 16),
-                            Center(
-                              child: Text(
-                                'Domus Homoeopathica',
-                                style: TextStyle(
-                                  color: Color(0xFFAAAAAA),
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w600,
-                                ),
+              Column(
+                children: [
+                  // Fixed app bar at the top
+                  SafeArea(
+                    child: const HomeAppBar(),
+                  ),
+                  // Scrollable content
+                  Expanded(
+                    child: SingleChildScrollView(
+                      child: Column(
+                        children: [
+                          _buildHeroBanner(),
+                          Container(
+                            width: double.infinity,
+                            margin: const EdgeInsets.only(top: 8),
+                            decoration: const BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.only(
+                                topLeft: Radius.circular(24),
+                                topRight: Radius.circular(24),
                               ),
                             ),
-                            SizedBox(height: 12),
-                            CategoryTabs(),
-                            QuestionOfDaySection(),
-                            TestSeriesSection(),
-                            CourseCarousel(),
-                            MyLecturesSection(),
-                            DoctorWritingsSection(),
-                            JobPortalSection(),
-                            TestimonialsSection(),
-                          ],
-                        ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: const [
+                                SizedBox(height: 16),
+                                Center(
+                                  child: Text(
+                                    'Domus Homoeopathica',
+                                    style: TextStyle(
+                                      color: Color(0xFFAAAAAA),
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(height: 16),
+                                CategoryTabs(),
+                                QuestionOfDaySection(),
+                                TestSeriesSection(),
+                                CourseCarousel(),
+                                MyLecturesSection(),
+                                DoctorWritingsSection(),
+                                JobPortalSection(),
+                                TestimonialsSection(),
+                              ],
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
+                    ),
                   ),
-                ),
+                ],
               ),
             ],
           ),
@@ -159,18 +168,32 @@ class _HomeScreenState extends State<HomeScreen> {
       builder: (context, viewModel, _) {
         if (viewModel.banners.isEmpty) return const SizedBox.shrink();
         
-        final banner = viewModel.banners.first;
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-          child: Container(
-            height: 120,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(16),
-              image: DecorationImage(
-                image: AssetImage(banner.imagePath),
-                fit: BoxFit.cover,
+        return CarouselSlider(
+          items: viewModel.banners.map((banner) {
+            return Container(
+              margin: const EdgeInsets.symmetric(horizontal: 12),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(16),
+                image: DecorationImage(
+                  image: AssetImage(banner.imagePath),
+                  fit: BoxFit.cover,
+                ),
               ),
-            ),
+            );
+          }).toList(),
+          options: CarouselOptions(
+            height: 120,
+            viewportFraction: 0.92,
+            initialPage: 0,
+            enableInfiniteScroll: true,
+            reverse: false,
+            autoPlay: true,
+            autoPlayInterval: const Duration(seconds: 3),
+            autoPlayAnimationDuration: const Duration(milliseconds: 800),
+            autoPlayCurve: Curves.fastOutSlowIn,
+            enlargeCenterPage: true,
+            enlargeFactor: 0.15,
+            scrollDirection: Axis.horizontal,
           ),
         );
       },
