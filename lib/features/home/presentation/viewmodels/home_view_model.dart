@@ -3,8 +3,10 @@ import '../../domain/models/category_icon.dart';
 import '../../domain/models/home_banner.dart';
 import '../../domain/models/category_tab.dart';
 import '../../domain/models/course_item.dart';
+import '../../domain/repositories/home_repository.dart';
 
 class HomeViewModel extends ChangeNotifier {
+  final HomeRepository _homeRepository;
   List<HomeBanner> _banners = [];
   List<CategoryTab> _categoryTabs = [];
   List<CourseItem> _courseItems = [];
@@ -15,7 +17,7 @@ class HomeViewModel extends ChangeNotifier {
   List<CourseItem> get courseItems => _courseItems;
   int get selectedTabIndex => _selectedTabIndex;
 
-  HomeViewModel() {
+  HomeViewModel(this._homeRepository) {
     _initializeData();
   }
 

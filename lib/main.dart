@@ -6,10 +6,11 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:domus/features/home/presentation/screens/home_screen.dart';
-import 'features/home/domain/view_models/home_view_model.dart';
+import 'features/home/presentation/viewmodels/home_view_model.dart';
 import 'features/home/domain/repositories/home_repository.dart';
 import 'features/home/data/repositories/home_repository_impl.dart';
 import 'features/authentication/presentation/screens/personal_details.dart';
+import 'features/home/presentation/viewmodels/home_drawer_viewmodel.dart';
 import 'features/home/presentation/viewmodels/lectures_view_model.dart';
 
 import 'features/authentication/data/repositories/user_repository_impl.dart';
@@ -78,10 +79,16 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(
           create: (_) => JobPortalViewModel(),
         ),
+        ChangeNotifierProvider(create: (_) => HomeDrawerViewModel()),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         onGenerateRoute: AppRoutes.onGenerateRoute,
+        theme: ThemeData(
+          primaryColor: const Color(0xFF0A1832),
+          scaffoldBackgroundColor: Colors.white,
+          useMaterial3: true,
+        ),
         home: StreamBuilder<User?>(
           stream: FirebaseAuth.instance.authStateChanges(),
           builder: (context, snapshot) {
@@ -137,9 +144,27 @@ class MyApp extends StatelessWidget {
             }
 
             // User is not logged in, show authentication page
-            return const HomePage();
+            return HomePage();
           },
         ),
+      ),
+    );
+  }
+}
+
+class HomePage extends StatefulWidget {
+  const HomePage({Key? key}) : super(key: key);
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: const Center(
+        child: Text('Welcome to DOMUS'),
       ),
     );
   }

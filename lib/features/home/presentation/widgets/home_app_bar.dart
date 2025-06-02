@@ -3,7 +3,12 @@ import 'package:provider/provider.dart';
 import '../viewmodels/home_view_model.dart';
 
 class HomeAppBar extends StatefulWidget {
-  const HomeAppBar({Key? key}) : super(key: key);
+  final VoidCallback onMenuTap;
+
+  const HomeAppBar({
+    Key? key,
+    required this.onMenuTap,
+  }) : super(key: key);
 
   @override
   State<HomeAppBar> createState() => _HomeAppBarState();
@@ -55,8 +60,6 @@ class _HomeAppBarState extends State<HomeAppBar> {
 
   @override
   Widget build(BuildContext context) {
-    final viewModel = context.watch<HomeViewModel>();
-    
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Row(
@@ -76,7 +79,7 @@ class _HomeAppBarState extends State<HomeAppBar> {
             child: IconButton(
               padding: EdgeInsets.zero,
               icon: const Icon(Icons.menu, color: Colors.black87, size: 20),
-              onPressed: viewModel.navigateToMenu,
+              onPressed: widget.onMenuTap,
             ),
           ),
           const SizedBox(width: 12),
@@ -86,7 +89,7 @@ class _HomeAppBarState extends State<HomeAppBar> {
               height: 40,
               decoration: BoxDecoration(
                 color: const Color(0xBDD9D9D9),
-                borderRadius: BorderRadius.circular(12), // More squared corners
+                borderRadius: BorderRadius.circular(12),
               ),
               child: Row(
                 children: [
@@ -110,40 +113,22 @@ class _HomeAppBarState extends State<HomeAppBar> {
                   ),
                   if (!_isSearching) ...[
                     // Search Icon
-                    GestureDetector(
-                      onTap: _startSearch,
-                      child: Container(
-                        width: 32,
-                        height: 32,
-                        margin: const EdgeInsets.symmetric(horizontal: 4),
-                        padding: const EdgeInsets.all(6),
-                        child: Image.asset(
-                          'assets/search_icon.png',
-                          fit: BoxFit.contain,
-                        ),
-                      ),
+                    IconButton(
+                      icon: const Icon(Icons.search, color: Colors.black54),
+                      onPressed: _startSearch,
+                      padding: const EdgeInsets.all(8),
                     ),
                     // Notification Icon
-                    Container(
-                      width: 32,
-                      height: 32,
-                      margin: const EdgeInsets.symmetric(horizontal: 4),
-                      padding: const EdgeInsets.all(6),
-                      child: Image.asset(
-                        'assets/notification_icon.png',
-                        fit: BoxFit.contain,
-                      ),
+                    IconButton(
+                      icon: const Icon(Icons.notifications_none, color: Colors.black54),
+                      onPressed: () {},
+                      padding: const EdgeInsets.all(8),
                     ),
                     // Cart Icon
-                    Container(
-                      width: 32,
-                      height: 32,
-                      margin: const EdgeInsets.only(left: 4, right: 8),
-                      padding: const EdgeInsets.all(6),
-                      child: Image.asset(
-                        'assets/add_to_shopping_cart.png',
-                        fit: BoxFit.contain,
-                      ),
+                    IconButton(
+                      icon: const Icon(Icons.shopping_cart_outlined, color: Colors.black54),
+                      onPressed: () {},
+                      padding: const EdgeInsets.all(8),
                     ),
                   ] else
                     // Close search icon

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_advanced_drawer/flutter_advanced_drawer.dart';
 import '../viewmodels/home_view_model.dart';
 import '../viewmodels/lectures_view_model.dart';
 import '../viewmodels/testimonials_view_model.dart';
@@ -18,19 +19,29 @@ import '../widgets/job_portal_section.dart';
 import '../widgets/testimonials_section.dart';
 import '../widgets/my_lectures_section.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import '../widgets/home_drawer.dart';
+import '../viewmodels/home_drawer_viewmodel.dart';
+import '../../domain/repositories/home_repository.dart';
+import '../../data/repositories/home_repository_impl.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  const HomeScreen({Key? key}) : super(key: key);
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  final _advancedDrawerController = AdvancedDrawerController();
+
   @override
   void initState() {
     super.initState();
     _configureSystemUI();
+  }
+
+  void _handleMenuButtonPressed() {
+    _advancedDrawerController.showDrawer();
   }
 
   void _configureSystemUI() {
@@ -55,108 +66,137 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => HomeViewModel()),
+        Provider<HomeRepository>(
+          create: (_) => HomeRepositoryImpl(),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => HomeViewModel(context.read<HomeRepository>()),
+        ),
         ChangeNotifierProvider(create: (_) => LecturesViewModel()),
         ChangeNotifierProvider(create: (_) => TestimonialsViewModel()),
         ChangeNotifierProvider(create: (_) => CourseCarouselViewModel()),
         ChangeNotifierProvider(create: (_) => QuestionViewModel()),
         ChangeNotifierProvider(create: (_) => TestSeriesViewModel()),
         ChangeNotifierProvider(create: (_) => CategoryTabsViewModel()),
+        ChangeNotifierProvider(create: (_) => HomeDrawerViewModel()),
       ],
-      child: Theme(
-        data: ThemeData(
-          useMaterial3: true,
-          brightness: Brightness.light,
-          appBarTheme: const AppBarTheme(
-            systemOverlayStyle: SystemUiOverlayStyle(
-              statusBarColor: Colors.transparent,
-              statusBarBrightness: Brightness.dark,
-              statusBarIconBrightness: Brightness.light,
+      child: AdvancedDrawer(
+        backdrop: Container(
+          width: double.infinity,
+          height: double.infinity,
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [Color(0xFF022150), Color(0xFF1B3B6F)],
             ),
           ),
         ),
-        child: Scaffold(
-          backgroundColor: const Color(0xFFF8F8F8),
-          extendBodyBehindAppBar: true,
-          extendBody: true,
-          body: Stack(
-            children: [
-              // Background gradient
-              Positioned(
-                top: 0,
-                left: 0,
-                right: 0,
-                height: height * 0.35,
-                child: Container(
-                  decoration: const BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        Color(0xFF022150),
-                        Color(0xFF022150),
-                        Color(0xFF022150),
-                      ],
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                    ),
-                  ),
-                ),
+        controller: _advancedDrawerController,
+        animationCurve: Curves.easeInOut,
+        animationDuration: const Duration(milliseconds: 300),
+        animateChildDecoration: true,
+        rtlOpening: false,
+        disabledGestures: false,
+        childDecoration: const BoxDecoration(
+          borderRadius: BorderRadius.all(Radius.circular(16)),
+        ),
+        drawer: HomeDrawer(controller: _advancedDrawerController),
+        child: Theme(
+          data: ThemeData(
+            useMaterial3: true,
+            brightness: Brightness.light,
+            appBarTheme: const AppBarTheme(
+              systemOverlayStyle: SystemUiOverlayStyle(
+                statusBarColor: Colors.transparent,
+                statusBarBrightness: Brightness.dark,
+                statusBarIconBrightness: Brightness.light,
               ),
-              // Main content
-              Column(
-                children: [
-                  // Fixed app bar at the top
-                  SafeArea(
-                    child: const HomeAppBar(),
-                  ),
-                  // Scrollable content
-                  Expanded(
-                    child: SingleChildScrollView(
-                      child: Column(
-                        children: [
-                          _buildHeroBanner(),
-                          Container(
-                            width: double.infinity,
-                            margin: const EdgeInsets.only(top: 8),
-                            decoration: const BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.only(
-                                topLeft: Radius.circular(24),
-                                topRight: Radius.circular(24),
-                              ),
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: const [
-                                SizedBox(height: 16),
-                                Center(
-                                  child: Text(
-                                    'Domus Homoeopathica',
-                                    style: TextStyle(
-                                      color: Color(0xFFAAAAAA),
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                ),
-                                SizedBox(height: 16),
-                                CategoryTabs(),
-                                QuestionOfDaySection(),
-                                TestSeriesSection(),
-                                CourseCarousel(),
-                                MyLecturesSection(),
-                                DoctorWritingsSection(),
-                                JobPortalSection(),
-                                TestimonialsSection(),
-                              ],
-                            ),
-                          ),
+            ),
+          ),
+          child: Scaffold(
+            backgroundColor: const Color(0xFFF8F8F8),
+            body: Stack(
+              children: [
+                // Background gradient
+                Positioned(
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  height: height * 0.35,
+                  child: Container(
+                    decoration: const BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          Color(0xFF022150),
+                          Color(0xFF022150),
+                          Color(0xFF022150),
                         ],
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
                       ),
                     ),
                   ),
-                ],
-              ),
-            ],
+                ),
+                // Main content
+                Column(
+                  children: [
+                    // Fixed app bar at the top
+                    SafeArea(
+                      child: HomeAppBar(
+                        onMenuTap: _handleMenuButtonPressed,
+                      ),
+                    ),
+                    // Scrollable content
+                    Expanded(
+                      child: SingleChildScrollView(
+                        child: Column(
+                          children: [
+                            _buildHeroBanner(),
+                            Container(
+                              width: double.infinity,
+                              margin: const EdgeInsets.only(top: 8),
+                              decoration: const BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.only(
+                                  topLeft: Radius.circular(24),
+                                  topRight: Radius.circular(24),
+                                ),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: const [
+                                  SizedBox(height: 16),
+                                  Center(
+                                    child: Text(
+                                      'Domus Homoeopathica',
+                                      style: TextStyle(
+                                        color: Color(0xFFAAAAAA),
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(height: 16),
+                                  CategoryTabs(),
+                                  QuestionOfDaySection(),
+                                  TestSeriesSection(),
+                                  CourseCarousel(),
+                                  MyLecturesSection(),
+                                  DoctorWritingsSection(),
+                                  JobPortalSection(),
+                                  TestimonialsSection(),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),
