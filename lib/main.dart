@@ -92,7 +92,7 @@ class MyApp extends StatelessWidget {
         home: StreamBuilder<User?>(
           stream: FirebaseAuth.instance.authStateChanges(),
           builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
+            /*if (snapshot.connectionState == ConnectionState.waiting) {
               // Show a loading screen while checking auth state
               return const Scaffold(
                 body: Center(
@@ -102,7 +102,7 @@ class MyApp extends StatelessWidget {
                   ),
                 ),
               );
-            }
+            }*/
 
             if (snapshot.hasData && snapshot.data != null) {
               // Check if user data exists in Firestore
@@ -152,20 +152,4 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class HomePage extends StatefulWidget {
-  const HomePage({Key? key}) : super(key: key);
 
-  @override
-  State<HomePage> createState() => _HomePageState();
-}
-
-class _HomePageState extends State<HomePage> {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: const Center(
-        child: Text('Welcome to DOMUS'),
-      ),
-    );
-  }
-}

@@ -262,19 +262,6 @@ class HomePage extends StatelessWidget {
                                 }
 
                                 bool result = await viewModel.verifyOtp(context);
-                                if (result) {
-                                  // Show loading indicator while checking user data
-                                  if (!context.mounted) return;
-                                  showDialog(
-                                    context: context,
-                                    barrierDismissible: false,
-                                    builder: (context) => const Center(
-                                      child: SpinKitPouringHourGlassRefined(
-                                        color: Color(0xFF022150),
-                                        size: 50.0,
-                                      ),
-                                    ),
-                                  );
                                   
                                   // Check if user data exists
                                   final userData = await _checkExistingUserData(viewModel.phoneNumber);
@@ -317,13 +304,6 @@ class HomePage extends StatelessWidget {
                                       ),
                                     );
                                   }
-                                } else {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text("OTP verification failed"),
-                                    ),
-                                  );
-                                }
                               },
                               child: const Text(
                                 'VERIFY',
