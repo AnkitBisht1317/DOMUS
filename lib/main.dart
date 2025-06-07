@@ -17,6 +17,7 @@ import 'package:domus/features/authentication/domain/repositories/user_repositor
 import 'package:domus/features/authentication/domain/view model/home_auth_model.dart';
 import 'package:domus/features/authentication/domain/view model/personal_auth_model.dart';
 import 'features/home/presentation/viewmodels/cart_view_model.dart';
+import 'features/home/presentation/viewmodels/profile_view_model.dart';
 import 'features/home/presentation/viewmodels/payment_viewmodel.dart';
 import 'firebase_options.dart';
 import 'package:domus/features/home/presentation/viewmodels/doctor_writings_view_model.dart';
@@ -82,6 +83,7 @@ class MyApp extends StatelessWidget {
         ),
         ChangeNotifierProvider(create: (_) => HomeDrawerViewModel()),
         ChangeNotifierProvider(create: (_) => CartViewModel()),
+        ChangeNotifierProvider(create: (_) => ProfileViewModel()),
         ChangeNotifierProvider(create: (_) => PaymentViewModel()),
       ],
       child: MaterialApp(
