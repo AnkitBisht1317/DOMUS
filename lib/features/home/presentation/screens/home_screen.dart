@@ -7,6 +7,8 @@ import '../viewmodels/cart_view_model.dart';
 import '../viewmodels/home_view_model.dart';
 import '../viewmodels/lectures_view_model.dart';
 import '../viewmodels/testimonials_view_model.dart';
+import '../viewmodels/profile_view_model.dart';
+
 import '../viewmodels/course_carousel_view_model.dart';
 import '../viewmodels/question_view_model.dart';
 import '../viewmodels/test_series_view_model.dart';
@@ -80,7 +82,8 @@ class _HomeScreenState extends State<HomeScreen> {
         ChangeNotifierProvider(create: (_) => QuestionViewModel()),
         ChangeNotifierProvider(create: (_) => TestSeriesViewModel()),
         ChangeNotifierProvider(create: (_) => CategoryTabsViewModel()),
-        ChangeNotifierProvider(create: (_) => HomeDrawerViewModel()), // No need to pass navigatorKey here
+        ChangeNotifierProvider(create: (_) => HomeDrawerViewModel()),// No need to pass navigatorKey here
+        ChangeNotifierProvider(create: (_) => ProfileViewModel()),
       ],
       child: Builder(
         builder: (context) {
