@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../screens/notification_screen.dart';
 import '../viewmodels/home_drawer_viewmodel.dart';
 import 'package:flutter_advanced_drawer/flutter_advanced_drawer.dart';
 
@@ -57,7 +58,7 @@ class HomeDrawer extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: 20),
-                        ..._buildAnimatedSection(drawerViewModel.groupedDrawerItems['Main'] ?? [], 0),
+                        ..._buildAnimatedSection(context, drawerViewModel.groupedDrawerItems['Main'] ?? [], 0), // Pass context here
                         const SizedBox(height: 32),
                         // Miscellaneous section
                         const Text(
@@ -69,7 +70,7 @@ class HomeDrawer extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: 20),
-                        ..._buildAnimatedSection(drawerViewModel.groupedDrawerItems['Miscellaneous'] ?? [], 5),
+                        ..._buildAnimatedSection(context, drawerViewModel.groupedDrawerItems['Miscellaneous'] ?? [], 5), // Pass context here
                         const SizedBox(height: 32),
                         // About Us section
                         const Text(
@@ -81,7 +82,7 @@ class HomeDrawer extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: 20),
-                        ..._buildAnimatedSection(drawerViewModel.groupedDrawerItems['About Us'] ?? [], 10),
+                        ..._buildAnimatedSection(context, drawerViewModel.groupedDrawerItems['About Us'] ?? [], 10), // Pass context here
                         const SizedBox(height: 32),
                       ],
                     ),
@@ -95,7 +96,7 @@ class HomeDrawer extends StatelessWidget {
     );
   }
 
-  List<Widget> _buildAnimatedSection(List<DrawerItem> items, int startIndex) {
+  List<Widget> _buildAnimatedSection(BuildContext context, List<DrawerItem> items, int startIndex) { // Add BuildContext context here
     return items.asMap().entries.map((entry) {
       final index = entry.key;
       final item = entry.value;
@@ -112,12 +113,12 @@ class HomeDrawer extends StatelessWidget {
             ),
           );
         },
-        child: _buildDrawerItem(item),
+        child: _buildDrawerItem(item, context), // Pass context here
       );
     }).toList();
   }
 
-  Widget _buildDrawerItem(DrawerItem item) {
+  Widget _buildDrawerItem(DrawerItem item, BuildContext context) {
     return ListTile(
       contentPadding: EdgeInsets.zero,
       leading: Icon(
@@ -133,7 +134,19 @@ class HomeDrawer extends StatelessWidget {
           fontWeight: FontWeight.w400,
         ),
       ),
-      onTap: item.onTap,
+      onTap: () {
+        if (item.title == 'Notification') {
+          controller.hideDrawer();
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const NotificationScreen(),
+            ),
+          );
+        } else {
+          item.onTap();
+        }
+      },
       minLeadingWidth: 24,
       visualDensity: VisualDensity.comfortable,
     );

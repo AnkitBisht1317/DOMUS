@@ -15,7 +15,6 @@ import '../../data/repositories/user_repository_impl.dart';
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
-  // Check if user data exists in Firestore
   Future<Map<String, dynamic>?> _checkExistingUserData(String phoneNumber) async {
     try {
       final docSnapshot = await FirebaseFirestore.instance

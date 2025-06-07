@@ -1,6 +1,13 @@
 import 'package:flutter/material.dart';
 
+// ... existing code ...
+
 class HomeDrawerViewModel extends ChangeNotifier {
+  // The navigatorKey is no longer needed here as navigation is handled in home_drawer.dart
+  // final GlobalKey<NavigatorState>? navigatorKey;
+
+  // HomeDrawerViewModel({this.navigatorKey});
+
   final List<DrawerItem> drawerItems = [
     // My Details section
     DrawerItem(
@@ -49,7 +56,7 @@ class HomeDrawerViewModel extends ChangeNotifier {
     DrawerItem(
       title: 'Notification',
       icon: Icons.notifications_none,
-      onTap: () {},
+      onTap: () {}, // Keep empty since navigation is handled in home_drawer.dart
       category: 'Miscellaneous',
     ),
     // About Us section

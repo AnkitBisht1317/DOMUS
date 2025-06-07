@@ -6,20 +6,20 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:domus/features/home/presentation/screens/home_screen.dart';
-import 'features/home/presentation/viewmodels/home_view_model.dart';
-import 'features/home/domain/repositories/home_repository.dart';
-import 'features/home/data/repositories/home_repository_impl.dart';
-import 'features/authentication/presentation/screens/personal_details.dart';
-import 'features/home/presentation/viewmodels/home_drawer_viewmodel.dart';
-import 'features/home/presentation/viewmodels/lectures_view_model.dart';
-
-import 'features/authentication/data/repositories/user_repository_impl.dart';
-import 'features/authentication/domain/repositories/user_repository.dart';
-import 'features/authentication/domain/view model/home_auth_model.dart';
-import 'features/authentication/domain/view model/personal_auth_model.dart';
+import 'package:domus/features/home/presentation/viewmodels/home_view_model.dart';
+import 'package:domus/features/home/domain/repositories/home_repository.dart';
+import 'package:domus/features/home/data/repositories/home_repository_impl.dart';
+import 'package:domus/features/authentication/presentation/screens/personal_details.dart';
+import 'package:domus/features/home/presentation/viewmodels/home_drawer_viewmodel.dart';
+import 'package:domus/features/home/presentation/viewmodels/lectures_view_model.dart';
+import 'package:domus/features/authentication/data/repositories/user_repository_impl.dart';
+import 'package:domus/features/authentication/domain/repositories/user_repository.dart';
+import 'package:domus/features/authentication/domain/view model/home_auth_model.dart';
+import 'package:domus/features/authentication/domain/view model/personal_auth_model.dart';
+import 'features/home/presentation/viewmodels/cart_view_model.dart';
 import 'firebase_options.dart';
-import 'features/home/presentation/viewmodels/doctor_writings_view_model.dart';
-import 'features/home/presentation/viewmodels/job_portal_view_model.dart';
+import 'package:domus/features/home/presentation/viewmodels/doctor_writings_view_model.dart';
+import 'package:domus/features/home/presentation/viewmodels/job_portal_view_model.dart';
 import 'config/routes/routes.dart';
 
 void main() async {
@@ -80,8 +80,10 @@ class MyApp extends StatelessWidget {
           create: (_) => JobPortalViewModel(),
         ),
         ChangeNotifierProvider(create: (_) => HomeDrawerViewModel()),
+        ChangeNotifierProvider(create: (_) => CartViewModel()), // Add this line
       ],
       child: MaterialApp(
+        navigatorKey: navigatorKey, // Add this line
         debugShowCheckedModeBanner: false,
         onGenerateRoute: AppRoutes.onGenerateRoute,
         theme: ThemeData(
@@ -151,5 +153,77 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+
+// Add this at the top level (keep this line)
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
+// Then in your MaterialApp (REMOVE THIS ENTIRE SECTION):
+// MaterialApp(
+//   navigatorKey: navigatorKey,
+//   debugShowCheckedModeBanner: false,
+//   onGenerateRoute: AppRoutes.onGenerateRoute,
+//   theme: ThemeData(
+//     primaryColor: const Color(0xFF0A1832),
+//     scaffoldBackgroundColor: Colors.white,
+//     useMaterial3: true,
+//   ),
+//   home: StreamBuilder<User?>(
+//     stream: FirebaseAuth.instance.authStateChanges(),
+//     builder: (context, snapshot) {
+//       /*if (snapshot.connectionState == ConnectionState.waiting) {
+//         // Show a loading screen while checking auth state
+//         return const Scaffold(
+//           body: Center(
+//             child: SpinKitPouringHourGlassRefined(
+//               color: Color(0xFF022150),
+//               size: 50.0,
+//             ),
+//           ),
+//         );
+//       }*/
+// 
+//       if (snapshot.hasData && snapshot.data != null) {
+//         // Check if user data exists in Firestore
+//         return FutureBuilder<bool>(
+//           future: _checkUserDataExists(snapshot.data!.uid),
+//           builder: (context, dataSnapshot) {
+//             if (dataSnapshot.connectionState == ConnectionState.waiting) {
+//               return const Scaffold(
+//                 body: Center(
+//                   child: SpinKitPouringHourGlassRefined(
+//                     color: Color(0xFF022150),
+//                     size: 50.0,
+//                   ),
+//                 ),
+//               );
+//             }
+// 
+//             if (dataSnapshot.data == true) {
+//               return const HomeScreen();
+//             }
+// 
+//             // If user is authenticated but no data exists, show PersonalDetails
+//             return MultiProvider(
+//               providers: [
+//                 Provider<UserRepository>(
+//                   create: (_) => UserRepositoryImpl(),
+//                 ),
+//                 ChangeNotifierProvider<PersonalAuthModel>(
+//                   create: (context) => PersonalAuthModel(
+//                     userRepository: context.read<UserRepository>(),
+//                   )..phoneController.text = snapshot.data!.phoneNumber ?? '',
+//                 ),
+//               ],
+//               child: const PersonalDetails(),
+//             );
+//           },
+//         );
+//       }
+// 
+//       // User is not logged in, show authentication page
+//       return HomePage();
+//     },
+//   ),
+// )
 
 

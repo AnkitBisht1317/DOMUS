@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../screens/cart_screen.dart';
+import '../viewmodels/cart_view_model.dart';
 import '../viewmodels/home_view_model.dart';
+import '../screens/notification_screen.dart';
 
 class HomeAppBar extends StatefulWidget {
   final VoidCallback onMenuTap;
@@ -121,14 +124,56 @@ class _HomeAppBarState extends State<HomeAppBar> {
                     // Notification Icon
                     IconButton(
                       icon: const Icon(Icons.notifications_none, color: Colors.black54),
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const NotificationScreen(),
+                          ),
+                        );
+                      },
                       padding: const EdgeInsets.all(8),
                     ),
                     // Cart Icon
-                    IconButton(
-                      icon: const Icon(Icons.shopping_cart_outlined, color: Colors.black54),
-                      onPressed: () {},
-                      padding: const EdgeInsets.all(8),
+                    Stack(
+                      alignment: Alignment.topRight,
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.shopping_cart_outlined, color: Colors.black54),
+                          onPressed: () {
+                            final viewModel = Provider.of<HomeViewModel>(context, listen: false);
+                            viewModel.navigateToCart();
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const CartScreen(),
+                              ),
+                            );
+                          },
+                          padding: const EdgeInsets.all(8),
+                        ),
+                        Consumer<CartViewModel>(
+                          builder: (context, cartViewModel, _) {
+                            return cartViewModel.cartItems.isEmpty
+                                ? const SizedBox.shrink()
+                                : Container(
+                                    padding: const EdgeInsets.all(4),
+                                    decoration: const BoxDecoration(
+                                      color: Colors.red,
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: Text(
+                                      '${cartViewModel.cartItems.length}',
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  );
+                          },
+                        ),
+                      ],
                     ),
                   ] else
                     // Close search icon
@@ -146,4 +191,4 @@ class _HomeAppBarState extends State<HomeAppBar> {
       ),
     );
   }
-} 
+}

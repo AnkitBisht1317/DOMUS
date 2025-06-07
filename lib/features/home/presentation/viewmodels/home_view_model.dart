@@ -94,13 +94,13 @@ class HomeViewModel extends ChangeNotifier {
   }
 
   void navigateToCart() {
-    // Implement cart navigation
+    // This method will be called when the cart icon is pressed
+    // You can add any additional logic here if needed
   }
 
   void navigateToNotifications() {
-    // Implement notifications navigation
+    // This method will be called from the UI when needed
   }
-
   void navigateToSearch() {
     // Implement search navigation
   }
@@ -108,4 +108,4 @@ class HomeViewModel extends ChangeNotifier {
   void navigateToMenu() {
     // Implement menu navigation
   }
-} 
+}

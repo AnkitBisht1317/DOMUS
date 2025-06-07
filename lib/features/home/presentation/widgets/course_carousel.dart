@@ -180,14 +180,16 @@ class CourseCarousel extends StatelessWidget {
               TextButton(
                 onPressed: () => viewModel.addToCart(viewModel.currentIndex),
                 style: TextButton.styleFrom(
-                  padding: const EdgeInsets.all(6),
+                  padding: EdgeInsets.zero,
+                  minimumSize: Size.zero,
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 ),
-                child: const Text(
-                  'Add to cart',
-                  style: TextStyle(
-                    color: Colors.blue,
+                child: Text(
+                  viewModel.isInCart(viewModel.currentIndex) ? 'Added to Cart' : 'Add to Cart',
+                  style: const TextStyle(
                     fontSize: 13,
-                    fontWeight: FontWeight.w500,
+                    color: Colors.blue,
+                    decoration: TextDecoration.underline,
                   ),
                 ),
               ),
@@ -220,4 +222,4 @@ class CourseCarousel extends StatelessWidget {
       ),
     );
   }
-} 
+}

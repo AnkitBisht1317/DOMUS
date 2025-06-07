@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_advanced_drawer/flutter_advanced_drawer.dart';
+import '../../../../main.dart';
+import '../viewmodels/cart_view_model.dart';
 import '../viewmodels/home_view_model.dart';
 import '../viewmodels/lectures_view_model.dart';
 import '../viewmodels/testimonials_view_model.dart';
@@ -78,128 +80,136 @@ class _HomeScreenState extends State<HomeScreen> {
         ChangeNotifierProvider(create: (_) => QuestionViewModel()),
         ChangeNotifierProvider(create: (_) => TestSeriesViewModel()),
         ChangeNotifierProvider(create: (_) => CategoryTabsViewModel()),
-        ChangeNotifierProvider(create: (_) => HomeDrawerViewModel()),
+        ChangeNotifierProvider(create: (_) => HomeDrawerViewModel()), // No need to pass navigatorKey here
       ],
-      child: AdvancedDrawer(
-        backdrop: Container(
-          width: double.infinity,
-          height: double.infinity,
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [Color(0xFF022150), Color(0xFF1B3B6F)],
-            ),
-          ),
-        ),
-        controller: _advancedDrawerController,
-        animationCurve: Curves.easeInOut,
-        animationDuration: const Duration(milliseconds: 300),
-        animateChildDecoration: true,
-        rtlOpening: false,
-        disabledGestures: false,
-        childDecoration: const BoxDecoration(
-          borderRadius: BorderRadius.all(Radius.circular(16)),
-        ),
-        drawer: HomeDrawer(controller: _advancedDrawerController),
-        child: Theme(
-          data: ThemeData(
-            useMaterial3: true,
-            brightness: Brightness.light,
-            appBarTheme: const AppBarTheme(
-              systemOverlayStyle: SystemUiOverlayStyle(
-                statusBarColor: Colors.transparent,
-                statusBarBrightness: Brightness.dark,
-                statusBarIconBrightness: Brightness.light,
+      child: Builder(
+        builder: (context) {
+          // Connect the view models
+          final courseCarouselViewModel = Provider.of<CourseCarouselViewModel>(context, listen: false);
+          final cartViewModel = Provider.of<CartViewModel>(context, listen: false);
+          courseCarouselViewModel.setCartViewModel(cartViewModel);
+          
+          return AdvancedDrawer(
+            backdrop: Container(
+              width: double.infinity,
+              height: double.infinity,
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [Color(0xFF022150), Color(0xFF1B3B6F)],
+                ),
               ),
             ),
-          ),
-          child: Scaffold(
-            backgroundColor: const Color(0xFFF8F8F8),
-            body: Stack(
-              children: [
-                // Background gradient
-                Positioned(
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  height: height * 0.35,
-                  child: Container(
-                    decoration: const BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          Color(0xFF022150),
-                          Color(0xFF022150),
-                          Color(0xFF022150),
-                        ],
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                      ),
-                    ),
+            controller: _advancedDrawerController,
+            animationCurve: Curves.easeInOut,
+            animationDuration: const Duration(milliseconds: 300),
+            animateChildDecoration: true,
+            rtlOpening: false,
+            disabledGestures: false,
+            childDecoration: const BoxDecoration(
+              borderRadius: BorderRadius.all(Radius.circular(16)),
+            ),
+            drawer: HomeDrawer(controller: _advancedDrawerController),
+            child: Theme(
+              data: ThemeData(
+                useMaterial3: true,
+                brightness: Brightness.light,
+                appBarTheme: const AppBarTheme(
+                  systemOverlayStyle: SystemUiOverlayStyle(
+                    statusBarColor: Colors.transparent,
+                    statusBarBrightness: Brightness.dark,
+                    statusBarIconBrightness: Brightness.light,
                   ),
                 ),
-                // Main content
-                Column(
+              ),
+              child: Scaffold(
+                backgroundColor: const Color(0xFFF8F8F8),
+                body: Stack(
                   children: [
-                    // Fixed app bar at the top
-                    SafeArea(
-                      child: HomeAppBar(
-                        onMenuTap: _handleMenuButtonPressed,
-                      ),
-                    ),
-                    // Scrollable content
-                    Expanded(
-                      child: SingleChildScrollView(
-                        child: Column(
-                          children: [
-                            _buildHeroBanner(),
-                            Container(
-                              width: double.infinity,
-                              margin: const EdgeInsets.only(top: 8),
-                              decoration: const BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.only(
-                                  topLeft: Radius.circular(24),
-                                  topRight: Radius.circular(24),
-                                ),
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: const [
-                                  SizedBox(height: 16),
-                                  Center(
-                                    child: Text(
-                                      'Domus Homoeopathica',
-                                      style: TextStyle(
-                                        color: Color(0xFFAAAAAA),
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                  ),
-                                  SizedBox(height: 16),
-                                  CategoryTabs(),
-                                  QuestionOfDaySection(),
-                                  TestSeriesSection(),
-                                  CourseCarousel(),
-                                  MyLecturesSection(),
-                                  DoctorWritingsSection(),
-                                  JobPortalSection(),
-                                  TestimonialsSection(),
-                                ],
-                              ),
-                            ),
-                          ],
+                    // Background gradient
+                    Positioned(
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      height: height * 0.35,
+                      child: Container(
+                        decoration: const BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              Color(0xFF022150),
+                              Color(0xFF022150),
+                              Color(0xFF022150),
+                            ],
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                          ),
                         ),
                       ),
                     ),
+                    // Main content
+                    Column(
+                      children: [
+                        // Fixed app bar at the top
+                        SafeArea(
+                          child: HomeAppBar(
+                            onMenuTap: _handleMenuButtonPressed,
+                          ),
+                        ),
+                        // Scrollable content
+                        Expanded(
+                          child: SingleChildScrollView(
+                            child: Column(
+                              children: [
+                                _buildHeroBanner(),
+                                Container(
+                                  width: double.infinity,
+                                  margin: const EdgeInsets.only(top: 8),
+                                  decoration: const BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.only(
+                                      topLeft: Radius.circular(24),
+                                      topRight: Radius.circular(24),
+                                    ),
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: const [
+                                      SizedBox(height: 16),
+                                      Center(
+                                        child: Text(
+                                          'Domus Homoeopathica',
+                                          style: TextStyle(
+                                            color: Color(0xFFAAAAAA),
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ),
+                                      SizedBox(height: 16),
+                                      CategoryTabs(),
+                                      QuestionOfDaySection(),
+                                      TestSeriesSection(),
+                                      CourseCarousel(),
+                                      MyLecturesSection(),
+                                      DoctorWritingsSection(),
+                                      JobPortalSection(),
+                                      TestimonialsSection(),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ],
                 ),
-              ],
+              ),
             ),
-          ),
-        ),
-      ),
+          );
+        }),
     );
   }
 
