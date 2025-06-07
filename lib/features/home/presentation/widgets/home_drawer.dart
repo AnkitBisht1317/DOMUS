@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_advanced_drawer/flutter_advanced_drawer.dart';
+
+import '../screens/profile_drawer.dart';
 import '../screens/notification_screen.dart';
 import '../viewmodels/home_drawer_viewmodel.dart';
-import 'package:flutter_advanced_drawer/flutter_advanced_drawer.dart';
 
 class HomeDrawer extends StatelessWidget {
   final AdvancedDrawerController controller;
@@ -19,7 +21,6 @@ class HomeDrawer extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const SizedBox(height: 24),
-                // Close button and Logo section
                 Row(
                   children: [
                     GestureDetector(
@@ -35,54 +36,40 @@ class HomeDrawer extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 24),
-                // Bigger Logo
                 Image.asset(
                   'assets/logo.png',
                   height: 100,
                 ),
                 const SizedBox(height: 40),
-                // Scrollable content
                 Expanded(
                   child: SingleChildScrollView(
                     physics: const BouncingScrollPhysics(),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // My Details section
-                        const Text(
-                          'My Details',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 24,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
+                        _buildSectionTitle('My Details'),
                         const SizedBox(height: 20),
-                        ..._buildAnimatedSection(context, drawerViewModel.groupedDrawerItems['Main'] ?? [], 0), // Pass context here
+                        ..._buildAnimatedSection(
+                          context,
+                          drawerViewModel.groupedDrawerItems['Main'] ?? [],
+                          0,
+                        ),
                         const SizedBox(height: 32),
-                        // Miscellaneous section
-                        const Text(
-                          'Miscellaneous',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 24,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
+                        _buildSectionTitle('Miscellaneous'),
                         const SizedBox(height: 20),
-                        ..._buildAnimatedSection(context, drawerViewModel.groupedDrawerItems['Miscellaneous'] ?? [], 5), // Pass context here
+                        ..._buildAnimatedSection(
+                          context,
+                          drawerViewModel.groupedDrawerItems['Miscellaneous'] ?? [],
+                          5,
+                        ),
                         const SizedBox(height: 32),
-                        // About Us section
-                        const Text(
-                          'About Us',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 24,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
+                        _buildSectionTitle('About Us'),
                         const SizedBox(height: 20),
-                        ..._buildAnimatedSection(context, drawerViewModel.groupedDrawerItems['About Us'] ?? [], 10), // Pass context here
+                        ..._buildAnimatedSection(
+                          context,
+                          drawerViewModel.groupedDrawerItems['About Us'] ?? [],
+                          10,
+                        ),
                         const SizedBox(height: 32),
                       ],
                     ),
@@ -96,7 +83,18 @@ class HomeDrawer extends StatelessWidget {
     );
   }
 
-  List<Widget> _buildAnimatedSection(BuildContext context, List<DrawerItem> items, int startIndex) { // Add BuildContext context here
+  Widget _buildSectionTitle(String title) {
+    return Text(
+      title,
+      style: const TextStyle(
+        color: Colors.white,
+        fontSize: 24,
+        fontWeight: FontWeight.w500,
+      ),
+    );
+  }
+
+  List<Widget> _buildAnimatedSection(BuildContext context, List<DrawerItem> items, int startIndex) {
     return items.asMap().entries.map((entry) {
       final index = entry.key;
       final item = entry.value;
@@ -113,7 +111,7 @@ class HomeDrawer extends StatelessWidget {
             ),
           );
         },
-        child: _buildDrawerItem(item, context), // Pass context here
+        child: _buildDrawerItem(item, context),
       );
     }).toList();
   }
@@ -121,11 +119,7 @@ class HomeDrawer extends StatelessWidget {
   Widget _buildDrawerItem(DrawerItem item, BuildContext context) {
     return ListTile(
       contentPadding: EdgeInsets.zero,
-      leading: Icon(
-        item.icon,
-        color: Colors.white,
-        size: 28,
-      ),
+      leading: Icon(item.icon, color: Colors.white, size: 28),
       title: Text(
         item.title,
         style: const TextStyle(
@@ -135,17 +129,22 @@ class HomeDrawer extends StatelessWidget {
         ),
       ),
       onTap: () {
-        if (item.title == 'Notification') {
-          controller.hideDrawer();
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const NotificationScreen(),
-            ),
-          );
-        } else {
-          item.onTap();
-        }
+        controller.hideDrawer();
+        Future.delayed(const Duration(milliseconds: 300), () {
+          if (item.title == 'Profile') {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const ProfileDrawer()),
+            );
+          } else if (item.title == 'Notification') {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const NotificationScreen()),
+            );
+          } else {
+            item.onTap?.call();
+          }
+        });
       },
       minLeadingWidth: 24,
       visualDensity: VisualDensity.comfortable,
