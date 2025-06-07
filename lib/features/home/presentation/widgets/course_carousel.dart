@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import '../screens/payment_screen.dart';
 import '../viewmodels/course_carousel_view_model.dart';
 import '../../domain/models/course_item.dart';
+import 'package:domus/features/home/presentation/viewmodels/payment_viewmodel.dart';
+import 'package:domus/features/home/domain/models/payment_model.dart';
+import 'package:domus/config/routes/routes.dart';
 
 class CourseCarousel extends StatelessWidget {
   const CourseCarousel({Key? key}) : super(key: key);
@@ -14,7 +18,7 @@ class CourseCarousel extends StatelessWidget {
         return Container(
           margin: const EdgeInsets.only(top: 16),
           child: CarouselSlider(
-            items: viewModel.courses.map((course) => _buildCourseCard(course, viewModel)).toList(),
+            items: viewModel.courses.map((course) => _buildCourseCard(context, course, viewModel)).toList(), // Pass context here
             options: CarouselOptions(
               height: 500,
               aspectRatio: 16/9,
@@ -34,7 +38,8 @@ class CourseCarousel extends StatelessWidget {
     );
   }
 
-  Widget _buildCourseCard(CourseItem course, CourseCarouselViewModel viewModel) {
+  // Add context to the method signature
+  Widget _buildCourseCard(BuildContext context, CourseItem course, CourseCarouselViewModel viewModel) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 4.0),
       child: Card(
@@ -158,7 +163,26 @@ class CourseCarousel extends StatelessWidget {
                 width: double.infinity,
                 height: 36,
                 child: ElevatedButton(
-                  onPressed: () => viewModel.buyNow(viewModel.currentIndex),
+                  // Inside the onPressed method of Buy Now button
+                  onPressed: () {
+                    final paymentViewModel = Provider.of<PaymentViewModel>(context, listen: false);
+                    // Convert CourseItem to PaymentModel
+                    final paymentItem = PaymentModel(
+                      itemName: course.title,
+                      price: double.parse(course.price.replaceAll('₹', '').replaceAll(',', '')), // Handle ₹ symbol
+                      quantity: 1, // For direct purchase, quantity is 1
+                      batchDuration: "1Year",
+                      startDate: "2023-04-01",
+                      endDate: "2024-02-28",
+                    );
+                    paymentViewModel.buyNow(paymentItem);
+                    
+                    // Direct navigation to PaymentScreen instead of using named routes
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const PaymentScreen()),
+                    );
+                  },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.black,
                     shape: RoundedRectangleBorder(

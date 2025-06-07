@@ -1,7 +1,11 @@
+import 'package:domus/features/home/presentation/screens/payment_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../viewmodels/cart_view_model.dart';
 import '../../domain/models/cart_item.dart';
+import 'package:domus/features/home/presentation/viewmodels/payment_viewmodel.dart';
+import 'package:domus/features/home/domain/models/payment_model.dart';
+import 'package:domus/config/routes/routes.dart';
 
 class CartScreen extends StatelessWidget {
   const CartScreen({Key? key}) : super(key: key);
@@ -95,7 +99,7 @@ class CartScreen extends StatelessWidget {
             itemCount: viewModel.cartItems.length,
             itemBuilder: (context, index) {
               final item = viewModel.cartItems[index];
-              return CartItemCard(item: item, viewModel: viewModel);
+              return CartItemCard(item: item, viewModel: viewModel); // Pass context to CartItemCard if needed for navigation inside it
             },
           ),
         ),
@@ -212,8 +216,25 @@ class CartItemCard extends StatelessWidget {
                         ),
                       ),
                       ElevatedButton(
+                        // Inside the onPressed method of Buy button
                         onPressed: () {
-                          // Implement buy functionality
+                          final paymentViewModel = Provider.of<PaymentViewModel>(context, listen: false);
+                          // Convert CartItem to PaymentModel
+                          final paymentItem = PaymentModel(
+                            itemName: item.title,
+                            price: double.parse(item.price.replaceAll('₹', '').replaceAll(',', '')), // Handle ₹ symbol
+                            quantity: 1, // Assuming quantity is 1 for a single item buy from cart
+                            batchDuration: "1Year",
+                            startDate: "2023-04-01",
+                            endDate: "2024-02-28",
+                          );
+                          paymentViewModel.addItemToCart(paymentItem); // Add the item to the payment view model
+                          
+                          // Direct navigation to PaymentScreen instead of using named routes
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => const PaymentScreen()),
+                          );
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.black,
@@ -221,7 +242,7 @@ class CartItemCard extends StatelessWidget {
                             borderRadius: BorderRadius.circular(4),
                           ),
                         ),
-                        child: const Text('Buy'),
+                        child: const Text('Buy',style: TextStyle(color: Colors.white),),
                       ),
                     ],
                   ),
