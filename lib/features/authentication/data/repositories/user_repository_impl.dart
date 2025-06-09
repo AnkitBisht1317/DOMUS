@@ -33,6 +33,7 @@ class UserRepositoryImpl implements UserRepository {
         'country': userDetails.country,
         'domicileState': userDetails.domicileState,
         'district': userDetails.district,
+        'profilePhoto': userDetails.profilePhoto, // Added profilePhoto field
         'lastUpdated': FieldValue.serverTimestamp(),
       });
     } catch (e) {
@@ -63,6 +64,7 @@ class UserRepositoryImpl implements UserRepository {
         country: data['country'] as String,
         domicileState: data['domicileState'] as String,
         district: data['district'] as String,
+        profilePhoto: data['profilePhoto'] as String?, // Added profilePhoto retrieval
       );
     } catch (e) {
       throw Exception('Failed to get user details: $e');
@@ -86,4 +88,4 @@ class UserRepositoryImpl implements UserRepository {
       throw Exception('Failed to save academic details: $e');
     }
   }
-} 
+}

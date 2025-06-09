@@ -19,8 +19,6 @@ import 'package:domus/features/authentication/domain/view model/personal_auth_mo
 import 'features/home/presentation/viewmodels/cart_view_model.dart';
 import 'features/home/presentation/viewmodels/profile_view_model.dart';
 import 'features/home/presentation/viewmodels/payment_viewmodel.dart';
-import 'firebase_options.dart';
-import 'features/home/presentation/viewmodels/bookmark_viewmodel.dart';
 import 'package:domus/features/home/presentation/viewmodels/doctor_writings_view_model.dart';
 import 'package:domus/features/home/presentation/viewmodels/job_portal_view_model.dart';
 import 'config/routes/routes.dart';
@@ -29,7 +27,13 @@ void main() async {
   try {
     WidgetsFlutterBinding.ensureInitialized();
     await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
+      options: FirebaseOptions(
+        apiKey: 'AIzaSyCGE34vUTnRIk0WOj_KT6hbCZZZkNdi6UM',
+        appId: '1:91666550205:android:53fcaa87dd468d31d496d4',
+        messagingSenderId: '91666550205',
+        projectId: 'domus-app-3f8ae',
+        // Optionally, add other fields like authDomain, storageBucket, etc.
+      ),
     );
     runApp(const MyApp());
   } catch (e) {
@@ -85,7 +89,6 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => HomeDrawerViewModel()),
         ChangeNotifierProvider(create: (_) => CartViewModel()),
         ChangeNotifierProvider(create: (_) => ProfileViewModel()),
-        ChangeNotifierProvider(create: (_) => BookmarkViewModel()),
         ChangeNotifierProvider(create: (_) => PaymentViewModel()),
       ],
       child: MaterialApp(
