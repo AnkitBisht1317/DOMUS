@@ -166,18 +166,18 @@ class CourseCarousel extends StatelessWidget {
                   // Inside the onPressed method of Buy Now button
                   onPressed: () {
                     final paymentViewModel = Provider.of<PaymentViewModel>(context, listen: false);
-                    // Convert CourseItem to PaymentModel
+                    // Convert CourseItem to PaymentModel with actual course dates
                     final paymentItem = PaymentModel(
                       itemName: course.title,
                       price: double.parse(course.price.replaceAll('₹', '').replaceAll(',', '')), // Handle ₹ symbol
                       quantity: 1, // For direct purchase, quantity is 1
-                      batchDuration: "1Year",
-                      startDate: "2023-04-01",
-                      endDate: "2024-02-28",
+                      batchDuration: "1Year", // You could calculate this from start and end dates
+                      startDate: course.startDate, // Use actual course start date
+                      endDate: course.endDate, // Use actual course end date
                     );
                     paymentViewModel.buyNow(paymentItem);
                     
-                    // Direct navigation to PaymentScreen instead of using named routes
+                    // Direct navigation to PaymentScreen
                     Navigator.push(
                       context,
                       MaterialPageRoute(builder: (context) => const PaymentScreen()),

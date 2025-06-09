@@ -19,10 +19,10 @@ class PaymentViewModel extends ChangeNotifier {
   // Calculate total after all discounts
   double get totalAmount => subtotal - _itemDiscount - _couponDiscount + _deliveryCharge;
 
-  void addItemToCart(PaymentModel item) {
+  /*void addItemToCart(PaymentModel item) {
     _cartItems.add(item);
     notifyListeners();
-  }
+  }*/
 
   void clearCart() {
     _cartItems.clear();
@@ -36,9 +36,23 @@ class PaymentViewModel extends ChangeNotifier {
   void buyNow(PaymentModel item) {
     _cartItems.clear(); // Clear previous items for a direct purchase
     _cartItems.add(item);
-    // Set default discount for the item (can be adjusted based on business logic)
-    _itemDiscount = item.total * 0.5; // 50% discount as shown in the image
+    // Don't apply additional discount since the price is already discounted
+    _itemDiscount = 0.0; // Remove the 50% discount
     notifyListeners();
+  }
+  
+  // Make addItemToCart behave the same as buyNow for consistency
+  void addItemToCart(PaymentModel item) {
+    _cartItems.clear(); // Clear previous items for consistency
+    _cartItems.add(item);
+    _itemDiscount = 0.0; // No additional discount
+    notifyListeners();
+  }
+  
+  // Add this method to prevent data loss when navigating back
+  void preserveCartItems() {
+    // This method intentionally does nothing to preserve the cart items
+    // when navigating back to the payment screen
   }
 
   void applyCoupon(String code) {

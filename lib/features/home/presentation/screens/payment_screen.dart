@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:domus/features/home/presentation/viewmodels/payment_viewmodel.dart';
@@ -24,6 +25,23 @@ class _PaymentScreenState extends State<PaymentScreen> {
     _emailController.dispose();
     _phoneController.dispose();
     super.dispose();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    // Pre-fill the phone number with the current user's phone number
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null && user.phoneNumber != null) {
+      // Remove the country code (+91) if present
+      String phoneNumber = user.phoneNumber!;
+      if (phoneNumber.startsWith('+91')) {
+        phoneNumber = phoneNumber.substring(3);
+      } else if (phoneNumber.startsWith('+')) {
+        phoneNumber = phoneNumber.substring(phoneNumber.indexOf(' ') + 1);
+      }
+      _phoneController.text = phoneNumber;
+    }
   }
 
   @override
@@ -247,16 +265,9 @@ Row(
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
+                    // Only show the original price, no strikethrough
                     Text(
                       '₹${item.price.toInt()}',
-                      style: TextStyle(
-                        decoration: TextDecoration.lineThrough,
-                        color: Colors.grey.shade600,
-                        fontSize: 14,
-                      ),
-                    ),
-                    Text(
-                      '₹${viewModel.totalAmount.toInt()}',
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 18,
@@ -355,10 +366,17 @@ Row(
           decoration: const InputDecoration(
             labelText: 'Student Email',
             border: OutlineInputBorder(),
+            hintText: 'example@email.com',
           ),
+          keyboardType: TextInputType.emailAddress,
           validator: (value) {
             if (value == null || value.isEmpty) {
               return 'Please enter your email';
+            }
+            // Email validation regex
+            final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+            if (!emailRegex.hasMatch(value)) {
+              return 'Please enter a valid email address';
             }
             return null;
           },
@@ -369,10 +387,19 @@ Row(
           decoration: const InputDecoration(
             labelText: 'Mobile Number',
             border: OutlineInputBorder(),
+            hintText: '10-digit mobile number',
+            prefixText: '+91 ',
           ),
+          keyboardType: TextInputType.phone,
+          maxLength: 10,
           validator: (value) {
             if (value == null || value.isEmpty) {
               return 'Please enter your phone number';
+            }
+            // Phone validation regex for 10 digits
+            final phoneRegex = RegExp(r'^[0-9]{10}$');
+            if (!phoneRegex.hasMatch(value)) {
+              return 'Please enter a valid 10-digit mobile number';
             }
             return null;
           },
@@ -428,15 +455,15 @@ Row(
   // Updated method for the fixed payment button at the bottom
   Widget _buildFixedPayButton(PaymentViewModel viewModel) {
     return Positioned(
-      bottom: 20, // Position it higher than before
+      bottom: 20,
       left: 16,
       right: 16,
       child: Container(
         width: double.infinity,
         height: 50, // Make it more compact
         decoration: BoxDecoration(
-          color: Colors.blue, // Solid blue color like in the image
-          borderRadius: BorderRadius.circular(15), // Fully rounded corners
+          color: Colors.blue,
+          borderRadius: BorderRadius.circular(15),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.1),

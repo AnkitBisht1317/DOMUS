@@ -225,12 +225,12 @@ class CartItemCard extends StatelessWidget {
                             price: double.parse(item.price.replaceAll('₹', '').replaceAll(',', '')), // Handle ₹ symbol
                             quantity: 1, // Assuming quantity is 1 for a single item buy from cart
                             batchDuration: "1Year",
-                            startDate: "2023-04-01",
-                            endDate: "2024-02-28",
+                            startDate: item.startDate ?? "", // Use cart item start date if available
+                            endDate: item.endDate ?? "", // Use cart item end date if available
                           );
-                          paymentViewModel.addItemToCart(paymentItem); // Add the item to the payment view model
+                          paymentViewModel.addItemToCart(paymentItem); // Use addItemToCart for consistency
                           
-                          // Direct navigation to PaymentScreen instead of using named routes
+                          // Direct navigation to PaymentScreen
                           Navigator.push(
                             context,
                             MaterialPageRoute(builder: (context) => const PaymentScreen()),

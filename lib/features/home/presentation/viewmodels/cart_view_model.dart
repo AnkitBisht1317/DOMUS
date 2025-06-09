@@ -23,6 +23,8 @@ class CartViewModel extends ChangeNotifier {
           subtitle: course.subtitle,
           price: course.price,
           imagePath: course.iconPaths.first,
+          startDate: course.startDate, // Pass the start date
+          endDate: course.endDate, // Pass the end date
         ),
       );
       notifyListeners();
