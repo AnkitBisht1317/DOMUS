@@ -20,6 +20,7 @@ import 'features/home/presentation/viewmodels/cart_view_model.dart';
 import 'features/home/presentation/viewmodels/profile_view_model.dart';
 import 'features/home/presentation/viewmodels/payment_viewmodel.dart';
 import 'firebase_options.dart';
+import 'features/home/presentation/viewmodels/bookmark_viewmodel.dart';
 import 'package:domus/features/home/presentation/viewmodels/doctor_writings_view_model.dart';
 import 'package:domus/features/home/presentation/viewmodels/job_portal_view_model.dart';
 import 'config/routes/routes.dart';
@@ -84,6 +85,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => HomeDrawerViewModel()),
         ChangeNotifierProvider(create: (_) => CartViewModel()),
         ChangeNotifierProvider(create: (_) => ProfileViewModel()),
+        ChangeNotifierProvider(create: (_) => BookmarkViewModel()),
         ChangeNotifierProvider(create: (_) => PaymentViewModel()),
       ],
       child: MaterialApp(
