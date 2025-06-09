@@ -90,7 +90,7 @@ class SelectOption extends StatelessWidget {
                             );
                           } else {
                             // Navigate based on user type
-                            Navigator.push(
+                            Navigator.pushAndRemoveUntil(
                               context,
                               MaterialPageRoute(
                                 builder: (context) => viewModel.userType == 'student'
@@ -113,7 +113,7 @@ class SelectOption extends StatelessWidget {
                                         ),
                                       )
                                     : ProfessionalDetails(gender: gender,fullName: fullname, mobileNumber: phoneNumber),
-                              ),
+                              ),(route) => false,
                             );
                           }
                         },

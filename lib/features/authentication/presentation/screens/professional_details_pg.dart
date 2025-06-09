@@ -45,7 +45,7 @@ class _ProfessionalDetailsPGState extends State<ProfessionalDetailsPG> {
 
       // Navigate to welcome screen after successful update
       if (mounted) {
-        Navigator.pushReplacement(
+        Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(
             builder: (context) => WelcomeScreen(
@@ -53,6 +53,7 @@ class _ProfessionalDetailsPGState extends State<ProfessionalDetailsPG> {
               gender: widget.gender,
             ),
           ),
+          (route) => false, // This removes all previous routes
         );
       }
     } catch (e) {
@@ -377,4 +378,4 @@ class _ProfessionalDetailsPGState extends State<ProfessionalDetailsPG> {
       ),
     );
   }
-} 
+}

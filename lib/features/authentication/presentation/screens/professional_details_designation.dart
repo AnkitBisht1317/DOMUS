@@ -43,7 +43,7 @@ class _ProfessionalDetailsState extends State<ProfessionalDetails> {
       }, SetOptions(merge: true));
 
       if (mounted) {
-        Navigator.push(
+        Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(
             builder: (context) => ProfessionalDetailsUG(
@@ -52,7 +52,7 @@ class _ProfessionalDetailsState extends State<ProfessionalDetails> {
               fullName: widget.fullName,
               mobileNumber: widget.mobileNumber,
             ),
-          ),
+          ),(route) => false,
         );
       }
     } catch (e) {

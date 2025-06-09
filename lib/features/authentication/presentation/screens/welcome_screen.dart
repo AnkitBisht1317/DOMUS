@@ -36,7 +36,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     // Navigate to HomeScreen after 3.5 seconds
     Future.delayed(const Duration(milliseconds: 3500), () {
       if (mounted) {
-        Navigator.of(context).pushReplacement(
+        // Use pushNamedAndRemoveUntil instead of pushReplacement
+        Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(
             builder: (context) => MultiProvider(
               providers: [
@@ -50,6 +51,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               child: const HomeScreen(),
             ),
           ),
+          (route) => false, // This removes all previous routes
         );
       }
     });

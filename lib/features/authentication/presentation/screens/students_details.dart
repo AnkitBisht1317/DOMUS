@@ -217,8 +217,8 @@ class StudentDetails extends StatelessWidget {
                                     ),
                                   );
 
-                                  // Navigate to welcome screen
-                                  Navigator.pushReplacement(
+                                  // Navigate to welcome screen and clear all previous routes
+                                  Navigator.pushAndRemoveUntil(
                                     context,
                                     MaterialPageRoute(
                                       builder: (context) => WelcomeScreen(
@@ -226,6 +226,7 @@ class StudentDetails extends StatelessWidget {
                                         gender: gender,
                                       ),
                                     ),
+                                    (route) => false, // This removes all previous routes
                                   );
                                 } else if (viewModel.error != null) {
                                   ScaffoldMessenger.of(context).showSnackBar(

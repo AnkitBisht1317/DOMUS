@@ -42,7 +42,7 @@ class _ProfessionalDetailsUGState extends State<ProfessionalDetailsUG> {
 
       // Navigate to PG page after successful update
       if (mounted) {
-        Navigator.push(
+        Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(
             builder: (context) => ProfessionalDetailsPG(
@@ -51,7 +51,7 @@ class _ProfessionalDetailsUGState extends State<ProfessionalDetailsUG> {
               fullName: widget.fullName,
               mobileNumber: widget.mobileNumber,
             ),
-          ),
+          ),(route) => false,
         );
       }
     } catch (e) {
