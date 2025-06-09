@@ -84,6 +84,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ChangeNotifierProvider(create: (_) => CategoryTabsViewModel()),
         ChangeNotifierProvider(create: (_) => HomeDrawerViewModel()),// No need to pass navigatorKey here
         ChangeNotifierProvider(create: (_) => ProfileViewModel()),
+        ChangeNotifierProvider(create: (_) => BookmarkViewModel()),
       ],
       child: Builder(
         builder: (context) {
