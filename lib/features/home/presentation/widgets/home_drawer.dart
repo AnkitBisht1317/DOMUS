@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:flutter_advanced_drawer/flutter_advanced_drawer.dart';
+import 'package:provider/provider.dart';
 
-import '../screens/profile_drawer.dart';
+import '../screens/bookmark_drawer.dart';
 import '../screens/notification_screen.dart';
+import '../screens/profile_drawer.dart';
 import '../viewmodels/home_drawer_viewmodel.dart';
 
 class HomeDrawer extends StatelessWidget {
@@ -59,7 +60,8 @@ class HomeDrawer extends StatelessWidget {
                         const SizedBox(height: 20),
                         ..._buildAnimatedSection(
                           context,
-                          drawerViewModel.groupedDrawerItems['Miscellaneous'] ?? [],
+                          drawerViewModel.groupedDrawerItems['Miscellaneous'] ??
+                              [],
                           5,
                         ),
                         const SizedBox(height: 32),
@@ -94,7 +96,8 @@ class HomeDrawer extends StatelessWidget {
     );
   }
 
-  List<Widget> _buildAnimatedSection(BuildContext context, List<DrawerItem> items, int startIndex) {
+  List<Widget> _buildAnimatedSection(
+      BuildContext context, List<DrawerItem> items, int startIndex) {
     return items.asMap().entries.map((entry) {
       final index = entry.key;
       final item = entry.value;
@@ -140,6 +143,11 @@ class HomeDrawer extends StatelessWidget {
             Navigator.push(
               context,
               MaterialPageRoute(builder: (_) => const NotificationScreen()),
+            );
+          } else if (item.title == 'Bookmarks') {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const BookmarkDrawer()),
             );
           } else {
             item.onTap?.call();
