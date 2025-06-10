@@ -1,5 +1,4 @@
-
-git import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../viewmodels/quick_fact_viewmodel.dart';
