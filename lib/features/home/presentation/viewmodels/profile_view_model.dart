@@ -4,14 +4,20 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import '../../data/repositories/profile_repository_impl.dart';
+import '../../domain/repositories/profile_repository.dart';
 
 class ProfileViewModel extends ChangeNotifier {
   File? profileImage;
+  String? profileImageUrl;
   bool _isLoading = true;
+  bool _isImageLoading = false; // Add this flag
   String? _error;
   bool _hasProfessionalDetails = false;
 
   bool get isLoading => _isLoading;
+  bool get isImageLoading => _isImageLoading; // Add this getter
   String? get error => _error;
   bool get hasProfessionalDetails => _hasProfessionalDetails;
 
@@ -28,17 +34,19 @@ class ProfileViewModel extends ChangeNotifier {
   final genderController = TextEditingController();
   final designationController = TextEditingController();
 
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final ImagePicker _picker = ImagePicker();
+  final ProfileRepository _profileRepository;
 
-  ProfileViewModel() {
+  ProfileViewModel({ProfileRepository? profileRepository}) : 
+    _profileRepository = profileRepository ?? ProfileRepositoryImpl() {
     loadUserData();
   }
 
   Future<void> loadUserData() async {
     try {
       _isLoading = true;
+      _isImageLoading = true; // Set to true when starting to load
       _error = null;
       notifyListeners();
 
@@ -46,65 +54,47 @@ class ProfileViewModel extends ChangeNotifier {
       if (user?.phoneNumber == null) {
         _error = "User not authenticated";
         _isLoading = false;
+        _isImageLoading = false; // Make sure to set to false
         notifyListeners();
         return;
       }
 
-      // Fetch personal details
-      final personalSnapshot = await _firestore
-          .collection('users')
-          .doc(user!.phoneNumber)
-          .collection('personalDetails')
-          .doc('current')
-          .get();
-
-      if (personalSnapshot.exists && personalSnapshot.data() != null) {
-        final personalData = personalSnapshot.data()!;
-        nameController.text = personalData['fullName'] ?? '';
-        mobileController.text = personalData['phoneNumber'] ?? '';
-        emailController.text = personalData['email'] ?? '';
-        genderController.text = personalData['gender'] ?? '';
-        dobController.text = personalData['dob'] ?? '';
-        domicileStateController.text = personalData['domicileState'] ?? '';
-      }
-
-      // Fetch academic details
-      final academicSnapshot = await _firestore
-          .collection('users')
-          .doc(user.phoneNumber)
-          .collection('academicDetails')
-          .doc('current')
-          .get();
-
-      if (academicSnapshot.exists && academicSnapshot.data() != null) {
-        final academicData = academicSnapshot.data()!;
-        yearController.text = academicData['batch'] ?? '';
-        ugCollegeController.text = academicData['collegeName'] ?? '';
-        ugStateController.text = academicData['collegeState'] ?? '';
-      }
-
-      // Fetch professional details
-      final professionalSnapshot = await _firestore
-          .collection('users')
-          .doc(user.phoneNumber)
-          .collection('professional_details')
-          .doc('current')
-          .get();
-
-      _hasProfessionalDetails = professionalSnapshot.exists && professionalSnapshot.data() != null;
+      // Load all profile data using the repository
+      final profileData = await _profileRepository.loadProfileData(user!.phoneNumber!);
       
-      if (_hasProfessionalDetails) {
-        final professionalData = professionalSnapshot.data()!;
-        designationController.text = professionalData['designation'] ?? '';
-        pgCollegeController.text = professionalData['pg_clg_name'] ?? '';
-        pgStateController.text = professionalData['pg_state'] ?? '';
+      if (profileData != null) {
+        // Set personal details
+        nameController.text = profileData['fullName'] ?? '';
+        mobileController.text = profileData['phoneNumber'] ?? '';
+        emailController.text = profileData['email'] ?? '';
+        genderController.text = profileData['gender'] ?? '';
+        dobController.text = profileData['dob'] ?? '';
+        domicileStateController.text = profileData['domicileState'] ?? '';
+        
+        // Get profile image URL
+        profileImageUrl = profileData['profilePhotoUrl'];
+        
+        // Set academic details
+        yearController.text = profileData['batch'] ?? '';
+        ugCollegeController.text = profileData['collegeName'] ?? '';
+        ugStateController.text = profileData['collegeState'] ?? '';
+        
+        // Set professional details if they exist
+        _hasProfessionalDetails = profileData.containsKey('designation');
+        if (_hasProfessionalDetails) {
+          designationController.text = profileData['designation'] ?? '';
+          pgCollegeController.text = profileData['pg_clg_name'] ?? '';
+          pgStateController.text = profileData['pg_state'] ?? '';
+        }
       }
 
       _isLoading = false;
+      _isImageLoading = false; // Always set to false when done
       notifyListeners();
     } catch (e) {
       _error = "Failed to load user data: $e";
       _isLoading = false;
+      _isImageLoading = false; // Always set to false on error
       notifyListeners();
     }
   }
@@ -114,50 +104,59 @@ class ProfileViewModel extends ChangeNotifier {
       final user = _auth.currentUser;
       if (user?.phoneNumber == null) return;
 
-      // Determine which collection to update based on the field
-      if (['fullName', 'email', 'gender', 'dob', 'domicileState'].contains(field)) {
-        // Update personal details
-        await _firestore
-            .collection('users')
-            .doc(user!.phoneNumber)
-            .collection('personalDetails')
-            .doc('current')
-            .update({field: value});
-      } else if (['batch', 'collegeName', 'collegeState'].contains(field)) {
-        // Map view model field names to database field names
-        String dbField = field;
-        if (field == 'yearBatch') dbField = 'batch';
-        if (field == 'ugCollege') dbField = 'collegeName';
-        if (field == 'ugState') dbField = 'collegeState';
-
-        // Update academic details
-        await _firestore
-            .collection('users')
-            .doc(user!.phoneNumber)
-            .collection('academicDetails')
-            .doc('current')
-            .update({dbField: value});
-      } else if (['designation', 'pg_clg_name', 'pg_state'].contains(field)) {
-        // Update professional details
-        await _firestore
-            .collection('users')
-            .doc(user!.phoneNumber)
-            .collection('professional_details')
-            .doc('current')
-            .update({field: value});
-      }
+      // Use the repository to update the data
+      await _profileRepository.updateProfileData(
+        user!.phoneNumber!,
+        {field: value}
+      );
     } catch (e) {
       debugPrint("Error updating user data: $e");
     }
   }
 
   Future<void> pickImage() async {
-    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
-      profileImage = File(pickedFile.path);
+    try {
+      final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+      if (pickedFile != null) {
+        profileImage = File(pickedFile.path);
+        _isImageLoading = true; // Set to true when starting to upload
+        notifyListeners();
+        
+        // Get current user
+        final user = _auth.currentUser;
+        if (user?.phoneNumber == null) {
+          debugPrint("Error: User phone number is null");
+          _isImageLoading = false; // Make sure to set to false on error
+          notifyListeners();
+          return;
+        }
+        
+        // Use the repository to upload the image
+        final downloadUrl = await _profileRepository.uploadProfileImage(
+          profileImage!,
+          user!.phoneNumber!
+        );
+        
+        if (downloadUrl != null) {
+          profileImageUrl = downloadUrl;
+          
+          // Update the profile photo URL in Firestore
+          await _profileRepository.updateProfileData(
+            user.phoneNumber!,
+            {'profilePhotoUrl': downloadUrl}
+          );
+        }
+        
+        // Always set to false when done, regardless of success or failure
+        _isImageLoading = false;
+        notifyListeners();
+        debugPrint("Profile image updated successfully");
+      }
+    } catch (e, stackTrace) {
+      debugPrint("Error uploading profile image: $e");
+      debugPrint("Stack trace: $stackTrace");
+      _isImageLoading = false; // Set to false on error
       notifyListeners();
-      
-      // TODO: Implement profile image upload to Firebase Storage
     }
   }
 
@@ -166,11 +165,14 @@ class ProfileViewModel extends ChangeNotifier {
       final user = _auth.currentUser;
       if (user?.phoneNumber == null) return false;
 
+      // Delete profile image using the repository
+      await _profileRepository.deleteProfileImage(user!.phoneNumber!);
+      
       // Delete all subcollections first
       // Delete personal details
-      final personalSnapshot = await _firestore
+      final personalSnapshot = await FirebaseFirestore.instance
           .collection('users')
-          .doc(user!.phoneNumber)
+          .doc(user.phoneNumber)
           .collection('personalDetails')
           .get();
       
@@ -179,7 +181,7 @@ class ProfileViewModel extends ChangeNotifier {
       }
       
       // Delete academic details
-      final academicSnapshot = await _firestore
+      final academicSnapshot = await FirebaseFirestore.instance
           .collection('users')
           .doc(user.phoneNumber)
           .collection('academicDetails')
@@ -190,7 +192,7 @@ class ProfileViewModel extends ChangeNotifier {
       }
       
       // Delete professional details
-      final professionalSnapshot = await _firestore
+      final professionalSnapshot = await FirebaseFirestore.instance
           .collection('users')
           .doc(user.phoneNumber)
           .collection('professional_details')
@@ -201,7 +203,7 @@ class ProfileViewModel extends ChangeNotifier {
       }
       
       // Delete main user document
-      await _firestore.collection('users').doc(user.phoneNumber).delete();
+      await FirebaseFirestore.instance.collection('users').doc(user.phoneNumber).delete();
       
       // Try to delete user authentication, but don't fail if it doesn't work
       try {
@@ -216,9 +218,8 @@ class ProfileViewModel extends ChangeNotifier {
       }
       
       debugPrint("Account data deleted");
-      
-      // Check if Firestore data still exists
-      final docSnapshot = await _firestore
+
+      final docSnapshot = await FirebaseFirestore.instance
           .collection('users')
           .doc(user.phoneNumber)
           .get();

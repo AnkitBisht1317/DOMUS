@@ -90,6 +90,12 @@ class HomeDrawerViewModel extends ChangeNotifier {
       onTap: () {},
       category: 'About Us',
     ),
+    DrawerItem(
+      title: 'Gmail',
+      icon: Icons.info_outline,
+      onTap: () {},
+      category: 'Contact Us',
+    ),
   ];
 
   Map<String, List<DrawerItem>> get groupedDrawerItems {
@@ -97,6 +103,7 @@ class HomeDrawerViewModel extends ChangeNotifier {
       'Main': drawerItems.where((item) => item.category == 'Main').toList(),
       'Miscellaneous': drawerItems.where((item) => item.category == 'Miscellaneous').toList(),
       'About Us': drawerItems.where((item) => item.category == 'About Us').toList(),
+      'Contact Us': drawerItems.where((item) => item.category == 'Contact Us').toList(),
     };
   }
 }

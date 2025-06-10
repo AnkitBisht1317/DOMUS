@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart'; // Add this import
 
 import '../viewmodels/profile_view_model.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -87,12 +88,26 @@ class _ProfileDrawerState extends State<ProfileDrawer> {
                     top: height * 0.11,
                     child: GestureDetector(
                       onTap: viewModel.pickImage,
-                      child: CircleAvatar(
-                        radius: width * 0.12,
-                        backgroundImage: viewModel.profileImage != null
-                            ? FileImage(viewModel.profileImage!)
-                            : const AssetImage('assets/male.png')
-                                as ImageProvider,
+                      child: Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          CircleAvatar(
+                            radius: width * 0.12,
+                            backgroundImage: viewModel.profileImageUrl != null
+                                ? NetworkImage(viewModel.profileImageUrl!)
+                                : viewModel.profileImage != null
+                                    ? FileImage(viewModel.profileImage!)
+                                    : const AssetImage('assets/male.png')
+                                        as ImageProvider,
+                            backgroundColor: Colors.transparent,
+                          ),
+                          // Show loading indicator while image is being loaded or updated
+                          if (viewModel.isImageLoading)
+                            SpinKitFadingCircle(
+                              color: Colors.blue,
+                              size: width * 0.12 * 2,
+                            ),
+                        ],
                       ),
                     ),
                   ),
@@ -191,7 +206,7 @@ class _ProfileDrawerState extends State<ProfileDrawer> {
                         profileField(
                             "Year/Batch",
                             viewModel.yearController,
-                            true,
+                            false,
                             width,
                             editableFieldLabel,
                             (val) => setState(() => editableFieldLabel = val)),
@@ -199,7 +214,7 @@ class _ProfileDrawerState extends State<ProfileDrawer> {
                         profileField(
                             "U.G College",
                             viewModel.ugCollegeController,
-                            true,
+                            false,
                             width,
                             editableFieldLabel,
                             (val) => setState(() => editableFieldLabel = val)),
@@ -211,19 +226,20 @@ class _ProfileDrawerState extends State<ProfileDrawer> {
                             width,
                             editableFieldLabel,
                             (val) => setState(() => editableFieldLabel = val)),
-                      profileField(
-                          "P.G College",
-                          viewModel.pgCollegeController,
-                          true,
-                          width,
-                          editableFieldLabel,
-                          (val) => setState(() => editableFieldLabel = val)),
+                      if (viewModel.hasProfessionalDetails) // Show only for professors
+                        profileField(
+                            "P.G College",
+                            viewModel.pgCollegeController,
+                            false,
+                            width,
+                            editableFieldLabel,
+                            (val) => setState(() => editableFieldLabel = val)),
                       SizedBox(height: padding * 1.5),
                       sectionTitle("Other Details", width),
                       profileField(
                           "Date of Birth",
                           viewModel.dobController,
-                          true,
+                          false,
                           width,
                           editableFieldLabel,
                           (val) => setState(() => editableFieldLabel = val)),
@@ -235,13 +251,14 @@ class _ProfileDrawerState extends State<ProfileDrawer> {
                             width,
                             editableFieldLabel,
                             (val) => setState(() => editableFieldLabel = val)),
-                      profileField(
-                          "P.G College state",
-                          viewModel.pgStateController,
-                          true,
-                          width,
-                          editableFieldLabel,
-                          (val) => setState(() => editableFieldLabel = val)),
+                      if(viewModel.hasProfessionalDetails) // Show only for professors
+                        profileField(
+                            "P.G College state",
+                            viewModel.pgStateController,
+                            false,
+                            width,
+                            editableFieldLabel,
+                            (val) => setState(() => editableFieldLabel = val)),
                       profileField(
                           "Domicile State",
                           viewModel.domicileStateController,
@@ -354,6 +371,18 @@ class _ProfileDrawerState extends State<ProfileDrawer> {
     );
   }
 
+  // Add this list of course options at the class level
+  final List<String> courseOptions = [
+    'First Year BHMS',
+    'Second Year BHMS',
+    'Third Year BHMS',
+    'Final Year BHMS',
+    'Intern',
+    'First Year PG Scholar',
+    'Second Year PG Scholar',
+    'Final Year PG Scholar',
+  ];
+
   Widget profileField(
     String label,
     TextEditingController controller,
@@ -362,6 +391,8 @@ class _ProfileDrawerState extends State<ProfileDrawer> {
     String? editableFieldLabel,
     Function(String?) onEditChange,
   ) {
+    // Only allow editing for name and year/batch fields
+    bool canEdit = (label == "Student Name" || label == "Professor Name" || label == "Year/Batch");
     bool isEditing = (editableFieldLabel == label);
     FocusNode focusNode = FocusNode();
 
@@ -372,19 +403,67 @@ class _ProfileDrawerState extends State<ProfileDrawer> {
       }
     });
 
+    // Special handling for Year/Batch field - show dropdown
+    if (label == "Year/Batch") {
+      return Padding(
+        padding: EdgeInsets.symmetric(vertical: screenWidth * 0.025),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              label,
+              style: TextStyle(color: Colors.black54, fontSize: screenWidth * 0.035),
+            ),
+            const SizedBox(height: 8),
+            Container(
+              width: double.infinity,
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.grey.shade700, width: 1.5),
+                color: Colors.white,
+              ),
+              child: DropdownButtonHideUnderline(
+                child: ButtonTheme(
+                  alignedDropdown: true,
+                  child: DropdownButton<String>(
+                    value: courseOptions.contains(controller.text) ? controller.text : null,
+                    hint: Text("Select Course", style: TextStyle(fontSize: screenWidth * 0.038)),
+                    isExpanded: true,
+                    icon: const Icon(Icons.arrow_drop_down),
+                    style: TextStyle(color: Colors.black, fontSize: screenWidth * 0.038),
+                    onChanged: (String? newValue) {
+                      if (newValue != null) {
+                        controller.text = newValue;
+                        saveField(label, newValue);
+                      }
+                    },
+                    items: courseOptions.map<DropdownMenuItem<String>>((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value),
+                      );
+                    }).toList(),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
     return Padding(
       padding: EdgeInsets.symmetric(vertical: screenWidth * 0.025),
       child: TextField(
         controller: controller,
-        readOnly: !isEditing && isEditableField || label == "Mobile Number", // Always make mobile number read-only
-        focusNode: isEditableField && label != "Mobile Number" ? focusNode : null, // No focus node for mobile number
+        readOnly: !isEditing || !canEdit, // Only allow editing for name fields
+        focusNode: canEdit ? focusNode : null, // Only provide focus node for editable fields
         style: TextStyle(fontSize: screenWidth * 0.038),
         decoration: InputDecoration(
           labelText: label,
           labelStyle: TextStyle(color: Colors.black54),
           filled: true,
           fillColor: Colors.white,
-          suffixIcon: isEditableField && label != "Mobile Number" // No edit icon for mobile number
+          suffixIcon: canEdit
               ? IconButton(
                   icon: Icon(
                     isEditing ? Icons.check : Icons.edit,

@@ -42,10 +42,10 @@ class CategoryTabsViewModel extends ChangeNotifier {
       CategoryIcon(
         title: 'Subject Wise MCQ',
         imagePath: 'assets/test.png',
-        categories: [CategoryType.exam, CategoryType.study],
+        categories: [CategoryType.exam],
       ),
       CategoryIcon(
-        title: 'Professionals Corner',
+        title: 'Medicos Corner',
         imagePath: 'assets/medicos_corner.png',
         categories: [CategoryType.community],
       ),
@@ -57,7 +57,7 @@ class CategoryTabsViewModel extends ChangeNotifier {
       CategoryIcon(
         title: 'Study Notes',
         imagePath: 'assets/study_notes.png',
-        categories: [CategoryType.study],
+        categories: [CategoryType.revision],
       ),
       CategoryIcon(
         title: 'HMM',
@@ -77,7 +77,7 @@ class CategoryTabsViewModel extends ChangeNotifier {
       CategoryIcon(
         title: 'Therapeutics',
         imagePath: 'assets/therapeutic.png',
-        categories: [CategoryType.study, CategoryType.revision],
+        categories: [CategoryType.study],
       ),
     ];
     _filterIcons();

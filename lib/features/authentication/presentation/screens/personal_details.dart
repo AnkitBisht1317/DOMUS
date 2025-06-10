@@ -118,6 +118,14 @@ class PersonalDetails extends StatelessWidget {
                           Expanded(
                             child: TextFormField(
                               readOnly: true,
+                              controller: TextEditingController(text: viewModel.selectedGender),
+                              decoration: _inputDecoration(hint: 'Gender'),
+                            ),
+                          ),
+                          SizedBox(width: width * 0.03),
+                          Expanded(
+                            child: TextFormField(
+                              readOnly: true,
                               controller: viewModel.dobController,
                               decoration: _inputDecoration(hint: 'DOB'),
                               onTap: () async {

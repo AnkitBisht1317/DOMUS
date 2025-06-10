@@ -1,47 +1,38 @@
+import 'package:domus/features/authentication/presentation/screens/home_page.dart';
+import 'package:domus/firebase_options.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:domus/features/home/presentation/screens/home_screen.dart';
+import 'package:domus/features/home/presentation/viewmodels/home_view_model.dart';
+import 'package:domus/features/home/domain/repositories/home_repository.dart';
+import 'package:domus/features/home/data/repositories/home_repository_impl.dart';
+import 'package:domus/features/authentication/presentation/screens/personal_details.dart';
+import 'package:domus/features/home/presentation/viewmodels/home_drawer_viewmodel.dart';
+import 'package:domus/features/home/presentation/viewmodels/lectures_view_model.dart';
 import 'package:domus/features/authentication/data/repositories/user_repository_impl.dart';
 import 'package:domus/features/authentication/domain/repositories/user_repository.dart';
 import 'package:domus/features/authentication/domain/view model/home_auth_model.dart';
 import 'package:domus/features/authentication/domain/view model/personal_auth_model.dart';
-import 'package:domus/features/authentication/presentation/screens/home_page.dart';
-import 'package:domus/features/authentication/presentation/screens/personal_details.dart';
-import 'package:domus/features/home/data/repositories/home_repository_impl.dart';
-import 'package:domus/features/home/domain/repositories/home_repository.dart';
-import 'package:domus/features/home/presentation/screens/home_screen.dart';
-import 'package:domus/features/home/presentation/viewmodels/doctor_writings_view_model.dart';
-import 'package:domus/features/home/presentation/viewmodels/home_drawer_viewmodel.dart';
-import 'package:domus/features/home/presentation/viewmodels/home_view_model.dart';
-import 'package:domus/features/home/presentation/viewmodels/job_portal_view_model.dart';
-import 'package:domus/features/home/presentation/viewmodels/lectures_view_model.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:provider/provider.dart';
-
-import 'config/routes/routes.dart';
 import 'features/home/presentation/viewmodels/cart_view_model.dart';
-import 'features/home/presentation/viewmodels/payment_viewmodel.dart';
 import 'features/home/presentation/viewmodels/profile_view_model.dart';
-import 'features/home/presentation/viewmodels/quick_fact_viewmodel.dart';
+import 'features/home/presentation/viewmodels/payment_viewmodel.dart';
+import 'package:domus/features/home/presentation/viewmodels/doctor_writings_view_model.dart';
+import 'package:domus/features/home/presentation/viewmodels/job_portal_view_model.dart';
+import 'config/routes/routes.dart';
+
+// Make sure your main.dart initializes Firebase properly
+import 'package:firebase_core/firebase_core.dart';
 
 void main() async {
-  try {
-    WidgetsFlutterBinding.ensureInitialized();
-    await Firebase.initializeApp(
-      options: FirebaseOptions(
-        apiKey: 'AIzaSyCGE34vUTnRIk0WOj_KT6hbCZZZkNdi6UM',
-        appId: '1:91666550205:android:53fcaa87dd468d31d496d4',
-        messagingSenderId: '91666550205',
-        projectId: 'domus-app-3f8ae',
-        // Optionally, add other fields like authDomain, storageBucket, etc.
-      ),
-    );
-    runApp(const MyApp());
-  } catch (e) {
-    print('Error initializing Firebase: $e');
-    runApp(const MyApp());
-  }
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -92,7 +83,6 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => CartViewModel()),
         ChangeNotifierProvider(create: (_) => ProfileViewModel()),
         ChangeNotifierProvider(create: (_) => PaymentViewModel()),
-        ChangeNotifierProvider(create: (_) => QuickFactViewModel()),
       ],
       child: MaterialApp(
         navigatorKey: navigatorKey,
@@ -148,8 +138,7 @@ class MyApp extends StatelessWidget {
                       ChangeNotifierProvider<PersonalAuthModel>(
                         create: (context) => PersonalAuthModel(
                           userRepository: context.read<UserRepository>(),
-                        )..phoneController.text =
-                            snapshot.data!.phoneNumber ?? '',
+                        )..phoneController.text = snapshot.data!.phoneNumber ?? '',
                       ),
                     ],
                     child: const PersonalDetails(),
@@ -169,3 +158,5 @@ class MyApp extends StatelessWidget {
 
 // Add this at the top level (keep this line)
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
+
