@@ -15,6 +15,7 @@ import '../viewmodels/home_view_model.dart';
 import '../viewmodels/lectures_view_model.dart';
 import '../viewmodels/profile_view_model.dart';
 import '../viewmodels/question_view_model.dart';
+import '../viewmodels/quick_fact_viewmodel.dart';
 import '../viewmodels/test_series_view_model.dart';
 import '../viewmodels/testimonials_view_model.dart';
 import '../widgets/category_tabs.dart';
@@ -86,6 +87,8 @@ class _HomeScreenState extends State<HomeScreen> {
             create: (_) =>
                 HomeDrawerViewModel()), // No need to pass navigatorKey here
         ChangeNotifierProvider(create: (_) => ProfileViewModel()),
+        ChangeNotifierProvider(create: (_) => QuickFactViewModel()),
+
         ChangeNotifierProvider(create: (_) => BookmarkViewModel()),
       ],
       child: Builder(builder: (context) {

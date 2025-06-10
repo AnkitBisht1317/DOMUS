@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../screens/bookmark_drawer.dart';
 import '../screens/notification_screen.dart';
 import '../screens/profile_drawer.dart';
+import '../screens/quickfact_drawer.dart';
 import '../viewmodels/home_drawer_viewmodel.dart';
 
 class HomeDrawer extends StatelessWidget {
@@ -148,6 +149,11 @@ class HomeDrawer extends StatelessWidget {
             Navigator.push(
               context,
               MaterialPageRoute(builder: (_) => const BookmarkDrawer()),
+            );
+          } else if (item.title == 'Quick Fact') {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const QuickFactScreen()),
             );
           } else {
             item.onTap?.call();
