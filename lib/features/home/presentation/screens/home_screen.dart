@@ -1,4 +1,5 @@
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:domus/features/home/presentation/viewmodels/aim_academy_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_advanced_drawer/flutter_advanced_drawer.dart';
@@ -94,6 +95,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ChangeNotifierProvider(create: (_) => BookmarkViewModel()),
         ChangeNotifierProvider(create: (_) => CommunityViewModel()),
         ChangeNotifierProvider(create: (_) => AboutViewModel()),
+        ChangeNotifierProvider(create: (_) => AimAcademyViewModel()),
       ],
       child: Builder(builder: (context) {
         // Connect the view models

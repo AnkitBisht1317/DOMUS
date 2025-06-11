@@ -22,6 +22,7 @@ import 'package:provider/provider.dart';
 
 import 'config/routes/routes.dart';
 import 'features/home/presentation/viewmodels/about_view_model.dart';
+import 'features/home/presentation/viewmodels/aim_academy_view_model.dart';
 import 'features/home/presentation/viewmodels/cart_view_model.dart';
 import 'features/home/presentation/viewmodels/community_view_model.dart';
 import 'features/home/presentation/viewmodels/payment_viewmodel.dart';
@@ -85,6 +86,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => PaymentViewModel()),
         ChangeNotifierProvider(create: (_) => CommunityViewModel()),
         ChangeNotifierProvider(create: (_) => AboutViewModel()),
+        ChangeNotifierProvider(create: (_) => AimAcademyViewModel()),
       ],
       child: MaterialApp(
         navigatorKey: navigatorKey,
