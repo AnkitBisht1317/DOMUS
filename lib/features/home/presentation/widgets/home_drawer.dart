@@ -1,8 +1,10 @@
+import 'package:domus/features/home/presentation/screens/about_drawer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_advanced_drawer/flutter_advanced_drawer.dart';
 import 'package:provider/provider.dart';
 
 import '../screens/bookmark_drawer.dart';
+import '../screens/homoeo_community_drawer.dart';
 import '../screens/notification_screen.dart';
 import '../screens/profile_drawer.dart';
 import '../screens/quickfact_drawer.dart';
@@ -154,6 +156,16 @@ class HomeDrawer extends StatelessWidget {
             Navigator.push(
               context,
               MaterialPageRoute(builder: (_) => const QuickFactScreen()),
+            );
+          } else if (item.title == 'Homoeo Community') {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const HomoeoCommunityDrawer()),
+            );
+          } else if (item.title == 'About') {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const AboutDrawer()),
             );
           } else {
             item.onTap?.call();

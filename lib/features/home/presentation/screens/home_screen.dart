@@ -6,9 +6,11 @@ import 'package:provider/provider.dart';
 
 import '../../data/repositories/home_repository_impl.dart';
 import '../../domain/repositories/home_repository.dart';
+import '../viewmodels/about_view_model.dart';
 import '../viewmodels/bookmark_viewmodel.dart';
 import '../viewmodels/cart_view_model.dart';
 import '../viewmodels/category_tabs_view_model.dart';
+import '../viewmodels/community_view_model.dart';
 import '../viewmodels/course_carousel_view_model.dart';
 import '../viewmodels/home_drawer_viewmodel.dart';
 import '../viewmodels/home_view_model.dart';
@@ -90,6 +92,8 @@ class _HomeScreenState extends State<HomeScreen> {
         ChangeNotifierProvider(create: (_) => QuickFactViewModel()),
 
         ChangeNotifierProvider(create: (_) => BookmarkViewModel()),
+        ChangeNotifierProvider(create: (_) => CommunityViewModel()),
+        ChangeNotifierProvider(create: (_) => AboutViewModel()),
       ],
       child: Builder(builder: (context) {
         // Connect the view models
