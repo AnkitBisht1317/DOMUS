@@ -91,17 +91,24 @@ class _ProfileDrawerState extends State<ProfileDrawer> {
                       child: Stack(
                         alignment: Alignment.center,
                         children: [
+                          // Always show the CircleAvatar with a transparent background
                           CircleAvatar(
                             radius: width * 0.12,
-                            backgroundImage: viewModel.profileImageUrl != null
-                                ? NetworkImage(viewModel.profileImageUrl!)
-                                : viewModel.profileImage != null
-                                    ? FileImage(viewModel.profileImage!)
-                                    : const AssetImage('assets/male.png')
-                                        as ImageProvider,
-                            backgroundColor: Colors.transparent,
+                            backgroundColor: Colors.grey[200], // Light background to be visible
+                            child: viewModel.profileImageUrl == null && viewModel.profileImage == null
+                                ? Image.asset('assets/male.png', fit: BoxFit.cover)
+                                : null,
                           ),
-                          // Show loading indicator while image is being loaded or updated
+                          // Show the actual image when available
+                          if (viewModel.profileImageUrl != null || viewModel.profileImage != null)
+                            CircleAvatar(
+                              radius: width * 0.12,
+                              backgroundImage: viewModel.profileImageUrl != null
+                                  ? NetworkImage(viewModel.profileImageUrl!)
+                                  : FileImage(viewModel.profileImage!) as ImageProvider,
+                              backgroundColor: Colors.transparent,
+                            ),
+                          // Always show loading indicator when isImageLoading is true
                           if (viewModel.isImageLoading)
                             SpinKitFadingCircle(
                               color: Colors.blue,
@@ -426,13 +433,21 @@ class _ProfileDrawerState extends State<ProfileDrawer> {
                   alignedDropdown: true,
                   child: DropdownButton<String>(
                     value: courseOptions.contains(controller.text) ? controller.text : null,
-                    hint: Text("Select Course", style: TextStyle(fontSize: screenWidth * 0.038)),
+                    hint: Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 8.0),
+                      child: Text(
+                        controller.text.isEmpty ? "Select Course" : controller.text,
+                        style: TextStyle(fontSize: screenWidth * 0.038, color: Colors.black),
+                      ),
+                    ),
                     isExpanded: true,
                     icon: const Icon(Icons.arrow_drop_down),
                     style: TextStyle(color: Colors.black, fontSize: screenWidth * 0.038),
                     onChanged: (String? newValue) {
                       if (newValue != null) {
-                        controller.text = newValue;
+                        setState(() {
+                          controller.text = newValue;
+                        });
                         saveField(label, newValue);
                       }
                     },
@@ -442,6 +457,20 @@ class _ProfileDrawerState extends State<ProfileDrawer> {
                         child: Text(value),
                       );
                     }).toList(),
+                    selectedItemBuilder: (BuildContext context) {
+                      return courseOptions.map<Widget>((String value) {
+                        return Align(
+                          alignment: Alignment.centerLeft,
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 8.0),
+                            child: Text(
+                              value,
+                              style: TextStyle(fontSize: screenWidth * 0.038, color: Colors.black),
+                            ),
+                          ),
+                        );
+                      }).toList();
+                    },
                   ),
                 ),
               ),

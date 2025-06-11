@@ -27,6 +27,7 @@ import 'features/home/presentation/viewmodels/cart_view_model.dart';
 import 'features/home/presentation/viewmodels/community_view_model.dart';
 import 'features/home/presentation/viewmodels/payment_viewmodel.dart';
 import 'features/home/presentation/viewmodels/profile_view_model.dart';
+import 'features/home/presentation/viewmodels/quick_fact_viewmodel.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -87,6 +88,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => CommunityViewModel()),
         ChangeNotifierProvider(create: (_) => AboutViewModel()),
         ChangeNotifierProvider(create: (_) => AimAcademyViewModel()),
+        ChangeNotifierProvider(create: (_) => QuickFactViewModel())
       ],
       child: MaterialApp(
         navigatorKey: navigatorKey,

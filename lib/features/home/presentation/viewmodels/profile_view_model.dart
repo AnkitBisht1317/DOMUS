@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -47,7 +48,6 @@ class ProfileViewModel extends ChangeNotifier {
     try {
       _isLoading = true;
       _isImageLoading = true; // Set to true when starting to load
-      _error = null;
       notifyListeners();
 
       final user = _auth.currentUser;
@@ -88,8 +88,42 @@ class ProfileViewModel extends ChangeNotifier {
         }
       }
 
+      // Keep isImageLoading true until we explicitly verify the image is loaded
+      if (profileImageUrl != null) {
+        // Create a network image and add a listener to know when it's loaded
+        final networkImage = NetworkImage(profileImageUrl!);
+        final imageStream = networkImage.resolve(ImageConfiguration());
+        final completer = Completer<void>();
+        
+        final listener = ImageStreamListener(
+          (ImageInfo info, bool synchronousCall) {
+            if (!completer.isCompleted) {
+              completer.complete();
+            }
+          },
+          onError: (exception, stackTrace) {
+            if (!completer.isCompleted) {
+              completer.completeError(exception);
+            }
+          },
+        );
+        
+        imageStream.addListener(listener);
+        
+        // Wait for image to load or timeout after 5 seconds
+        try {
+          await completer.future.timeout(Duration(seconds: 5));
+        } catch (e) {
+          debugPrint("Error loading profile image: $e");
+        } finally {
+          imageStream.removeListener(listener);
+          _isImageLoading = false;
+        }
+      } else {
+        _isImageLoading = false;
+      }
+      
       _isLoading = false;
-      _isImageLoading = false; // Always set to false when done
       notifyListeners();
     } catch (e) {
       _error = "Failed to load user data: $e";
