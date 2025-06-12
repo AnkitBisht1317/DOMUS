@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 import '../../data/repositories/home_repository_impl.dart';
 import '../../domain/repositories/home_repository.dart';
 import '../viewmodels/about_view_model.dart';
+import '../viewmodels/aim_team_view_model.dart';
 import '../viewmodels/bookmark_viewmodel.dart';
 import '../viewmodels/cart_view_model.dart';
 import '../viewmodels/category_tabs_view_model.dart';
@@ -96,6 +97,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ChangeNotifierProvider(create: (_) => CommunityViewModel()),
         ChangeNotifierProvider(create: (_) => AboutViewModel()),
         ChangeNotifierProvider(create: (_) => AimAcademyViewModel()),
+        ChangeNotifierProvider(create: (_) => AimTeamViewModel()),
       ],
       child: Builder(builder: (context) {
         // Connect the view models

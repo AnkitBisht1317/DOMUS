@@ -8,6 +8,7 @@ import 'package:domus/features/authentication/presentation/screens/personal_deta
 import 'package:domus/features/home/data/repositories/home_repository_impl.dart';
 import 'package:domus/features/home/domain/repositories/home_repository.dart';
 import 'package:domus/features/home/presentation/screens/home_screen.dart';
+import 'package:domus/features/home/presentation/viewmodels/aim_team_view_model.dart';
 import 'package:domus/features/home/presentation/viewmodels/doctor_writings_view_model.dart';
 import 'package:domus/features/home/presentation/viewmodels/home_drawer_viewmodel.dart';
 import 'package:domus/features/home/presentation/viewmodels/home_view_model.dart';
@@ -88,7 +89,8 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => CommunityViewModel()),
         ChangeNotifierProvider(create: (_) => AboutViewModel()),
         ChangeNotifierProvider(create: (_) => AimAcademyViewModel()),
-        ChangeNotifierProvider(create: (_) => QuickFactViewModel())
+        ChangeNotifierProvider(create: (_) => QuickFactViewModel()),
+        ChangeNotifierProvider(create: (_) => AimTeamViewModel()),
       ],
       child: MaterialApp(
         navigatorKey: navigatorKey,
