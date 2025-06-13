@@ -14,6 +14,7 @@ import 'package:domus/features/home/presentation/viewmodels/home_drawer_viewmode
 import 'package:domus/features/home/presentation/viewmodels/home_view_model.dart';
 import 'package:domus/features/home/presentation/viewmodels/job_portal_view_model.dart';
 import 'package:domus/features/home/presentation/viewmodels/lectures_view_model.dart';
+import 'package:domus/features/home/presentation/viewmodels/testimonials_drawer_view_model.dart';
 import 'package:domus/firebase_options.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -91,6 +92,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => AimAcademyViewModel()),
         ChangeNotifierProvider(create: (_) => QuickFactViewModel()),
         ChangeNotifierProvider(create: (_) => AimTeamViewModel()),
+        ChangeNotifierProvider(create: (_) => TestimonialsDrawerViewModel()),
       ],
       child: MaterialApp(
         navigatorKey: navigatorKey,

@@ -1,6 +1,7 @@
 import 'package:domus/features/home/presentation/screens/about_drawer.dart';
 import 'package:domus/features/home/presentation/screens/aim_academy_drawer.dart';
 import 'package:domus/features/home/presentation/screens/aim_team_drawer.dart';
+import 'package:domus/features/home/presentation/screens/testimonials_drawer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_advanced_drawer/flutter_advanced_drawer.dart';
 import 'package:provider/provider.dart';
@@ -178,6 +179,11 @@ class HomeDrawer extends StatelessWidget {
             Navigator.push(
               context,
               MaterialPageRoute(builder: (_) => const AimTeamDrawer()),
+            );
+          } else if (item.title == 'Testimonials') {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const TestimonialsDrawer()),
             );
           } else {
             item.onTap?.call();

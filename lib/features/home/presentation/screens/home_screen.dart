@@ -21,6 +21,7 @@ import '../viewmodels/profile_view_model.dart';
 import '../viewmodels/question_view_model.dart';
 import '../viewmodels/quick_fact_viewmodel.dart';
 import '../viewmodels/test_series_view_model.dart';
+import '../viewmodels/testimonials_drawer_view_model.dart';
 import '../viewmodels/testimonials_view_model.dart';
 import '../widgets/category_tabs.dart';
 import '../widgets/course_carousel.dart';
@@ -97,6 +98,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ChangeNotifierProvider(create: (_) => CommunityViewModel()),
         ChangeNotifierProvider(create: (_) => AboutViewModel()),
         ChangeNotifierProvider(create: (_) => AimAcademyViewModel()),
+        ChangeNotifierProvider(create: (_) => TestimonialsDrawerViewModel()),
         ChangeNotifierProvider(create: (_) => AimTeamViewModel()),
       ],
       child: Builder(builder: (context) {
