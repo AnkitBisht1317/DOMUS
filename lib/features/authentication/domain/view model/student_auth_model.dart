@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+
 import '../models/student_academic_details.dart';
 import '../repositories/user_repository.dart';
 
@@ -11,7 +11,7 @@ class StudentAuthModel with ChangeNotifier {
   bool _isSaving = false;
   String? _error;
 
-  StudentAuthModel({required UserRepository userRepository}) 
+  StudentAuthModel({required UserRepository userRepository})
       : _userRepository = userRepository;
 
   String? get selectedBatch => _selectedBatch;
@@ -37,9 +37,9 @@ class StudentAuthModel with ChangeNotifier {
   }
 
   bool isFormValid() {
-    return _selectedBatch != null && 
-           _selectedState != null && 
-           _selectedCollege != null;
+    return _selectedBatch != null &&
+        _selectedState != null &&
+        _selectedCollege != null;
   }
 
   Future<bool> saveAcademicDetails(String phoneNumber) async {
@@ -66,4 +66,4 @@ class StudentAuthModel with ChangeNotifier {
       notifyListeners();
     }
   }
-} 
+}

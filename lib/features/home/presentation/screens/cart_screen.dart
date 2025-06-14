@@ -1,11 +1,11 @@
+import 'package:domus/features/home/domain/models/payment_model.dart';
 import 'package:domus/features/home/presentation/screens/payment_screen.dart';
+import 'package:domus/features/home/presentation/viewmodels/payment_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../viewmodels/cart_view_model.dart';
+
 import '../../domain/models/cart_item.dart';
-import 'package:domus/features/home/presentation/viewmodels/payment_viewmodel.dart';
-import 'package:domus/features/home/domain/models/payment_model.dart';
-import 'package:domus/config/routes/routes.dart';
+import '../viewmodels/cart_view_model.dart';
 
 class CartScreen extends StatelessWidget {
   const CartScreen({Key? key}) : super(key: key);
@@ -49,7 +49,8 @@ class CartScreen extends StatelessWidget {
           color: const Color(0xFFF0F0F0),
           child: const Text(
             'Saved for later (0 item)',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Colors.grey),
+            style: TextStyle(
+                fontSize: 16, fontWeight: FontWeight.w500, color: Colors.grey),
           ),
         ),
         Expanded(
@@ -90,7 +91,8 @@ class CartScreen extends StatelessWidget {
           color: const Color(0xFFF0F0F0),
           child: Text(
             'Saved for later (${viewModel.cartItems.length} item${viewModel.cartItems.length > 1 ? 's' : ''})',
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Colors.grey),
+            style: const TextStyle(
+                fontSize: 16, fontWeight: FontWeight.w500, color: Colors.grey),
           ),
         ),
         Expanded(
@@ -99,7 +101,10 @@ class CartScreen extends StatelessWidget {
             itemCount: viewModel.cartItems.length,
             itemBuilder: (context, index) {
               final item = viewModel.cartItems[index];
-              return CartItemCard(item: item, viewModel: viewModel); // Pass context to CartItemCard if needed for navigation inside it
+              return CartItemCard(
+                  item: item,
+                  viewModel:
+                      viewModel); // Pass context to CartItemCard if needed for navigation inside it
             },
           ),
         ),
@@ -183,7 +188,9 @@ class CartItemCard extends StatelessWidget {
                       ...List.generate(
                         5,
                         (index) => Icon(
-                          index < item.rating.floor() ? Icons.star : Icons.star_border,
+                          index < item.rating.floor()
+                              ? Icons.star
+                              : Icons.star_border,
                           color: Colors.amber,
                           size: 16,
                         ),
@@ -218,22 +225,31 @@ class CartItemCard extends StatelessWidget {
                       ElevatedButton(
                         // Inside the onPressed method of Buy button
                         onPressed: () {
-                          final paymentViewModel = Provider.of<PaymentViewModel>(context, listen: false);
+                          final paymentViewModel =
+                              Provider.of<PaymentViewModel>(context,
+                                  listen: false);
                           // Convert CartItem to PaymentModel
                           final paymentItem = PaymentModel(
                             itemName: item.title,
-                            price: double.parse(item.price.replaceAll('₹', '').replaceAll(',', '')), // Handle ₹ symbol
-                            quantity: 1, // Assuming quantity is 1 for a single item buy from cart
+                            price: double.parse(item.price
+                                .replaceAll('₹', '')
+                                .replaceAll(',', '')), // Handle ₹ symbol
+                            quantity:
+                                1, // Assuming quantity is 1 for a single item buy from cart
                             batchDuration: "1Year",
-                            startDate: item.startDate ?? "", // Use cart item start date if available
-                            endDate: item.endDate ?? "", // Use cart item end date if available
+                            startDate: item.startDate ??
+                                "", // Use cart item start date if available
+                            endDate: item.endDate ??
+                                "", // Use cart item end date if available
                           );
-                          paymentViewModel.addItemToCart(paymentItem); // Use addItemToCart for consistency
-                          
+                          paymentViewModel.addItemToCart(
+                              paymentItem); // Use addItemToCart for consistency
+
                           // Direct navigation to PaymentScreen
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => const PaymentScreen()),
+                            MaterialPageRoute(
+                                builder: (context) => const PaymentScreen()),
                           );
                         },
                         style: ElevatedButton.styleFrom(
@@ -242,7 +258,10 @@ class CartItemCard extends StatelessWidget {
                             borderRadius: BorderRadius.circular(4),
                           ),
                         ),
-                        child: const Text('Buy',style: TextStyle(color: Colors.white),),
+                        child: const Text(
+                          'Buy',
+                          style: TextStyle(color: Colors.white),
+                        ),
                       ),
                     ],
                   ),

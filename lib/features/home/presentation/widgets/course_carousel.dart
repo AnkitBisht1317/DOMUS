@@ -1,12 +1,12 @@
+import 'package:carousel_slider/carousel_slider.dart';
+import 'package:domus/features/home/domain/models/payment_model.dart';
+import 'package:domus/features/home/presentation/viewmodels/payment_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:carousel_slider/carousel_slider.dart';
+
+import '../../domain/models/course_item.dart';
 import '../screens/payment_screen.dart';
 import '../viewmodels/course_carousel_view_model.dart';
-import '../../domain/models/course_item.dart';
-import 'package:domus/features/home/presentation/viewmodels/payment_viewmodel.dart';
-import 'package:domus/features/home/domain/models/payment_model.dart';
-import 'package:domus/config/routes/routes.dart';
 
 class CourseCarousel extends StatelessWidget {
   const CourseCarousel({Key? key}) : super(key: key);
@@ -18,10 +18,12 @@ class CourseCarousel extends StatelessWidget {
         return Container(
           margin: const EdgeInsets.only(top: 16),
           child: CarouselSlider(
-            items: viewModel.courses.map((course) => _buildCourseCard(context, course, viewModel)).toList(), // Pass context here
+            items: viewModel.courses
+                .map((course) => _buildCourseCard(context, course, viewModel))
+                .toList(), // Pass context here
             options: CarouselOptions(
               height: 500,
-              aspectRatio: 16/9,
+              aspectRatio: 16 / 9,
               viewportFraction: 0.8,
               initialPage: 1,
               enableInfiniteScroll: false,
@@ -39,7 +41,8 @@ class CourseCarousel extends StatelessWidget {
   }
 
   // Add context to the method signature
-  Widget _buildCourseCard(BuildContext context, CourseItem course, CourseCarouselViewModel viewModel) {
+  Widget _buildCourseCard(BuildContext context, CourseItem course,
+      CourseCarouselViewModel viewModel) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 4.0),
       child: Card(
@@ -86,14 +89,16 @@ class CourseCarousel extends StatelessWidget {
                         ),
                       ),
                     Row(
-                      children: course.iconPaths.map((path) => Padding(
-                        padding: const EdgeInsets.only(left: 8),
-                        child: Image.asset(
-                          path,
-                          width: 20,
-                          height: 20,
-                        ),
-                      )).toList(),
+                      children: course.iconPaths
+                          .map((path) => Padding(
+                                padding: const EdgeInsets.only(left: 8),
+                                child: Image.asset(
+                                  path,
+                                  width: 20,
+                                  height: 20,
+                                ),
+                              ))
+                          .toList(),
                     ),
                   ],
                 ),
@@ -165,22 +170,28 @@ class CourseCarousel extends StatelessWidget {
                 child: ElevatedButton(
                   // Inside the onPressed method of Buy Now button
                   onPressed: () {
-                    final paymentViewModel = Provider.of<PaymentViewModel>(context, listen: false);
+                    final paymentViewModel =
+                        Provider.of<PaymentViewModel>(context, listen: false);
                     // Convert CourseItem to PaymentModel with actual course dates
                     final paymentItem = PaymentModel(
                       itemName: course.title,
-                      price: double.parse(course.price.replaceAll('₹', '').replaceAll(',', '')), // Handle ₹ symbol
+                      price: double.parse(course.price
+                          .replaceAll('₹', '')
+                          .replaceAll(',', '')), // Handle ₹ symbol
                       quantity: 1, // For direct purchase, quantity is 1
-                      batchDuration: "1Year", // You could calculate this from start and end dates
-                      startDate: course.startDate, // Use actual course start date
+                      batchDuration:
+                          "1Year", // You could calculate this from start and end dates
+                      startDate:
+                          course.startDate, // Use actual course start date
                       endDate: course.endDate, // Use actual course end date
                     );
                     paymentViewModel.buyNow(paymentItem);
-                    
+
                     // Direct navigation to PaymentScreen
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => const PaymentScreen()),
+                      MaterialPageRoute(
+                          builder: (context) => const PaymentScreen()),
                     );
                   },
                   style: ElevatedButton.styleFrom(
@@ -209,7 +220,9 @@ class CourseCarousel extends StatelessWidget {
                   tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 ),
                 child: Text(
-                  viewModel.isInCart(viewModel.currentIndex) ? 'Added to Cart' : 'Add to Cart',
+                  viewModel.isInCart(viewModel.currentIndex)
+                      ? 'Added to Cart'
+                      : 'Add to Cart',
                   style: const TextStyle(
                     fontSize: 13,
                     color: Colors.blue,

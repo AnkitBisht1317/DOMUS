@@ -1,11 +1,11 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_storage/firebase_storage.dart';
+
 import '../../data/repositories/profile_repository_impl.dart';
 import '../../domain/repositories/profile_repository.dart';
 
@@ -39,8 +39,8 @@ class ProfileViewModel extends ChangeNotifier {
   final ImagePicker _picker = ImagePicker();
   final ProfileRepository _profileRepository;
 
-  ProfileViewModel({ProfileRepository? profileRepository}) : 
-    _profileRepository = profileRepository ?? ProfileRepositoryImpl() {
+  ProfileViewModel({ProfileRepository? profileRepository})
+      : _profileRepository = profileRepository ?? ProfileRepositoryImpl() {
     loadUserData();
   }
 
@@ -60,8 +60,9 @@ class ProfileViewModel extends ChangeNotifier {
       }
 
       // Load all profile data using the repository
-      final profileData = await _profileRepository.loadProfileData(user!.phoneNumber!);
-      
+      final profileData =
+          await _profileRepository.loadProfileData(user!.phoneNumber!);
+
       if (profileData != null) {
         // Set personal details
         nameController.text = profileData['fullName'] ?? '';
@@ -70,15 +71,15 @@ class ProfileViewModel extends ChangeNotifier {
         genderController.text = profileData['gender'] ?? '';
         dobController.text = profileData['dob'] ?? '';
         domicileStateController.text = profileData['domicileState'] ?? '';
-        
+
         // Get profile image URL
         profileImageUrl = profileData['profilePhotoUrl'];
-        
+
         // Set academic details
         yearController.text = profileData['batch'] ?? '';
         ugCollegeController.text = profileData['collegeName'] ?? '';
         ugStateController.text = profileData['collegeState'] ?? '';
-        
+
         // Set professional details if they exist
         _hasProfessionalDetails = profileData.containsKey('designation');
         if (_hasProfessionalDetails) {
@@ -94,7 +95,7 @@ class ProfileViewModel extends ChangeNotifier {
         final networkImage = NetworkImage(profileImageUrl!);
         final imageStream = networkImage.resolve(ImageConfiguration());
         final completer = Completer<void>();
-        
+
         final listener = ImageStreamListener(
           (ImageInfo info, bool synchronousCall) {
             if (!completer.isCompleted) {
@@ -107,9 +108,9 @@ class ProfileViewModel extends ChangeNotifier {
             }
           },
         );
-        
+
         imageStream.addListener(listener);
-        
+
         // Wait for image to load or timeout after 5 seconds
         try {
           await completer.future.timeout(Duration(seconds: 5));
@@ -122,7 +123,7 @@ class ProfileViewModel extends ChangeNotifier {
       } else {
         _isImageLoading = false;
       }
-      
+
       _isLoading = false;
       notifyListeners();
     } catch (e) {
@@ -139,10 +140,8 @@ class ProfileViewModel extends ChangeNotifier {
       if (user?.phoneNumber == null) return;
 
       // Use the repository to update the data
-      await _profileRepository.updateProfileData(
-        user!.phoneNumber!,
-        {field: value}
-      );
+      await _profileRepository
+          .updateProfileData(user!.phoneNumber!, {field: value});
     } catch (e) {
       debugPrint("Error updating user data: $e");
     }
@@ -155,7 +154,7 @@ class ProfileViewModel extends ChangeNotifier {
         profileImage = File(pickedFile.path);
         _isImageLoading = true; // Set to true when starting to upload
         notifyListeners();
-        
+
         // Get current user
         final user = _auth.currentUser;
         if (user?.phoneNumber == null) {
@@ -164,23 +163,19 @@ class ProfileViewModel extends ChangeNotifier {
           notifyListeners();
           return;
         }
-        
+
         // Use the repository to upload the image
         final downloadUrl = await _profileRepository.uploadProfileImage(
-          profileImage!,
-          user!.phoneNumber!
-        );
-        
+            profileImage!, user!.phoneNumber!);
+
         if (downloadUrl != null) {
           profileImageUrl = downloadUrl;
-          
+
           // Update the profile photo URL in Firestore
           await _profileRepository.updateProfileData(
-            user.phoneNumber!,
-            {'profilePhotoUrl': downloadUrl}
-          );
+              user.phoneNumber!, {'profilePhotoUrl': downloadUrl});
         }
-        
+
         // Always set to false when done, regardless of success or failure
         _isImageLoading = false;
         notifyListeners();
@@ -201,7 +196,7 @@ class ProfileViewModel extends ChangeNotifier {
 
       // Delete profile image using the repository
       await _profileRepository.deleteProfileImage(user!.phoneNumber!);
-      
+
       // Delete all subcollections first
       // Delete personal details
       final personalSnapshot = await FirebaseFirestore.instance
@@ -209,36 +204,39 @@ class ProfileViewModel extends ChangeNotifier {
           .doc(user.phoneNumber)
           .collection('personalDetails')
           .get();
-      
+
       for (var doc in personalSnapshot.docs) {
         await doc.reference.delete();
       }
-      
+
       // Delete academic details
       final academicSnapshot = await FirebaseFirestore.instance
           .collection('users')
           .doc(user.phoneNumber)
           .collection('academicDetails')
           .get();
-      
+
       for (var doc in academicSnapshot.docs) {
         await doc.reference.delete();
       }
-      
+
       // Delete professional details
       final professionalSnapshot = await FirebaseFirestore.instance
           .collection('users')
           .doc(user.phoneNumber)
           .collection('professional_details')
           .get();
-      
+
       for (var doc in professionalSnapshot.docs) {
         await doc.reference.delete();
       }
-      
+
       // Delete main user document
-      await FirebaseFirestore.instance.collection('users').doc(user.phoneNumber).delete();
-      
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.phoneNumber)
+          .delete();
+
       // Try to delete user authentication, but don't fail if it doesn't work
       try {
         await user.delete();
@@ -250,14 +248,14 @@ class ProfileViewModel extends ChangeNotifier {
         await _auth.signOut();
         debugPrint("User signed out instead");
       }
-      
+
       debugPrint("Account data deleted");
 
       final docSnapshot = await FirebaseFirestore.instance
           .collection('users')
           .doc(user.phoneNumber)
           .get();
-          
+
       // Return true even if only the Firestore data was deleted
       return !docSnapshot.exists;
     } catch (e) {

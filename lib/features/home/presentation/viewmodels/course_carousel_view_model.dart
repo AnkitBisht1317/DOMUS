@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'package:provider/provider.dart';
+
 import '../../domain/models/course_item.dart';
 import 'cart_view_model.dart';
 

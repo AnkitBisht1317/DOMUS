@@ -1,19 +1,12 @@
-import 'package:domus/features/authentication/domain/view%20model/select_auth_model.dart';
-import 'package:domus/features/authentication/presentation/screens/professional_details_designation.dart';
-import 'package:domus/features/authentication/presentation/screens/students_details.dart';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import '../../domain/view model/personal_auth_model.dart';
-import '../../domain/view model/student_auth_model.dart';
-import '../../domain/repositories/user_repository.dart';
-import '../../data/repositories/user_repository_impl.dart';
+
 import 'package:domus/features/home/presentation/screens/home_screen.dart';
 import 'package:domus/features/home/domain/view_models/home_view_model.dart';
 import 'package:domus/features/home/domain/repositories/home_repository.dart';
 import 'package:domus/features/home/data/repositories/home_repository_impl.dart';
-import 'package:domus/features/authentication/presentation/screens/personal_details.dart';
+
 
 class WelcomeScreen extends StatefulWidget {
   final String fullName;

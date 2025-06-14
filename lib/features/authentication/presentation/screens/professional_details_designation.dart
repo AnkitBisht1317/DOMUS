@@ -1,7 +1,6 @@
-import 'package:domus/features/authentication/domain/view%20model/select_auth_model.dart';
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
+
 import 'professional_details_ug.dart';
 
 class ProfessionalDetails extends StatefulWidget {
@@ -52,7 +51,8 @@ class _ProfessionalDetailsState extends State<ProfessionalDetails> {
               fullName: widget.fullName,
               mobileNumber: widget.mobileNumber,
             ),
-          ),(route) => false,
+          ),
+          (route) => false,
         );
       }
     } catch (e) {
@@ -114,7 +114,8 @@ class _ProfessionalDetailsState extends State<ProfessionalDetails> {
                           ),
                           SizedBox(height: height * 0.03),
                           Container(
-                            padding: EdgeInsets.symmetric(horizontal: width * 0.04),
+                            padding:
+                                EdgeInsets.symmetric(horizontal: width * 0.04),
                             decoration: BoxDecoration(
                               border: Border.all(color: Colors.grey[300]!),
                               borderRadius: BorderRadius.circular(8),
