@@ -101,8 +101,9 @@ class QuestionOfDaySection extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(width: 16),
+                          // Update the More button to pass context to showMore
                           TextButton(
-                            onPressed: viewModel.showMore,
+                            onPressed: () => viewModel.showMore(context),
                             style: TextButton.styleFrom(
                               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                             ),
@@ -174,4 +175,4 @@ class QuestionOfDaySection extends StatelessWidget {
       ),
     );
   }
-} 
+}
