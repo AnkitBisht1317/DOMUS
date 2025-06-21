@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../screens/qotd_explanation_screen.dart';
 import '../viewmodels/question_view_model.dart';
 import '../../domain/models/question_of_day.dart';
+import 'package:animations/animations.dart';
 
 class QuestionOfDaySection extends StatelessWidget {
   const QuestionOfDaySection({Key? key}) : super(key: key);
@@ -86,17 +88,30 @@ class QuestionOfDaySection extends StatelessWidget {
                       // Bottom buttons
                       Row(
                         children: [
-                          TextButton(
-                            onPressed: viewModel.explainAnswer,
-                            style: TextButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                          // Replace the Explain button with this OpenContainer implementation
+                          
+                          // Inside the Row where the Explain button is located
+                          OpenContainer(
+                            transitionDuration: const Duration(milliseconds: 500),
+                            openBuilder: (context, _) => ChangeNotifierProvider.value(
+                              value: viewModel,
+                              child: const QOTDExplanationScreen(),
                             ),
-                            child: const Text(
-                              'Explain',
-                              style: TextStyle(
-                                color: Color(0xFF001F54),
-                                fontWeight: FontWeight.w600,
-                                fontSize: 16,
+                            closedElevation: 0,
+                            closedShape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                            closedColor: Colors.transparent,
+                            closedBuilder: (context, openContainer) => TextButton(
+                              onPressed: openContainer,
+                              style: TextButton.styleFrom(
+                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                              ),
+                              child: const Text(
+                                'Explain',
+                                style: TextStyle(
+                                  color: Color(0xFF001F54),
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 16,
+                                ),
                               ),
                             ),
                           ),

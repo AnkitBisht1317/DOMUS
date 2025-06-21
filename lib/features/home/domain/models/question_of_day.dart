@@ -12,10 +12,12 @@ class QuestionOfDay {
   final String question;
   final String date;
   final List<QuestionOption> options;
+  final String description; // Added description field
 
   const QuestionOfDay({
     required this.question,
     required this.date,
     required this.options,
+    this.description = '', // Default empty string
   });
-} 
+}
