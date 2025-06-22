@@ -79,6 +79,27 @@ class CategoryTabsViewModel extends ChangeNotifier {
         imagePath: 'assets/therapeutic.png',
         categories: [CategoryType.study],
       ),
+      // New category items
+      CategoryIcon(
+        title: "Doctor's Writing",
+        imagePath: 'assets/doctors_writing.png',
+        categories: [CategoryType.community],
+      ),
+      CategoryIcon(
+        title: 'Journal',
+        imagePath: 'assets/journal.png',
+        categories: [CategoryType.community],
+      ),
+      CategoryIcon(
+        title: 'Lab Values',
+        imagePath: 'assets/lab_values.png',
+        categories: [CategoryType.study],
+      ),
+      CategoryIcon(
+        title: 'Bookmarks',
+        imagePath: 'assets/bookmarks.png',
+        categories: [CategoryType.revision],
+      ),
     ];
     _filterIcons();
   }
@@ -113,4 +134,4 @@ class CategoryTabsViewModel extends ChangeNotifier {
   void onIconTap(int index) {
     // Implement icon tap functionality
   }
-} 
+}

@@ -49,17 +49,67 @@ class CategoryTabs extends StatelessWidget {
   }
 
   Widget _buildIconGrid(CategoryTabsViewModel viewModel) {
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 5,
-        childAspectRatio: 0.6,
-        crossAxisSpacing: 16,
-        mainAxisSpacing: 12,
-      ),
-      itemCount: viewModel.icons.length,
-      itemBuilder: (context, index) => _buildIconItem(viewModel.icons[index]),
+
+    if (viewModel.selectedCategory != CategoryType.all) {
+      return GridView.builder(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 5,
+          childAspectRatio: 0.6,
+          crossAxisSpacing: 14,
+          mainAxisSpacing: 10,
+        ),
+        itemCount: viewModel.icons.length,
+        itemBuilder: (context, index) => _buildIconItem(viewModel.icons[index]),
+      );
+    }
+    const int itemsPerRow = 7;
+    const int visibleItems = 5; // Number of items visible at once
+    
+    // Calculate how many rows we need
+    final int totalIcons = viewModel.icons.length;
+    final int numRows = (totalIcons / itemsPerRow).ceil();
+    return Column(
+      children: [
+        const SizedBox(height: 35),
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final double itemWidth = constraints.maxWidth / visibleItems;
+            final double gridHeight = itemWidth * 1.7 * numRows; // Adjust height based on aspect ratio
+            return SizedBox(
+              height: gridHeight,
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: SizedBox(
+                  width: itemWidth * itemsPerRow,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      for (int row = 0; row < numRows; row++)
+                        SizedBox(
+                          height: itemWidth * 1.7, // Adjust height based on aspect ratio
+                          child: Row(
+                            children: [
+                              for (int col = 0; col < itemsPerRow; col++)
+                                if (row * itemsPerRow + col < totalIcons)
+                                  SizedBox(
+                                    width: itemWidth,
+                                    child: _buildIconItem(viewModel.icons[row * itemsPerRow + col]),
+                                  )
+                                else
+                                  SizedBox(width: itemWidth), // Empty placeholder
+                            ],
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
+        ),
+      ],
     );
   }
 
@@ -161,4 +211,4 @@ class _TabItem extends StatelessWidget {
       ),
     );
   }
-} 
+}
