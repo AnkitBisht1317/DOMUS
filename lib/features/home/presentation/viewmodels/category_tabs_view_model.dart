@@ -132,6 +132,11 @@ class CategoryTabsViewModel extends ChangeNotifier {
   }
 
   void onIconTap(int index) {
-    // Implement icon tap functionality
+    if (index < _filteredIcons.length) {
+      final icon = _filteredIcons[index];
+      if (icon.title == 'NTET') {
+        // This will be handled in the category_tabs.dart widget
+      }
+    }
   }
 }

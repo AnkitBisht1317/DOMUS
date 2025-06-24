@@ -242,9 +242,7 @@ class ProfileViewModel extends ChangeNotifier {
         await user.delete();
         debugPrint("User authentication deleted");
       } catch (authError) {
-        // Just log the error but continue - we'll sign out instead
         debugPrint("Error deleting authentication: $authError");
-        // Sign out the user instead
         await _auth.signOut();
         debugPrint("User signed out instead");
       }

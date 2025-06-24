@@ -1,3 +1,4 @@
+import 'package:domus/features/ntet/presentation/screens/ntet_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../viewmodels/category_tabs_view_model.dart';
@@ -61,7 +62,7 @@ class CategoryTabs extends StatelessWidget {
           mainAxisSpacing: 10,
         ),
         itemCount: viewModel.icons.length,
-        itemBuilder: (context, index) => _buildIconItem(viewModel.icons[index]),
+        itemBuilder: (context, index) => _buildIconItem(viewModel.icons[index], context),
       );
     }
     const int itemsPerRow = 7;
@@ -93,9 +94,10 @@ class CategoryTabs extends StatelessWidget {
                             children: [
                               for (int col = 0; col < itemsPerRow; col++)
                                 if (row * itemsPerRow + col < totalIcons)
+                                  // In the horizontal scrolling grid, update this line:
                                   SizedBox(
                                     width: itemWidth,
-                                    child: _buildIconItem(viewModel.icons[row * itemsPerRow + col]),
+                                    child: _buildIconItem(viewModel.icons[row * itemsPerRow + col], context),
                                   )
                                 else
                                   SizedBox(width: itemWidth), // Empty placeholder
@@ -113,7 +115,7 @@ class CategoryTabs extends StatelessWidget {
     );
   }
 
-  Widget _buildIconItem(CategoryIcon icon) {
+  Widget _buildIconItem(CategoryIcon icon, BuildContext context) {
     final words = icon.title.split(' ');
     
     return Column(
@@ -129,7 +131,18 @@ class CategoryTabs extends StatelessWidget {
           child: Material(
             color: Colors.transparent,
             child: InkWell(
-              onTap: icon.onTap,
+              onTap: () {
+                if (icon.title == 'NTET') {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const NTETScreen(),
+                    ),
+                  );
+                } else if (icon.onTap != null) {
+                  icon.onTap!();
+                }
+              },
               borderRadius: BorderRadius.circular(12),
               child: Padding(
                 padding: const EdgeInsets.all(12),
