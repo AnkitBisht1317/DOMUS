@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../../domain/models/question_of_day.dart';
 
 class QOTDQuestionItem extends StatelessWidget {
-  final QuestionOfDay question;
+  final Question question;
   final String logoAsset;
   final String date;
 

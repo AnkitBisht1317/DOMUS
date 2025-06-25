@@ -3,7 +3,9 @@ import 'package:provider/provider.dart';
 import '../viewmodels/question_view_model.dart';
 
 class QOTDExplanationScreen extends StatelessWidget {
-  const QOTDExplanationScreen({Key? key}) : super(key: key);
+  final String? selectedOption;
+  
+  const QOTDExplanationScreen({Key? key, this.selectedOption}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -88,51 +90,8 @@ class QOTDExplanationScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 20),
                       
-                      // Options
-                      ...question.options.map((option) => Container(
-                        margin: const EdgeInsets.only(bottom: 12),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: Colors.grey.shade300, width: 1),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.grey.shade100,
-                              offset: const Offset(0, 2),
-                              blurRadius: 4,
-                            ),
-                          ],
-                        ),
-                        child: Material(
-                          color: Colors.transparent,
-                          child: InkWell(
-                            onTap: () {},
-                            borderRadius: BorderRadius.circular(12),
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                              child: Row(
-                                children: [
-                                  Text(
-                                    '${option.prefix}.',
-                                    style: const TextStyle(
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    option.text,
-                                    style: const TextStyle(
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      )),
+                      // Options with correct/incorrect highlighting
+                      ...question.options.map((option) => _buildOptionCard(option, question)),
                       
                       const SizedBox(height: 24),
                       
@@ -164,5 +123,74 @@ class QOTDExplanationScreen extends StatelessWidget {
         ),
       );
     });
+  }
+
+  // New method to build option cards with correct/incorrect highlighting
+  Widget _buildOptionCard(option, question) {
+    final bool isSelected = selectedOption == option.prefix;
+    final bool isCorrect = question.correctOption == option.prefix;
+    
+    // Determine the background color based on selection and correctness
+    Color backgroundColor = Colors.white;
+    Color borderColor = Colors.grey.shade300;
+    
+    if (isSelected && isCorrect) {
+      // Selected and correct
+      backgroundColor = Colors.green.shade100;
+      borderColor = Colors.green;
+    } else if (isSelected && !isCorrect) {
+      // Selected but incorrect
+      backgroundColor = Colors.red.shade100;
+      borderColor = Colors.red.shade300;
+    } else if (isCorrect) {
+      // Not selected but is the correct answer
+      backgroundColor = Colors.green.shade100;
+      borderColor = Colors.green;
+    }
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: borderColor, width: 1.5),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.shade100,
+            offset: const Offset(0, 2),
+            blurRadius: 4,
+          ),
+        ],
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              '${option.prefix}.',
+              style: const TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                option.text,
+                style: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+            if (isCorrect)
+              const Icon(Icons.check_circle, color: Colors.green, size: 20),
+            if (isSelected && !isCorrect)
+              const Icon(Icons.cancel, color: Colors.red, size: 20),
+          ],
+        ),
+      ),
+    );
   }
 }

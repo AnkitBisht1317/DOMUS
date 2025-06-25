@@ -6,7 +6,9 @@ import 'package:flutter_advanced_drawer/flutter_advanced_drawer.dart';
 import 'package:provider/provider.dart';
 
 import '../../data/repositories/home_repository_impl.dart';
+import '../../data/repositories/question_repository_impl.dart';
 import '../../domain/repositories/home_repository.dart';
+import '../../domain/repositories/question_repository.dart';
 import '../viewmodels/about_view_model.dart';
 import '../viewmodels/aim_team_view_model.dart';
 import '../viewmodels/bookmark_viewmodel.dart';
@@ -85,7 +87,13 @@ class _HomeScreenState extends State<HomeScreen> {
         ChangeNotifierProvider(create: (_) => LecturesViewModel()),
         ChangeNotifierProvider(create: (_) => TestimonialsViewModel()),
         ChangeNotifierProvider(create: (_) => CourseCarouselViewModel()),
-        ChangeNotifierProvider(create: (_) => QuestionViewModel()),
+        // Replace it with:
+        Provider<QuestionRepository>(
+          create: (_) => QuestionRepositoryImpl(),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => QuestionViewModel(context.read<QuestionRepository>()),
+        ),
         ChangeNotifierProvider(create: (_) => TestSeriesViewModel()),
         ChangeNotifierProvider(create: (_) => CategoryTabsViewModel()),
         ChangeNotifierProvider(
