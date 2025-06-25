@@ -11,6 +11,9 @@ class QOTDExplanationScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<QuestionViewModel>(builder: (context, viewModel, _) {
       final question = viewModel.questionOfDay;
+      // Use the viewModel's selectedOption if none was passed
+      final effectiveSelectedOption = selectedOption ?? viewModel.selectedOption;
+      
       if (question == null) {
         return const Scaffold(
           body: Center(child: Text('No question available')),
@@ -125,7 +128,7 @@ class QOTDExplanationScreen extends StatelessWidget {
     });
   }
 
-  // New method to build option cards with correct/incorrect highlighting
+  // Update the method to use the passed selectedOption
   Widget _buildOptionCard(option, question) {
     final bool isSelected = selectedOption == option.prefix;
     final bool isCorrect = question.correctOption == option.prefix;

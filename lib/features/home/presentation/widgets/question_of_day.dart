@@ -14,12 +14,9 @@ class QuestionOfDaySection extends StatefulWidget {
 }
 
 class _QuestionOfDaySectionState extends State<QuestionOfDaySection> {
-  String? selectedOption;
-  bool hasAnswered = false;
-
   @override
   Widget build(BuildContext context) {
-    return Consumer<QuestionViewModel>(
+    return Consumer<QuestionViewModel>(  
       builder: (context, viewModel, _) {
         final question = viewModel.questionOfDay;
         if (question == null) return const SizedBox.shrink();
@@ -92,7 +89,8 @@ class _QuestionOfDaySectionState extends State<QuestionOfDaySection> {
                       const SizedBox(height: 24),
                       
                       // Options - fixed to show only once
-                      ...question.options.map((option) => _buildOptionCard(option, question)),
+                      // When building option cards, use viewModel's state
+                      ...question.options.map((option) => _buildOptionCard(option, question, viewModel)),
                       
                       const SizedBox(height: 16),
                       // Bottom buttons
@@ -103,20 +101,23 @@ class _QuestionOfDaySectionState extends State<QuestionOfDaySection> {
                             transitionDuration: const Duration(milliseconds: 500),
                             openBuilder: (context, _) => ChangeNotifierProvider.value(
                               value: viewModel,
-                              child: QOTDExplanationScreen(selectedOption: selectedOption),
+                              child: QOTDExplanationScreen(selectedOption: viewModel.selectedOption),
                             ),
                             closedElevation: 0,
-                            closedShape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                            closedShape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(80)),
                             closedColor: Colors.transparent,
                             closedBuilder: (context, openContainer) => TextButton(
-                              onPressed: hasAnswered ? openContainer : null,
+                              // Only enable the button if an option has been selected
+                              onPressed: viewModel.selectedOption != null ? openContainer : null,
                               style: TextButton.styleFrom(
                                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                // Keep consistent background color regardless of state
+                                backgroundColor: Colors.white,
                               ),
-                              child: const Text(
+                              child: Text(
                                 'Explain',
                                 style: TextStyle(
-                                  color: Color(0xFF001F54),
+                                  color: const Color(0xFF001F54),
                                   fontWeight: FontWeight.w600,
                                   fontSize: 16,
                                 ),
@@ -152,11 +153,11 @@ class _QuestionOfDaySectionState extends State<QuestionOfDaySection> {
     );
   }
 
-  // Updated method to handle option selection and correct/incorrect logic
-  Widget _buildOptionCard(Option option, Question question) {
-    final bool isSelected = selectedOption == option.prefix;
+  // Updated method to handle option selection using the viewModel
+  Widget _buildOptionCard(Option option, Question question, QuestionViewModel viewModel) {
+    final bool isSelected = viewModel.selectedOption == option.prefix;
     final bool isCorrect = question.correctOption == option.prefix;
-    final bool showResult = hasAnswered;
+    final bool showResult = viewModel.hasAnswered;
     
     // Determine the background color based on selection and correctness
     Color backgroundColor = Colors.white;
@@ -199,11 +200,9 @@ class _QuestionOfDaySectionState extends State<QuestionOfDaySection> {
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          onTap: hasAnswered ? null : () {
-            setState(() {
-              selectedOption = option.prefix;
-              hasAnswered = true;
-            });
+          onTap: viewModel.hasAnswered ? null : () async {
+            // Save the user's answer using the viewModel
+            await viewModel.saveUserAnswer(option.prefix);
           },
           borderRadius: BorderRadius.circular(12),
           child: Padding(
