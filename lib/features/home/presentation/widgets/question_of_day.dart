@@ -97,30 +97,43 @@ class _QuestionOfDaySectionState extends State<QuestionOfDaySection> {
                       Row(
                         children: [
                           // Inside the Row where the Explain button is located
-                          OpenContainer(
-                            transitionDuration: const Duration(milliseconds: 500),
-                            openBuilder: (context, _) => ChangeNotifierProvider.value(
-                              value: viewModel,
-                              child: QOTDExplanationScreen(selectedOption: viewModel.selectedOption),
+                          // Replace OpenContainer with a regular button that performs explicit check
+                          TextButton(
+                            onPressed: () {
+                              // Explicit check at the moment of click
+                              if (viewModel.selectedOption != null || viewModel.hasAnswered) {
+                                // Only navigate if an option is selected or previously answered
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (context) => ChangeNotifierProvider.value(
+                                      value: viewModel,
+                                      child: QOTDExplanationScreen(selectedOption: viewModel.selectedOption),
+                                    ),
+                                  ),
+                                );
+                              } else {
+                                // Optional: Show a message that user needs to select an option
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('Please select an option first'),
+                                    duration: Duration(seconds: 2),
+                                  ),
+                                );
+                              }
+                            },
+                            style: TextButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                              backgroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(80)),
                             ),
-                            closedElevation: 0,
-                            closedShape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(80)),
-                            closedColor: Colors.transparent,
-                            closedBuilder: (context, openContainer) => TextButton(
-                              // Only enable the button if an option has been selected
-                              onPressed: viewModel.selectedOption != null ? openContainer : null,
-                              style: TextButton.styleFrom(
-                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                                // Keep consistent background color regardless of state
-                                backgroundColor: Colors.white,
-                              ),
-                              child: Text(
-                                'Explain',
-                                style: TextStyle(
-                                  color: const Color(0xFF001F54),
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 16,
-                                ),
+                            child: Text(
+                              'Explain',
+                              style: TextStyle(
+                                color: viewModel.selectedOption != null || viewModel.hasAnswered
+                                    ? const Color(0xFF001F54)
+                                    : Colors.grey.shade500,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 16,
                               ),
                             ),
                           ),
