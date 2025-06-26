@@ -1,9 +1,11 @@
 import 'package:domus/features/ntet/presentation/screens/ntet_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../viewmodels/category_tabs_view_model.dart';
-import '../../domain/models/category_tab.dart';
+
+import '../../../medicosCorner/presentation/screens/medicos_corner.dart';
 import '../../domain/models/category_icon.dart';
+import '../../domain/models/category_tab.dart';
+import '../viewmodels/category_tabs_view_model.dart';
 
 class CategoryTabs extends StatelessWidget {
   const CategoryTabs({Key? key}) : super(key: key);
@@ -50,7 +52,6 @@ class CategoryTabs extends StatelessWidget {
   }
 
   Widget _buildIconGrid(CategoryTabsViewModel viewModel) {
-
     if (viewModel.selectedCategory != CategoryType.all) {
       return GridView.builder(
         shrinkWrap: true,
@@ -62,12 +63,13 @@ class CategoryTabs extends StatelessWidget {
           mainAxisSpacing: 10,
         ),
         itemCount: viewModel.icons.length,
-        itemBuilder: (context, index) => _buildIconItem(viewModel.icons[index], context),
+        itemBuilder: (context, index) =>
+            _buildIconItem(viewModel.icons[index], context),
       );
     }
     const int itemsPerRow = 7;
     const int visibleItems = 5; // Number of items visible at once
-    
+
     // Calculate how many rows we need
     final int totalIcons = viewModel.icons.length;
     final int numRows = (totalIcons / itemsPerRow).ceil();
@@ -77,7 +79,9 @@ class CategoryTabs extends StatelessWidget {
         LayoutBuilder(
           builder: (context, constraints) {
             final double itemWidth = constraints.maxWidth / visibleItems;
-            final double gridHeight = itemWidth * 1.7 * numRows; // Adjust height based on aspect ratio
+            final double gridHeight = itemWidth *
+                1.7 *
+                numRows; // Adjust height based on aspect ratio
             return SizedBox(
               height: gridHeight,
               child: SingleChildScrollView(
@@ -89,7 +93,8 @@ class CategoryTabs extends StatelessWidget {
                     children: [
                       for (int row = 0; row < numRows; row++)
                         SizedBox(
-                          height: itemWidth * 1.7, // Adjust height based on aspect ratio
+                          height: itemWidth *
+                              1.7, // Adjust height based on aspect ratio
                           child: Row(
                             children: [
                               for (int col = 0; col < itemsPerRow; col++)
@@ -97,10 +102,14 @@ class CategoryTabs extends StatelessWidget {
                                   // In the horizontal scrolling grid, update this line:
                                   SizedBox(
                                     width: itemWidth,
-                                    child: _buildIconItem(viewModel.icons[row * itemsPerRow + col], context),
+                                    child: _buildIconItem(
+                                        viewModel
+                                            .icons[row * itemsPerRow + col],
+                                        context),
                                   )
                                 else
-                                  SizedBox(width: itemWidth), // Empty placeholder
+                                  SizedBox(
+                                      width: itemWidth), // Empty placeholder
                             ],
                           ),
                         ),
@@ -117,7 +126,7 @@ class CategoryTabs extends StatelessWidget {
 
   Widget _buildIconItem(CategoryIcon icon, BuildContext context) {
     final words = icon.title.split(' ');
-    
+
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
@@ -139,6 +148,13 @@ class CategoryTabs extends StatelessWidget {
                       builder: (context) => const NTETScreen(),
                     ),
                   );
+                } else if (icon.title == 'Medicos Corner') {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const MedicosCorner(),
+                    ),
+                  );
                 } else if (icon.onTap != null) {
                   icon.onTap!();
                 }
@@ -156,27 +172,27 @@ class CategoryTabs extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         Expanded(
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              return Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: words.map((word) => Container(
-                  width: constraints.maxWidth,
-                  child: Text(
-                    word,
-                    style: const TextStyle(
-                      fontSize: 8,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.black87,
-                      height: 1.0,
-                    ),
-                    textAlign: TextAlign.center,
-                    softWrap: true,
-                  ),
-                )).toList(),
-              );
-            }
-          ),
+          child: LayoutBuilder(builder: (context, constraints) {
+            return Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: words
+                  .map((word) => Container(
+                        width: constraints.maxWidth,
+                        child: Text(
+                          word,
+                          style: const TextStyle(
+                            fontSize: 8,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.black87,
+                            height: 1.0,
+                          ),
+                          textAlign: TextAlign.center,
+                          softWrap: true,
+                        ),
+                      ))
+                  .toList(),
+            );
+          }),
         ),
       ],
     );
