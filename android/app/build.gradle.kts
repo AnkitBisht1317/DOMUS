@@ -16,6 +16,13 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
+        // Enable core library desugaring
+        isCoreLibraryDesugaringEnabled = true
+    }
+
+    dependencies {
+        // Add the desugaring dependency
+        coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:1.2.2")
     }
 
     kotlinOptions {

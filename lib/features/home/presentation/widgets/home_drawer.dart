@@ -8,7 +8,7 @@ import 'package:provider/provider.dart';
 
 import '../screens/bookmark_drawer.dart';
 import '../screens/homoeo_community_drawer.dart';
-import '../screens/notification_screen.dart';
+import '../../../../features/notifications/presentation/screens/notification_screen.dart';
 import '../screens/profile_drawer.dart';
 import '../screens/quickfact_drawer.dart';
 import '../viewmodels/home_drawer_viewmodel.dart';

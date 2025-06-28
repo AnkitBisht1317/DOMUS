@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import '../screens/cart_screen.dart';
 import '../viewmodels/cart_view_model.dart';
 import '../viewmodels/home_view_model.dart';
-import '../screens/notification_screen.dart';
+import '../../../../features/notifications/presentation/screens/notification_screen.dart';
 
 class HomeAppBar extends StatefulWidget {
   final VoidCallback onMenuTap;

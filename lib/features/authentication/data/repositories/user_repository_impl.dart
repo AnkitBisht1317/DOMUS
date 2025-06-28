@@ -88,4 +88,17 @@ class UserRepositoryImpl implements UserRepository {
       throw Exception('Failed to save academic details: $e');
     }
   }
+  
+  @override
+  Future<void> saveFcmToken(String phoneNumber, String fcmToken) async {
+    try {
+      // Store the FCM token directly in the user document
+      await _firestore.collection('users').doc(phoneNumber).update({
+        'fcmToken': fcmToken,
+        'tokenUpdatedAt': FieldValue.serverTimestamp(),
+      });
+    } catch (e) {
+      throw Exception('Failed to save FCM token: $e');
+    }
+  }
 }

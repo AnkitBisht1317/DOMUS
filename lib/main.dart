@@ -31,11 +31,18 @@ import 'features/home/presentation/viewmodels/payment_viewmodel.dart';
 import 'features/home/presentation/viewmodels/profile_view_model.dart';
 import 'features/home/presentation/viewmodels/quick_fact_viewmodel.dart';
 
+// Add this import
+import 'package:domus/features/notifications/data/services/firebase_messaging_service.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  
+  // Initialize Firebase Messaging
+  await FirebaseMessagingService().initialize();
+  
   runApp(const MyApp());
 }
 

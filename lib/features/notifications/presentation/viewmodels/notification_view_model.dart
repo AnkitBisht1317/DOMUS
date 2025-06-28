@@ -1,13 +1,18 @@
 import 'package:flutter/material.dart';
 import '../../domain/models/notification_model.dart';
+import '../../data/services/firebase_messaging_service.dart';
+import 'dart:developer' as developer;
 
 class NotificationViewModel extends ChangeNotifier {
   bool _isSearching = false;
   String _searchQuery = '';
   final List<NotificationModel> _notifications = [];
+  final FirebaseMessagingService _messagingService = FirebaseMessagingService();
+  String? _fcmToken;
   
   bool get isSearching => _isSearching;
   String get searchQuery => _searchQuery;
+  String? get fcmToken => _fcmToken;
   
   List<NotificationModel> get notifications {
     if (_searchQuery.isEmpty) {
@@ -22,6 +27,14 @@ class NotificationViewModel extends ChangeNotifier {
   
   NotificationViewModel() {
     _initializeNotifications();
+    _initializeMessaging();
+  }
+  
+  Future<void> _initializeMessaging() async {
+    await _messagingService.initialize();
+    _fcmToken = await _messagingService.getToken();
+    developer.log('FCM Token: $_fcmToken');
+    notifyListeners();
   }
   
   void _initializeNotifications() {
@@ -98,6 +111,11 @@ class NotificationViewModel extends ChangeNotifier {
         iconPath: 'assets/books.png',
       ),
     ]);
+  }
+  
+  void addNotification(NotificationModel notification) {
+    _notifications.insert(0, notification);
+    notifyListeners();
   }
   
   void startSearch() {

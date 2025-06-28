@@ -5,4 +5,5 @@ abstract class UserRepository {
   Future<void> saveUserDetails(UserDetails userDetails);
   Future<UserDetails?> getUserDetails(String phoneNumber);
   Future<void> saveAcademicDetails(String phoneNumber, StudentAcademicDetails academicDetails);
-} 
+  Future<void> saveFcmToken(String phoneNumber, String fcmToken); // New method
+}
