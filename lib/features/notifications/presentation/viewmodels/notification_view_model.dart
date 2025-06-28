@@ -8,11 +8,11 @@ class NotificationViewModel extends ChangeNotifier {
   String _searchQuery = '';
   final List<NotificationModel> _notifications = [];
   final FirebaseMessagingService _messagingService = FirebaseMessagingService();
-  String? _fcmToken;
+  // Remove the fcmToken property and getter
   
   bool get isSearching => _isSearching;
   String get searchQuery => _searchQuery;
-  String? get fcmToken => _fcmToken;
+  // Remove the fcmToken getter
   
   List<NotificationModel> get notifications {
     if (_searchQuery.isEmpty) {
@@ -32,8 +32,9 @@ class NotificationViewModel extends ChangeNotifier {
   
   Future<void> _initializeMessaging() async {
     await _messagingService.initialize();
-    _fcmToken = await _messagingService.getToken();
-    developer.log('FCM Token: $_fcmToken');
+    // Remove the token retrieval and storage in the view model
+    // Just log for debugging purposes
+    developer.log('Notification messaging initialized');
     notifyListeners();
   }
   

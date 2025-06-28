@@ -58,9 +58,6 @@ class FirebaseMessagingService {
       },
     );
     
-    // For Android 13+, request permission
-    await _requestPermission();
-    
     // For iOS, create notification channel
     await _setupNotificationChannels();
     
@@ -73,10 +70,32 @@ class FirebaseMessagingService {
     // Check if app was opened from a notification
     await _checkInitialMessage();
     
+    // Only request permission and store token if user is logged in
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      // For Android 13+, request permission
+      await _requestPermission();
+      
+      // Get and store the FCM token
+      await getAndStoreToken();
+      
+      // Listen for token refreshes
+      _firebaseMessaging.onTokenRefresh.listen((newToken) {
+        developer.log('FCM Token refreshed: $newToken');
+        _storeTokenInFirestore(newToken);
+      });
+    }
+  }
+  
+  // This method can be called when user logs in
+  Future<void> initializeForLoggedInUser() async {
+    // For Android 13+, request permission
+    await _requestPermission();
+    
     // Get and store the FCM token
     await getAndStoreToken();
     
-    // Listen for token refreshes
+    // Listen for token refreshes if not already listening
     _firebaseMessaging.onTokenRefresh.listen((newToken) {
       developer.log('FCM Token refreshed: $newToken');
       _storeTokenInFirestore(newToken);

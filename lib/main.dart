@@ -40,7 +40,8 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
   
-  // Initialize Firebase Messaging
+  // Initialize Firebase Messaging but don't request permissions yet
+  // This will set up the basic functionality without requesting permissions
   await FirebaseMessagingService().initialize();
   
   runApp(const MyApp());

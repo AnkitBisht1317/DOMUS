@@ -68,32 +68,7 @@ class NotificationScreenContent extends StatelessWidget {
       ),
       body: Column(
         children: [
-          // FCM Token Display (for testing)
-          if (viewModel.fcmToken != null)
-            Container(
-              color: Colors.amber[100],
-              padding: const EdgeInsets.all(8),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      'FCM Token: ${viewModel.fcmToken}',
-                      style: const TextStyle(fontSize: 10),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.copy, size: 16),
-                    onPressed: () {
-                      Clipboard.setData(ClipboardData(text: viewModel.fcmToken ?? ''));
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Token copied to clipboard')),
-                      );
-                    },
-                  ),
-                ],
-              ),
-            ),
+          // Remove the FCM Token Display section
           Expanded(
             child: Container(
               decoration: const BoxDecoration(
