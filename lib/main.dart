@@ -55,13 +55,13 @@ class MyApp extends StatelessWidget {
       final user = FirebaseAuth.instance.currentUser;
       if (user?.phoneNumber == null) return false;
 
+      // Check the main user document instead of subcollection
       final docSnapshot = await FirebaseFirestore.instance
           .collection('users')
           .doc(user!.phoneNumber)
-          .collection('personalDetails')
-          .doc('current')
           .get();
 
+      // Check if the document exists and has data
       return docSnapshot.exists && docSnapshot.data() != null;
     } catch (e) {
       print('Error checking user data: $e');

@@ -58,15 +58,21 @@ class ProfileViewModel extends ChangeNotifier {
         notifyListeners();
         return;
       }
+      
+      // Set the mobile number directly from Firebase Auth
+      mobileController.text = user!.phoneNumber!;
 
       // Load all profile data using the repository
       final profileData =
-          await _profileRepository.loadProfileData(user!.phoneNumber!);
+          await _profileRepository.loadProfileData(user.phoneNumber!);
 
       if (profileData != null) {
         // Set personal details
         nameController.text = profileData['fullName'] ?? '';
-        mobileController.text = profileData['phoneNumber'] ?? '';
+        // Don't override the mobile number if it's already set from Auth
+        if (mobileController.text.isEmpty) {
+          mobileController.text = profileData['phoneNumber'] ?? user.phoneNumber!;
+        }
         emailController.text = profileData['email'] ?? '';
         genderController.text = profileData['gender'] ?? '';
         dobController.text = profileData['dob'] ?? '';
