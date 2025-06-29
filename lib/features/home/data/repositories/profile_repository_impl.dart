@@ -133,55 +133,67 @@ class ProfileRepositoryImpl implements ProfileRepository {
   @override
   Future<void> updateProfileData(String phoneNumber, Map<String, dynamic> data) async {
     try {
-      // Determine which collection to update based on the data keys
+      // Determine which category to update based on the data keys
       final personalFields = ['fullName', 'email', 'gender', 'dob', 'domicileState', 'profilePhotoUrl'];
       final academicFields = ['batch', 'collegeName', 'collegeState'];
-      final professionalFields = ['designation', 'pg_clg_name', 'pg_state'];
+      final professionalFields = ['designation', 'pg_clg_name', 'pg_state', 'ug_state', 'ug_clg_name', 'pg_year'];
       
-      // Create maps for each collection
-      final Map<String, dynamic> personalData = {};
-      final Map<String, dynamic> academicData = {};
-      final Map<String, dynamic> professionalData = {};
+      // Get current document data
+      final docSnapshot = await _firestore
+          .collection('users')
+          .doc(phoneNumber)
+          .get();
+      
+      // Initialize maps for each category
+      Map<String, dynamic> personalDetails = {};
+      Map<String, dynamic> academicDetails = {};
+      Map<String, dynamic> professionalDetails = {};
+      
+      // Get existing data if available
+      if (docSnapshot.exists) {
+        if (docSnapshot.data()?['personalDetails'] != null) {
+          personalDetails = Map<String, dynamic>.from(docSnapshot.data()!['personalDetails']);
+        }
+        if (docSnapshot.data()?['academicDetails'] != null) {
+          academicDetails = Map<String, dynamic>.from(docSnapshot.data()!['academicDetails']);
+        }
+        if (docSnapshot.data()?['professionalDetails'] != null) {
+          professionalDetails = Map<String, dynamic>.from(docSnapshot.data()!['professionalDetails']);
+        }
+      }
       
       // Sort data into appropriate maps
       data.forEach((key, value) {
         if (personalFields.contains(key)) {
-          personalData[key] = value;
+          personalDetails[key] = value;
         } else if (academicFields.contains(key)) {
-          academicData[key] = value;
+          academicDetails[key] = value;
         } else if (professionalFields.contains(key)) {
-          professionalData[key] = value;
+          professionalDetails[key] = value;
         }
       });
       
-      // Update personal details if needed
-      if (personalData.isNotEmpty) {
-        await _firestore
-            .collection('users')
-            .doc(phoneNumber)
-            .collection('personalDetails')
-            .doc('current')
-            .update(personalData);
+      // Prepare update data
+      Map<String, dynamic> updateData = {};
+      
+      if (personalDetails.isNotEmpty) {
+        updateData['personalDetails'] = personalDetails;
       }
       
-      // Update academic details if needed
-      if (academicData.isNotEmpty) {
-        await _firestore
-            .collection('users')
-            .doc(phoneNumber)
-            .collection('academicDetails')
-            .doc('current')
-            .update(academicData);
+      if (academicDetails.isNotEmpty) {
+        updateData['academicDetails'] = academicDetails;
       }
       
-      // Update professional details if needed
-      if (professionalData.isNotEmpty) {
+      if (professionalDetails.isNotEmpty) {
+        updateData['professionalDetails'] = professionalDetails;
+      }
+      
+      // Update main document
+      if (updateData.isNotEmpty) {
         await _firestore
             .collection('users')
             .doc(phoneNumber)
-            .collection('professional_details')
-            .doc('current')
-            .update(professionalData);
+            .set(updateData, SetOptions(merge: true));
       }
     } catch (e) {
       debugPrint("Error updating profile data: $e");
@@ -194,40 +206,30 @@ class ProfileRepositoryImpl implements ProfileRepository {
     try {
       final result = <String, dynamic>{};
       
-      // Fetch personal details
-      final personalSnapshot = await _firestore
+      // Fetch main document data
+      final docSnapshot = await _firestore
           .collection('users')
           .doc(phoneNumber)
-          .collection('personalDetails')
-          .doc('current')
           .get();
-
-      if (personalSnapshot.exists && personalSnapshot.data() != null) {
-        result.addAll(personalSnapshot.data()!);
-      }
-
-      // Fetch academic details
-      final academicSnapshot = await _firestore
-          .collection('users')
-          .doc(phoneNumber)
-          .collection('academicDetails')
-          .doc('current')
-          .get();
-
-      if (academicSnapshot.exists && academicSnapshot.data() != null) {
-        result.addAll(academicSnapshot.data()!);
-      }
-
-      // Fetch professional details
-      final professionalSnapshot = await _firestore
-          .collection('users')
-          .doc(phoneNumber)
-          .collection('professional_details')
-          .doc('current')
-          .get();
-
-      if (professionalSnapshot.exists && professionalSnapshot.data() != null) {
-        result.addAll(professionalSnapshot.data()!);
+  
+      if (docSnapshot.exists && docSnapshot.data() != null) {
+        // Extract personal details
+        if (docSnapshot.data()!.containsKey('personalDetails')) {
+          final personalDetails = docSnapshot.data()!['personalDetails'] as Map<String, dynamic>;
+          result.addAll(personalDetails);
+        }
+        
+        // Extract academic details
+        if (docSnapshot.data()!.containsKey('academicDetails')) {
+          final academicDetails = docSnapshot.data()!['academicDetails'] as Map<String, dynamic>;
+          result.addAll(academicDetails);
+        }
+        
+        // Extract professional details
+        if (docSnapshot.data()!.containsKey('professionalDetails')) {
+          final professionalDetails = docSnapshot.data()!['professionalDetails'] as Map<String, dynamic>;
+          result.addAll(professionalDetails);
+        }
       }
       
       return result.isNotEmpty ? result : null;

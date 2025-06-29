@@ -12,59 +12,48 @@ class UserRepositoryImpl implements UserRepository {
   @override
   Future<void> saveUserDetails(UserDetails userDetails) async {
     try {
-      // First create/update the main user document with just the phone number
+      // Create/update the main user document with personal details as a map
       await _firestore.collection('users').doc(userDetails.phoneNumber).set({
         'phoneNumber': userDetails.phoneNumber,
         'createdAt': FieldValue.serverTimestamp(),
-      });
-
-      // Update the personal details document with a fixed ID 'current'
-      await _firestore
-          .collection('users')
-          .doc(userDetails.phoneNumber)
-          .collection('personalDetails')
-          .doc('current')  // Using a fixed document ID
-          .set({          // Using set instead of add
-        'fullName': userDetails.fullName,
-        'phoneNumber': userDetails.phoneNumber,
-        'email': userDetails.email,
-        'gender': userDetails.gender,
-        'dob': userDetails.dob,
-        'country': userDetails.country,
-        'domicileState': userDetails.domicileState,
-        'district': userDetails.district,
-        'profilePhoto': userDetails.profilePhoto, // Added profilePhoto field
-        'lastUpdated': FieldValue.serverTimestamp(),
-      });
+        'personalDetails': {
+          'fullName': userDetails.fullName,
+          'email': userDetails.email,
+          'gender': userDetails.gender,
+          'dob': userDetails.dob,
+          'country': userDetails.country,
+          'domicileState': userDetails.domicileState,
+          'district': userDetails.district,
+          'lastUpdated': FieldValue.serverTimestamp(),
+        }
+      }, SetOptions(merge: true));
     } catch (e) {
       throw Exception('Failed to save user details: $e');
     }
   }
 
   @override
+  @override
   Future<UserDetails?> getUserDetails(String phoneNumber) async {
     try {
-      // Get the current personal details document
+      // Get the main user document
       final docSnapshot = await _firestore
           .collection('users')
           .doc(phoneNumber)
-          .collection('personalDetails')
-          .doc('current')
           .get();
-
-      if (!docSnapshot.exists) return null;
+  
+      if (!docSnapshot.exists || docSnapshot.data()?['personalDetails'] == null) return null;
       
-      final data = docSnapshot.data()!;
+      final personalData = docSnapshot.data()!['personalDetails'] as Map<String, dynamic>;
       return UserDetails(
-        fullName: data['fullName'] as String,
-        phoneNumber: data['phoneNumber'] as String,
-        email: data['email'] as String,
-        gender: data['gender'] as String,
-        dob: data['dob'] as String,
-        country: data['country'] as String,
-        domicileState: data['domicileState'] as String,
-        district: data['district'] as String,
-        profilePhoto: data['profilePhoto'] as String?, // Added profilePhoto retrieval
+        fullName: personalData['fullName'] as String,
+        phoneNumber: phoneNumber,
+        email: personalData['email'] as String,
+        gender: personalData['gender'] as String,
+        dob: personalData['dob'] as String,
+        country: personalData['country'] as String,
+        domicileState: personalData['domicileState'] as String,
+        district: personalData['district'] as String,
       );
     } catch (e) {
       throw Exception('Failed to get user details: $e');
@@ -74,16 +63,19 @@ class UserRepositoryImpl implements UserRepository {
   @override
   Future<void> saveAcademicDetails(String phoneNumber, StudentAcademicDetails academicDetails) async {
     try {
-      // Update the academic details document with a fixed ID 'current'
+      // Update the main user document with academic details as a map
       await _firestore
           .collection('users')
           .doc(phoneNumber)
-          .collection('academicDetails')
-          .doc('current')  // Using a fixed document ID
-          .set({          // Using set instead of add
-        ...academicDetails.toMap(),
-        'lastUpdated': FieldValue.serverTimestamp(),
-      });
+          .set({
+        'academicDetails': {
+          'batch': academicDetails.batch,
+          'collegeState': academicDetails.collegeState,
+          'collegeName': academicDetails.collegeName,
+          'timestamp': academicDetails.timestamp,
+          'lastUpdated': FieldValue.serverTimestamp(),
+        }
+      }, SetOptions(merge: true));
     } catch (e) {
       throw Exception('Failed to save academic details: $e');
     }

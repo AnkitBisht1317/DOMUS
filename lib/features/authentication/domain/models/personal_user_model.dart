@@ -6,8 +6,7 @@ class UserDetails {
   String dob;
   String country;
   String domicileState;
-  String district;
-  String? profilePhoto; // Added profilePhoto field with nullable type
+  String district;// Added profilePhoto field with nullable type
 
   UserDetails({
     required this.fullName,
@@ -17,7 +16,6 @@ class UserDetails {
     required this.dob,
     required this.country,
     required this.domicileState,
-    required this.district,
-    this.profilePhoto, // Optional parameter with default null value
+    required this.district,// Optional parameter with default null value
   });
 }

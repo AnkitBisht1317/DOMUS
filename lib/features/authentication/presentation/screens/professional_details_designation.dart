@@ -27,18 +27,18 @@ class _ProfessionalDetailsState extends State<ProfessionalDetails> {
     try {
       final docRef = _firestore
           .collection('users')
-          .doc(widget.mobileNumber)
-          .collection('professional_details')
-          .doc('current');
+          .doc(widget.mobileNumber);
 
       await docRef.set({
-        'designation': selectedDesignation,
-        'isVerified': false,
-        'ug_state': null,
-        'ug_clg_name': null,
-        'pg_year': null,
-        'pg_state': null,
-        'pg_clg_name': null,
+        'professionalDetails': {
+          'designation': selectedDesignation,
+          'isVerified': false,
+          'ug_state': null,
+          'ug_clg_name': null,
+          'pg_year': null,
+          'pg_state': null,
+          'pg_clg_name': null,
+        }
       }, SetOptions(merge: true));
 
       if (mounted) {

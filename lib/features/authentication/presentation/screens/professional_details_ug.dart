@@ -27,19 +27,28 @@ class _ProfessionalDetailsUGState extends State<ProfessionalDetailsUG> {
 
   Future<void> _updateUGDetails() async {
     try {
-      // Reference to the professional details document
+      // Reference to the main user document
       final docRef = _firestore
           .collection('users')
-          .doc(widget.mobileNumber)
-          .collection('professional_details')
-          .doc('current');
+          .doc(widget.mobileNumber);
 
-      // Update only UG fields
+      // Get current professional details
+      final docSnapshot = await docRef.get();
+      Map<String, dynamic> professionalDetails = {};
+      
+      if (docSnapshot.exists && docSnapshot.data()?['professionalDetails'] != null) {
+        professionalDetails = Map<String, dynamic>.from(docSnapshot.data()!['professionalDetails']);
+      }
+      
+      // Update UG fields
+      professionalDetails['ug_state'] = selectedState;
+      professionalDetails['ug_clg_name'] = selectedCollege;
+      
+      // Save back to document
       await docRef.set({
-        'ug_state': selectedState,
-        'ug_clg_name': selectedCollege,
-      }, SetOptions(merge: true));  // Using merge to only update UG fields
-
+        'professionalDetails': professionalDetails
+      }, SetOptions(merge: true));
+  
       // Navigate to PG page after successful update
       if (mounted) {
         Navigator.pushAndRemoveUntil(

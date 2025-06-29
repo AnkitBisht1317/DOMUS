@@ -28,21 +28,30 @@ class _ProfessionalDetailsPGState extends State<ProfessionalDetailsPG> {
 
   Future<void> _updatePGDetails() async {
     try {
-      // Reference to the professional details document
+      // Reference to the main user document
       final docRef = _firestore
           .collection('users')
-          .doc(widget.mobileNumber)
-          .collection('professional_details')
-          .doc('current');
+          .doc(widget.mobileNumber);
 
-      // Update PG fields and set isVerified to true since all details are now complete
+      // Get current professional details
+      final docSnapshot = await docRef.get();
+      Map<String, dynamic> professionalDetails = {};
+      
+      if (docSnapshot.exists && docSnapshot.data()?['professionalDetails'] != null) {
+        professionalDetails = Map<String, dynamic>.from(docSnapshot.data()!['professionalDetails']);
+      }
+      
+      // Update PG fields
+      professionalDetails['pg_year'] = selectedYear;
+      professionalDetails['pg_state'] = selectedState;
+      professionalDetails['pg_clg_name'] = selectedCollege;
+      professionalDetails['isVerified'] = true;  // Set to true as all details are now complete
+      
+      // Save back to document
       await docRef.set({
-        'pg_year': selectedYear,
-        'pg_state': selectedState,
-        'pg_clg_name': selectedCollege,
-        'isVerified': true,  // Set to true as all details are now complete
+        'professionalDetails': professionalDetails
       }, SetOptions(merge: true));
-
+  
       // Navigate to welcome screen after successful update
       if (mounted) {
         Navigator.pushAndRemoveUntil(
@@ -53,7 +62,7 @@ class _ProfessionalDetailsPGState extends State<ProfessionalDetailsPG> {
               gender: widget.gender,
             ),
           ),
-          (route) => false, // This removes all previous routes
+          (route) => false,
         );
       }
     } catch (e) {
