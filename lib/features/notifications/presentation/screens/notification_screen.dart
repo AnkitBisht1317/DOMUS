@@ -51,14 +51,7 @@ class NotificationScreenContent extends StatelessWidget {
                 autofocus: true,
               ),
         actions: [
-          // Add mark all as read button
-          if (!viewModel.isSearching && viewModel.unreadCount > 0)
-            IconButton(
-              icon: const Icon(Icons.mark_email_read, color: Colors.white),
-              onPressed: () {
-                viewModel.markAllAsRead();
-              },
-            ),
+          // Remove mark all as read button - as requested by user
           IconButton(
             icon: Icon(
               viewModel.isSearching ? Icons.close : Icons.search,

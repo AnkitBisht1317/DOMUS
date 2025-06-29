@@ -162,21 +162,16 @@ class FirebaseMessagingService {
     developer.log('Got a message whilst in the foreground!');
     developer.log('Message data: ${message.data}');
     
-    if (message.notification != null) {
-      developer.log(
-        'Message also contained a notification: ${message.notification!.title}',
-      );
-      
-      // Show local notification
-      _showLocalNotification(message);
-      
-      // Convert to notification model and add to view model
-      final notificationModel = convertMessageToNotificationModel(message);
-      if (notificationModel != null) {
-        // Use a callback to notify the view model
-        if (_onNotificationReceived != null) {
-          _onNotificationReceived!(notificationModel);
-        }
+    // Always show notification regardless of notification property
+    // This ensures foreground notifications are displayed
+    _showLocalNotification(message);
+    
+    // Convert to notification model and add to view model
+    final notificationModel = convertMessageToNotificationModel(message);
+    if (notificationModel != null) {
+      // Use a callback to notify the view model
+      if (_onNotificationReceived != null) {
+        _onNotificationReceived!(notificationModel);
       }
     }
   }
@@ -193,32 +188,37 @@ class FirebaseMessagingService {
     RemoteNotification? notification = message.notification;
     AndroidNotification? android = message.notification?.android;
     
-    if (notification != null && android != null && !kIsWeb) {
-      _flutterLocalNotificationsPlugin.show(
-        notification.hashCode,
-        notification.title,
-        notification.body,
-        NotificationDetails(
-          android: AndroidNotificationDetails(
-            'high_importance_channel',
-            'High Importance Notifications',
-            channelDescription: 'This channel is used for important notifications.',
-            icon: android.smallIcon,
-            sound: const RawResourceAndroidNotificationSound('notification_sound'),
-            playSound: true,
-            priority: Priority.high,
-            importance: Importance.max,
-          ),
-          iOS: const DarwinNotificationDetails(
-            presentAlert: true,
-            presentBadge: true,
-            presentSound: true,
-            sound: 'notification_sound.aiff',
-          ),
+    // Create a default notification if the message doesn't contain one
+    String title = notification?.title ?? message.data['title'] ?? 'New Notification';
+    String body = notification?.body ?? message.data['body'] ?? '';
+    
+    // Always show notification even if notification is null
+    _flutterLocalNotificationsPlugin.show(
+      notification?.hashCode ?? DateTime.now().millisecondsSinceEpoch.hashCode,
+      title,
+      body,
+      NotificationDetails(
+        android: AndroidNotificationDetails(
+          'high_importance_channel',
+          'High Importance Notifications',
+          channelDescription: 'This channel is used for important notifications.',
+          icon: android?.smallIcon ?? '@mipmap/ic_launcher',
+          // Remove custom sound to use default phone sound
+          // sound: const RawResourceAndroidNotificationSound('notification_sound'),
+          playSound: true,
+          priority: Priority.high,
+          importance: Importance.max,
         ),
-        payload: message.data.toString(),
-      );
-    }
+        iOS: const DarwinNotificationDetails(
+          presentAlert: true,
+          presentBadge: true,
+          presentSound: true,
+          // Remove custom sound to use default phone sound
+          // sound: 'notification_sound.aiff',
+        ),
+      ),
+      payload: message.data.toString(),
+    );
   }
   
   void _handleNotificationOpen(RemoteMessage message) {
