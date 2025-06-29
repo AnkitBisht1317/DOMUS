@@ -169,7 +169,24 @@ class FirebaseMessagingService {
       
       // Show local notification
       _showLocalNotification(message);
+      
+      // Convert to notification model and add to view model
+      final notificationModel = convertMessageToNotificationModel(message);
+      if (notificationModel != null) {
+        // Use a callback to notify the view model
+        if (_onNotificationReceived != null) {
+          _onNotificationReceived!(notificationModel);
+        }
+      }
     }
+  }
+  
+  // Add callback for notification received
+  Function(NotificationModel)? _onNotificationReceived;
+  
+  // Set callback from view model
+  void setOnNotificationReceived(Function(NotificationModel) callback) {
+    _onNotificationReceived = callback;
   }
   
   void _showLocalNotification(RemoteMessage message) {
@@ -220,15 +237,22 @@ class FirebaseMessagingService {
   }
   
   // Method to convert FCM message to NotificationModel
+  // Update the convertMessageToNotificationModel method to handle image URLs
   NotificationModel? convertMessageToNotificationModel(RemoteMessage message) {
     if (message.notification == null) return null;
+    
+    // Check if there's an image URL in the data payload
+    String? imageUrl = message.data['image_url'];
+    String iconPath = 'assets/notification_icon.png'; // Default icon
     
     return NotificationModel(
       id: message.messageId ?? DateTime.now().millisecondsSinceEpoch.toString(),
       title: message.notification!.title ?? 'New Notification',
       message: message.notification!.body ?? '',
       timestamp: DateTime.now(),
-      iconPath: 'assets/notification_icon.png', // Default icon
+      iconPath: iconPath,
+      imageUrl: imageUrl,
+      isRead: false,
     );
   }
   

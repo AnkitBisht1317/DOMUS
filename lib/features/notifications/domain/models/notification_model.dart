@@ -4,6 +4,7 @@ class NotificationModel {
   final String message;
   final DateTime timestamp;
   final String iconPath;
+  final String? imageUrl; // Add image URL support
   final bool isRead;
 
   const NotificationModel({
@@ -12,6 +13,7 @@ class NotificationModel {
     required this.message,
     required this.timestamp,
     required this.iconPath,
+    this.imageUrl, // Optional image URL
     this.isRead = false,
   });
 
@@ -21,6 +23,7 @@ class NotificationModel {
     String? message,
     DateTime? timestamp,
     String? iconPath,
+    String? imageUrl,
     bool? isRead,
   }) {
     return NotificationModel(
@@ -29,6 +32,7 @@ class NotificationModel {
       message: message ?? this.message,
       timestamp: timestamp ?? this.timestamp,
       iconPath: iconPath ?? this.iconPath,
+      imageUrl: imageUrl ?? this.imageUrl,
       isRead: isRead ?? this.isRead,
     );
   }

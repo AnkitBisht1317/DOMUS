@@ -51,6 +51,14 @@ class NotificationScreenContent extends StatelessWidget {
                 autofocus: true,
               ),
         actions: [
+          // Add mark all as read button
+          if (!viewModel.isSearching && viewModel.unreadCount > 0)
+            IconButton(
+              icon: const Icon(Icons.mark_email_read, color: Colors.white),
+              onPressed: () {
+                viewModel.markAllAsRead();
+              },
+            ),
           IconButton(
             icon: Icon(
               viewModel.isSearching ? Icons.close : Icons.search,
@@ -68,7 +76,6 @@ class NotificationScreenContent extends StatelessWidget {
       ),
       body: Column(
         children: [
-          // Remove the FCM Token Display section
           Expanded(
             child: Container(
               decoration: const BoxDecoration(
@@ -104,7 +111,6 @@ class NotificationScreenContent extends StatelessWidget {
   }
 }
 
-// Keep the existing NotificationCard class
 class NotificationCard extends StatelessWidget {
   final NotificationModel notification;
 
@@ -115,64 +121,103 @@ class NotificationCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      elevation: 2,
-      color: const Color(0xFF204771), // Light blue background for cards
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
+    final viewModel = Provider.of<NotificationViewModel>(context, listen: false);
+    
+    return GestureDetector(
+      onTap: () {
+        // Mark as read when tapped
+        viewModel.markAsRead(notification.id);
+      },
+      child: Card(
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        elevation: 2,
+        color: const Color(0xFF204771),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Stack(
           children: [
-            // Use the original colored icon without applying any color tint
-            Container(
-              width: 50,
-              height: 50,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Image.asset(
-                  notification.iconPath,
-                  width: 34,
-                  height: 34,
-                  // No color property to preserve original colors
-                ),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+            Padding(
+              padding: const EdgeInsets.all(12),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Text(
-                    notification.title,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14,
-                      color: Colors.white
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    notification.message,
-                    style: const TextStyle(
+                  // Icon or image container
+                  Container(
+                    width: 50,
+                    height: 50,
+                    decoration: BoxDecoration(
                       color: Colors.white,
-                      fontSize: 12,
+                      borderRadius: BorderRadius.circular(8),
                     ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: notification.imageUrl != null
+                          ? Image.network(
+                              notification.imageUrl!,
+                              width: 34,
+                              height: 34,
+                              errorBuilder: (context, error, stackTrace) {
+                                return Image.asset(
+                                  notification.iconPath,
+                                  width: 34,
+                                  height: 34,
+                                );
+                              },
+                            )
+                          : Image.asset(
+                              notification.iconPath,
+                              width: 34,
+                              height: 34,
+                            ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          notification.title,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                            color: Colors.white
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          notification.message,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        // Removed timestamp display as requested
+                      ],
+                    ),
                   ),
                 ],
               ),
             ),
+            // Red dot indicator for unread notifications
+            if (!notification.isRead)
+              Positioned(
+                top: 8,
+                right: 8,
+                child: Container(
+                  width: 12,
+                  height: 12,
+                  decoration: const BoxDecoration(
+                    color: Colors.red,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+              ),
           ],
         ),
       ),

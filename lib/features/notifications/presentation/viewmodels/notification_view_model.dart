@@ -8,11 +8,9 @@ class NotificationViewModel extends ChangeNotifier {
   String _searchQuery = '';
   final List<NotificationModel> _notifications = [];
   final FirebaseMessagingService _messagingService = FirebaseMessagingService();
-  // Remove the fcmToken property and getter
   
   bool get isSearching => _isSearching;
   String get searchQuery => _searchQuery;
-  // Remove the fcmToken getter
   
   List<NotificationModel> get notifications {
     if (_searchQuery.isEmpty) {
@@ -25,6 +23,9 @@ class NotificationViewModel extends ChangeNotifier {
     }).toList();
   }
   
+  // Get unread notifications count for badge
+  int get unreadCount => _notifications.where((notification) => !notification.isRead).length;
+  
   NotificationViewModel() {
     _initializeNotifications();
     _initializeMessaging();
@@ -32,8 +33,12 @@ class NotificationViewModel extends ChangeNotifier {
   
   Future<void> _initializeMessaging() async {
     await _messagingService.initialize();
-    // Remove the token retrieval and storage in the view model
-    // Just log for debugging purposes
+    
+    // Set callback to receive foreground notifications
+    _messagingService.setOnNotificationReceived((notification) {
+      addNotification(notification);
+    });
+    
     developer.log('Notification messaging initialized');
     notifyListeners();
   }
