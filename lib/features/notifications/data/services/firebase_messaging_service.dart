@@ -2,6 +2,7 @@ import 'dart:developer' as developer;
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_local_notifications/src/platform_specifics/android/enums.dart'; // Add this import
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../../../features/authentication/data/repositories/user_repository_impl.dart';
 import '../../domain/models/notification_model.dart';
@@ -133,6 +134,7 @@ class FirebaseMessagingService {
       enableVibration: true,
       enableLights: true,
       showBadge: true,
+      // Add this line to ensure visibility
     );
     
     await _flutterLocalNotificationsPlugin
@@ -211,16 +213,24 @@ class FirebaseMessagingService {
           channelDescription: 'This channel is used for important notifications.',
           icon: android?.smallIcon ?? '@mipmap/ic_launcher',
           playSound: true,
-          sound: const RawResourceAndroidNotificationSound('notification'), // Use default sound
-          priority: Priority.high,
+          sound: const RawResourceAndroidNotificationSound('notification'),
+          priority: Priority.max, // Changed from high to max
           importance: Importance.max,
           enableVibration: true,
+          // Add these lines to ensure visibility in the system tray
+          channelShowBadge: true,
+          visibility: NotificationVisibility.public,
+          fullScreenIntent: true,
+          category: AndroidNotificationCategory.message,
+          actions: <AndroidNotificationAction>[
+            const AndroidNotificationAction('open', 'Open'),
+          ],
         ),
         iOS: const DarwinNotificationDetails(
           presentAlert: true,
           presentBadge: true,
           presentSound: true,
-          sound: 'default', // Use default iOS sound
+          sound: 'default',
         ),
       ),
       payload: message.data.toString(),
