@@ -9,97 +9,87 @@ class NotificationScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => NotificationViewModel(),
-      child: const NotificationScreenContent(),
-    );
-  }
-}
-
-class NotificationScreenContent extends StatelessWidget {
-  const NotificationScreenContent({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    final viewModel = Provider.of<NotificationViewModel>(context);
-    
-    return Scaffold(
-      backgroundColor: const Color(0xFF022150),
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF022150),
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-        title: !viewModel.isSearching
-            ? const Text(
-                'Notification',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
-              )
-            : TextField(
-                onChanged: viewModel.updateSearchQuery,
-                style: const TextStyle(color: Colors.white),
-                decoration: const InputDecoration(
-                  hintText: 'Search notifications...',
-                  hintStyle: TextStyle(color: Colors.white70),
-                  border: InputBorder.none,
-                ),
-                autofocus: true,
-              ),
-        actions: [
-          // Remove mark all as read button - as requested by user
-          IconButton(
-            icon: Icon(
-              viewModel.isSearching ? Icons.close : Icons.search,
-              color: Colors.white,
+    // Use the existing ViewModel from the provider tree
+    return Consumer<NotificationViewModel>(
+      builder: (context, viewModel, _) {
+        return Scaffold(
+          backgroundColor: const Color(0xFF022150),
+          appBar: AppBar(
+            backgroundColor: const Color(0xFF022150),
+            elevation: 0,
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back, color: Colors.white),
+              onPressed: () => Navigator.of(context).pop(),
             ),
-            onPressed: () {
-              if (viewModel.isSearching) {
-                viewModel.stopSearch();
-              } else {
-                viewModel.startSearch();
-              }
-            },
-          ),
-        ],
-      ),
-      body: Column(
-        children: [
-          Expanded(
-            child: Container(
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(20),
-                  topRight: Radius.circular(20),
-                ),
-              ),
-              child: viewModel.notifications.isEmpty
-                ? const Center(
-                    child: Text(
-                      'No notifications',
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.grey,
-                      ),
+            title: !viewModel.isSearching
+                ? const Text(
+                    'Notification',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
                     ),
                   )
-                : ListView.builder(
-                    padding: const EdgeInsets.only(top: 16),
-                    itemCount: viewModel.notifications.length,
-                    itemBuilder: (context, index) {
-                      final notification = viewModel.notifications[index];
-                      return NotificationCard(notification: notification);
-                    },
+                : TextField(
+                    onChanged: viewModel.updateSearchQuery,
+                    style: const TextStyle(color: Colors.white),
+                    decoration: const InputDecoration(
+                      hintText: 'Search notifications...',
+                      hintStyle: TextStyle(color: Colors.white70),
+                      border: InputBorder.none,
+                    ),
+                    autofocus: true,
                   ),
-            ),
+            actions: [
+              IconButton(
+                icon: Icon(
+                  viewModel.isSearching ? Icons.close : Icons.search,
+                  color: Colors.white,
+                ),
+                onPressed: () {
+                  if (viewModel.isSearching) {
+                    viewModel.stopSearch();
+                  } else {
+                    viewModel.startSearch();
+                  }
+                },
+              ),
+            ],
           ),
-        ],
-      ),
+          body: Column(
+            children: [
+              Expanded(
+                child: Container(
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(20),
+                      topRight: Radius.circular(20),
+                    ),
+                  ),
+                  child: viewModel.notifications.isEmpty
+                    ? const Center(
+                        child: Text(
+                          'No notifications',
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      )
+                    : ListView.builder(
+                        padding: const EdgeInsets.only(top: 16),
+                        itemCount: viewModel.notifications.length,
+                        itemBuilder: (context, index) {
+                          final notification = viewModel.notifications[index];
+                          return NotificationCard(notification: notification);
+                        },
+                      ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

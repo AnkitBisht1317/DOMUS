@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../../notifications/presentation/viewmodels/notification_view_model.dart';
 import '../screens/cart_screen.dart';
 import '../viewmodels/cart_view_model.dart';
 import '../viewmodels/home_view_model.dart';
@@ -122,17 +123,44 @@ class _HomeAppBarState extends State<HomeAppBar> {
                       padding: const EdgeInsets.all(8),
                     ),
                     // Notification Icon
-                    IconButton(
-                      icon: const Icon(Icons.notifications_none, color: Colors.black54),
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const NotificationScreen(),
-                          ),
-                        );
-                      },
-                      padding: const EdgeInsets.all(8),
+                    // Notification Icon
+                    Stack(
+                      alignment: Alignment.topRight,
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.notifications_none, color: Colors.black54),
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const NotificationScreen(),
+                              ),
+                            );
+                          },
+                          padding: const EdgeInsets.all(8),
+                        ),
+                        Consumer<NotificationViewModel>(
+                          builder: (context, notificationViewModel, _) {
+                            return notificationViewModel.unreadCount == 0
+                                ? const SizedBox.shrink()
+                                : Container(
+                                    padding: const EdgeInsets.all(4),
+                                    decoration: const BoxDecoration(
+                                      color: Colors.red,
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: Text(
+                                      '${notificationViewModel.unreadCount}',
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  );
+                          },
+                        ),
+                      ],
                     ),
                     // Cart Icon
                     Stack(

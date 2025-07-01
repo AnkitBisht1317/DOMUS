@@ -1,7 +1,6 @@
 import 'dart:developer' as developer;
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../../../features/authentication/data/repositories/user_repository_impl.dart';
@@ -110,10 +109,17 @@ class FirebaseMessagingService {
       carPlay: false,
       criticalAlert: false,
       provisional: false,
-      sound: true,
+      sound: true, // Explicitly request sound permission
     );
     
     developer.log('User granted permission: ${settings.authorizationStatus}');
+    
+    // For iOS, also set the presentation options to include sound
+    await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
+      alert: true,
+      badge: true,
+      sound: true, // Explicitly enable sound for foreground notifications
+    );
   }
   
   Future<void> _setupNotificationChannels() async {
@@ -125,7 +131,8 @@ class FirebaseMessagingService {
       importance: Importance.max,
       playSound: true,
       enableVibration: true,
-      sound: RawResourceAndroidNotificationSound('notification_sound'),
+      enableLights: true,
+      showBadge: true,
     );
     
     await _flutterLocalNotificationsPlugin
@@ -203,18 +210,17 @@ class FirebaseMessagingService {
           'High Importance Notifications',
           channelDescription: 'This channel is used for important notifications.',
           icon: android?.smallIcon ?? '@mipmap/ic_launcher',
-          // Remove custom sound to use default phone sound
-          // sound: const RawResourceAndroidNotificationSound('notification_sound'),
           playSound: true,
+          sound: const RawResourceAndroidNotificationSound('notification'), // Use default sound
           priority: Priority.high,
           importance: Importance.max,
+          enableVibration: true,
         ),
         iOS: const DarwinNotificationDetails(
           presentAlert: true,
           presentBadge: true,
           presentSound: true,
-          // Remove custom sound to use default phone sound
-          // sound: 'notification_sound.aiff',
+          sound: 'default', // Use default iOS sound
         ),
       ),
       payload: message.data.toString(),
@@ -239,16 +245,21 @@ class FirebaseMessagingService {
   // Method to convert FCM message to NotificationModel
   // Update the convertMessageToNotificationModel method to handle image URLs
   NotificationModel? convertMessageToNotificationModel(RemoteMessage message) {
-    if (message.notification == null) return null;
+    // Check if there's a notification or at least data payload
+    if (message.notification == null && message.data.isEmpty) return null;
     
-    // Check if there's an image URL in the data payload
-    String? imageUrl = message.data['image_url'];
+    // Extract image URL from either notification or data payload
+    String? imageUrl = message.notification?.android?.imageUrl ?? 
+                  message.notification?.apple?.imageUrl ?? 
+                  message.data['image_url'] ?? 
+                  message.data['imageUrl'];
+    
     String iconPath = 'assets/notification_icon.png'; // Default icon
     
     return NotificationModel(
       id: message.messageId ?? DateTime.now().millisecondsSinceEpoch.toString(),
-      title: message.notification!.title ?? 'New Notification',
-      message: message.notification!.body ?? '',
+      title: message.notification?.title ?? message.data['title'] ?? 'New Notification',
+      message: message.notification?.body ?? message.data['body'] ?? '',
       timestamp: DateTime.now(),
       iconPath: iconPath,
       imageUrl: imageUrl,

@@ -8,6 +8,7 @@ class NotificationViewModel extends ChangeNotifier {
   String _searchQuery = '';
   final List<NotificationModel> _notifications = [];
   final FirebaseMessagingService _messagingService = FirebaseMessagingService();
+  bool _isInitialized = false; // Add this flag to prevent multiple initializations
   
   bool get isSearching => _isSearching;
   String get searchQuery => _searchQuery;
@@ -27,8 +28,12 @@ class NotificationViewModel extends ChangeNotifier {
   int get unreadCount => _notifications.where((notification) => !notification.isRead).length;
   
   NotificationViewModel() {
-    _initializeNotifications();
-    _initializeMessaging();
+    // Only initialize once
+    if (!_isInitialized) {
+      _initializeNotifications();
+      _initializeMessaging();
+      _isInitialized = true;
+    }
   }
   
   Future<void> _initializeMessaging() async {
@@ -36,7 +41,10 @@ class NotificationViewModel extends ChangeNotifier {
     
     // Set callback to receive foreground notifications
     _messagingService.setOnNotificationReceived((notification) {
-      addNotification(notification);
+      // Check if notification with same ID already exists to prevent duplicates
+      if (!_notifications.any((n) => n.id == notification.id)) {
+        addNotification(notification);
+      }
     });
     
     developer.log('Notification messaging initialized');
