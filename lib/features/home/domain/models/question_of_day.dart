@@ -1,53 +1,66 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:domus/features/home/domain/models/questions_options_model.dart';
 
 class Question {
-  final String correctOption;
-  final DateTime date;
+  final String activityName;
+  final int answerNr;
   final String description;
-  final List<Option> options;
+  final String option1;
+  final String option2;
+  final String option3;
+  final String option4;
   final String question;
+  final DateTime date;
 
   Question({
-    required this.correctOption,
-    required this.date,
+    required this.activityName,
+    required this.answerNr,
     required this.description,
-    required this.options,
+    required this.option1,
+    required this.option2,
+    required this.option3,
+    required this.option4,
     required this.question,
+    required this.date,
   });
 
-  factory Question.fromMap(Map<String, dynamic> map) {
-    var optionsFromMap = map['options'] as List<dynamic>? ?? [];
-    List<Option> optionsList = optionsFromMap
-        .map((optionMap) => Option.fromMap(optionMap as Map<String, dynamic>))
-        .toList();
-
-    // Convert Firestore Timestamp to DateTime
-    DateTime dateTime;
-    if (map['date'] is Timestamp) {
-      dateTime = (map['date'] as Timestamp).toDate();
-    } else if (map['date'] is DateTime) {
-      dateTime = map['date'];
-    } else {
-      dateTime = DateTime.now(); // fallback
+  // Get the correct option text based on the answer number
+  String get correctOptionText {
+    switch (answerNr) {
+      case 1: return option1;
+      case 2: return option2;
+      case 3: return option3;
+      case 4: return option4;
+      default: return '';
     }
+  }
 
+  // Create a Question from a Firestore document
+  factory Question.fromMap(Map<String, dynamic> map) {
     return Question(
-      correctOption: map['correctOption'] ?? '',
-      date: dateTime,
+      activityName: map['activityName'] ?? '',
+      answerNr: map['answerNr'] ?? 1,
       description: map['description'] ?? '',
-      options: optionsList,
+      option1: map['option1'] ?? '',
+      option2: map['option2'] ?? '',
+      option3: map['option3'] ?? '',
+      option4: map['option4'] ?? '',
       question: map['question'] ?? '',
+      date: (map['date'] as Timestamp?)?.toDate() ?? DateTime.now(),
     );
   }
 
+  // Convert Question to a Map for Firestore
   Map<String, dynamic> toMap() {
     return {
-      'correctOption': correctOption,
-      'date': Timestamp.fromDate(date),
+      'activityName': activityName,
+      'answerNr': answerNr,
       'description': description,
-      'options': options.map((option) => option.toMap()).toList(),
+      'option1': option1,
+      'option2': option2,
+      'option3': option3,
+      'option4': option4,
       'question': question,
+      'date': Timestamp.fromDate(date),
     };
   }
 }

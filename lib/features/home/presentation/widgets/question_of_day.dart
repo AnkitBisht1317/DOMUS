@@ -1,10 +1,8 @@
-import 'package:domus/features/home/domain/models/questions_options_model.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../screens/qotd_explanation_screen.dart';
 import '../viewmodels/question_view_model.dart';
 import '../../domain/models/question_of_day.dart';
-import 'package:animations/animations.dart';
 
 class QuestionOfDaySection extends StatefulWidget {
   const QuestionOfDaySection({Key? key}) : super(key: key);
@@ -88,20 +86,20 @@ class _QuestionOfDaySectionState extends State<QuestionOfDaySection> {
                       ),
                       const SizedBox(height: 24),
                       
-                      // Options - fixed to show only once
-                      // When building option cards, use viewModel's state
-                      ...question.options.map((option) => _buildOptionCard(option, question, viewModel)),
+                      // Options - using the new model
+                      _buildOptionCard(1, question.option1, question, viewModel),
+                      _buildOptionCard(2, question.option2, question, viewModel),
+                      _buildOptionCard(3, question.option3, question, viewModel),
+                      _buildOptionCard(4, question.option4, question, viewModel),
                       
                       const SizedBox(height: 16),
                       // Bottom buttons
                       Row(
                         children: [
-                          // Inside the Row where the Explain button is located
-                          // Replace OpenContainer with a regular button that performs explicit check
                           TextButton(
                             onPressed: () {
                               // Explicit check at the moment of click
-                              if (viewModel.selectedOption != null || viewModel.hasAnswered) {
+                              if (viewModel.selectedOptionNumber != null || viewModel.hasAnswered) {
                                 // Only navigate if an option is selected or previously answered
                                 Navigator.of(context).push(
                                   MaterialPageRoute(
@@ -129,7 +127,7 @@ class _QuestionOfDaySectionState extends State<QuestionOfDaySection> {
                             child: Text(
                               'Explain',
                               style: TextStyle(
-                                color: viewModel.selectedOption != null || viewModel.hasAnswered
+                                color: viewModel.selectedOptionNumber != null || viewModel.hasAnswered
                                     ? const Color(0xFF001F54)
                                     : Colors.grey.shade500,
                                 fontWeight: FontWeight.w600,
@@ -167,9 +165,9 @@ class _QuestionOfDaySectionState extends State<QuestionOfDaySection> {
   }
 
   // Updated method to handle option selection using the viewModel
-  Widget _buildOptionCard(Option option, Question question, QuestionViewModel viewModel) {
-    final bool isSelected = viewModel.selectedOption == option.prefix;
-    final bool isCorrect = question.correctOption == option.prefix;
+  Widget _buildOptionCard(int optionNumber, String optionText, Question question, QuestionViewModel viewModel) {
+    final bool isSelected = viewModel.selectedOptionNumber == optionNumber;
+    final bool isCorrect = question.answerNr == optionNumber;
     final bool showResult = viewModel.hasAnswered;
     
     // Determine the background color based on selection and correctness
@@ -215,7 +213,7 @@ class _QuestionOfDaySectionState extends State<QuestionOfDaySection> {
         child: InkWell(
           onTap: viewModel.hasAnswered ? null : () async {
             // Save the user's answer using the viewModel
-            await viewModel.saveUserAnswer(option.prefix);
+            await viewModel.saveUserAnswer(optionNumber.toString());
           },
           borderRadius: BorderRadius.circular(12),
           child: Padding(
@@ -224,7 +222,7 @@ class _QuestionOfDaySectionState extends State<QuestionOfDaySection> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '${option.prefix}.',
+                  '$optionNumber.',
                   style: const TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w600,
@@ -233,7 +231,7 @@ class _QuestionOfDaySectionState extends State<QuestionOfDaySection> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    option.text,
+                    optionText,
                     style: const TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w500,

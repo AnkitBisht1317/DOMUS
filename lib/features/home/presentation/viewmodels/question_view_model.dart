@@ -1,158 +1,187 @@
-
-
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-
+import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:intl/intl.dart';
 import '../../domain/models/question_of_day.dart';
 import '../../domain/repositories/question_repository.dart';
-import '../screens/qotd_detail_screen.dart';
-import '../screens/qotd_explanation_screen.dart';
 
 class QuestionViewModel extends ChangeNotifier {
   final QuestionRepository _questionRepository;
   final FirebaseAuth _auth = FirebaseAuth.instance;
   
   Question? _questionOfDay;
-  bool _isLoading = false;
-  String? _errorMessage;
-  String? _selectedOption;
+  int? _selectedOptionNumber;
   bool _hasAnswered = false;
-  
-  Question? get questionOfDay => _questionOfDay;
-  bool get isLoading => _isLoading;
-  String? get errorMessage => _errorMessage;
-  String? get selectedOption => _selectedOption;
-  bool get hasAnswered => _hasAnswered;
+  bool _isLoading = true;
+  String? _error;
+  Map<String, dynamic>? _userAnswer;
 
+  // Getters
+  Question? get questionOfDay => _questionOfDay;
+  int? get selectedOptionNumber => _selectedOptionNumber;
+  bool get hasAnswered => _hasAnswered;
+  bool get isLoading => _isLoading;
+  String? get error => _error;
+
+  // Get the selected option as a string
+  String? get selectedOption => _selectedOptionNumber?.toString();
+
+  // Constructor
   QuestionViewModel(this._questionRepository) {
     _fetchTodayQuestion();
   }
 
-  /// Fetches the question for today's date and checks if user has already answered
+  // Fetch today's question
   Future<void> _fetchTodayQuestion() async {
-    _isLoading = true;
-    _errorMessage = null;
-    notifyListeners();
-    
     try {
-      // Get current local date
-      final now = DateTime.now();
+      _isLoading = true;
+      _error = null;
+      notifyListeners();
       
-      // Fetch question for today
-      final question = await _questionRepository.getQuestionForDate(now);
+      print('Fetching question from ALLEN 01 document...');
+      // Try to fetch question from ALLEN 01 document
+      var question = await _fetchQuestionFromFirestore('ALLEN 01');
       
       if (question != null) {
+        print('Question fetched successfully: ${question.question}');
         _questionOfDay = question;
-        // Check if user has already answered this question
-        await _checkUserAnswer(now);
-      } else {
-        // If no question found for today, try yesterday
-        final yesterday = now.subtract(const Duration(days: 1));
-        final yesterdayQuestion = await _questionRepository.getQuestionForDate(yesterday);
         
-        if (yesterdayQuestion != null) {
-          _questionOfDay = yesterdayQuestion;
-          // Check if user has already answered this question
-          await _checkUserAnswer(yesterday);
-        } else {
-          _errorMessage = 'No question available';
-        }
+        // Check if user has already answered this question
+        await _checkUserAnswer();
+      } else {
+        print('No question available from ALLEN 01');
+        _error = 'No question available';
       }
     } catch (e) {
-      _errorMessage = 'Failed to load question: $e';
+      print('Error fetching question: $e');
+      _error = 'Error fetching question: $e';
     } finally {
       _isLoading = false;
       notifyListeners();
     }
   }
 
-  /// Checks if the user has already answered the current question
-  Future<void> _checkUserAnswer(DateTime date) async {
-    final user = _auth.currentUser;
-    if (user == null || _questionOfDay == null) {
-      _hasAnswered = false;
-      _selectedOption = null;
-      notifyListeners();
-      return;
-    }
-
+  // Fetch question from Firestore
+  Future<Question?> _fetchQuestionFromFirestore(String documentId) async {
     try {
-      // Format the date as YYYY-MM-DD for Firestore document ID
-      final dateString = '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+      // Use today's date for the question
+      final today = DateTime.now();
       
-      final answerData = await _questionRepository.getUserAnswer(user.phoneNumber!, dateString);
+      print('Requesting question from repository for document: $documentId');
+      // Fetch the question data from the document
+      final questionDoc = await _questionRepository.getQuestionFromDocument(documentId);
+      
+      if (questionDoc != null) {
+        print('Question data received: ${questionDoc.toString()}');
+        // Add the date to the question data as a Timestamp
+        final questionData = {
+          ...questionDoc,
+          'date': Timestamp.fromDate(today),  // Convert DateTime to Timestamp
+        };
+        
+        return Question.fromMap(questionData);
+      } else {
+        print('Repository returned null for document: $documentId');
+      }
+      
+      return null;
+    } catch (e) {
+      print('Error fetching question from Firestore: $e');
+      return null;
+    }
+  }
 
-      if (answerData != null) {
-        _selectedOption = answerData['selectedOption'];
+  // Check if user has already answered this question
+  Future<void> _checkUserAnswer() async {
+    if (_questionOfDay == null) return;
+    
+    try {
+      final user = _auth.currentUser;
+      if (user == null || user.phoneNumber == null) return;
+      
+      final phoneNumber = user.phoneNumber!;
+      final questionDate = DateFormat('yyyy-MM-dd').format(_questionOfDay!.date);
+      
+      _userAnswer = await _questionRepository.getUserAnswer(phoneNumber, questionDate);
+      
+      if (_userAnswer != null && _userAnswer!.containsKey('selectedOption')) {
+        _selectedOptionNumber = int.tryParse(_userAnswer!['selectedOption']);
         _hasAnswered = true;
       } else {
+        _selectedOptionNumber = null;
         _hasAnswered = false;
-        _selectedOption = null;
       }
-      notifyListeners();
-    } catch (e) {
-      _hasAnswered = false;
-      _selectedOption = null;
-      notifyListeners();
-      debugPrint('Error checking user answer: $e');
-    }
-  }
-
-  /// Saves the user's answer to Firestore
-  Future<void> saveUserAnswer(String selectedOption) async {
-    // Set the state immediately to provide instant feedback
-    _selectedOption = selectedOption;
-    _hasAnswered = true;
-    notifyListeners();  // This is crucial - it tells the UI to rebuild
-    
-    final user = _auth.currentUser;
-    if (user == null || _questionOfDay == null) return;
-
-    try {
-      // Format the date as YYYY-MM-DD for Firestore document ID
-      final dateString = '${_questionOfDay!.date.year}-${_questionOfDay!.date.month.toString().padLeft(2, '0')}-${_questionOfDay!.date.day.toString().padLeft(2, '0')}';
       
-      await _questionRepository.saveUserAnswer(
-        user.phoneNumber!, 
-        dateString, 
-        selectedOption, 
-        _questionOfDay!.correctOption
-      );
+      notifyListeners();
     } catch (e) {
-      // Even if saving to Firestore fails, we keep the local state updated
-      // so the user can still see their selection and access the explanation
-      debugPrint('Error saving user answer: $e');
+      print('Error checking user answer: $e');
     }
   }
 
-  /// Refreshes the question (can be called when user pulls to refresh)
+  // Save user's answer
+  // Save user's answer
+  Future<void> saveUserAnswer(String optionNumber) async {
+    if (_questionOfDay == null) return;
+    
+    try {
+      // Convert option string to int
+      final optionInt = int.tryParse(optionNumber);
+      if (optionInt == null) return;
+      
+      // Update local state
+      _selectedOptionNumber = optionInt;
+      _hasAnswered = true;
+      notifyListeners();
+      
+      // Get user's phone number
+      final user = _auth.currentUser;
+      final phoneNumber = user?.phoneNumber ?? '+919999999991'; // Use default if not available
+      
+      // Format the date as required (we'll still use date for storage)
+      final questionDate = DateFormat('yyyy-MM-dd').format(_questionOfDay!.date);
+      
+      // Get the correct option
+      final correctOption = _questionOfDay!.answerNr.toString();
+      
+      // Create the answer data to store
+      final answerData = {
+        'question': _questionOfDay!.question,
+        'selectedOption': optionNumber,
+        'correctOption': correctOption,
+        'isCorrect': optionInt == _questionOfDay!.answerNr,
+        'option1': _questionOfDay!.option1,
+        'option2': _questionOfDay!.option2,
+        'option3': _questionOfDay!.option3,
+        'option4': _questionOfDay!.option4,
+        'description': _questionOfDay!.description,
+        'activityName': _questionOfDay!.activityName,
+        'answeredAt': DateTime.now(),
+      };
+      
+      // Save to Firestore
+      await _questionRepository.saveUserAnswer(phoneNumber, questionDate, answerData);
+    } catch (e) {
+      print('Error saving user answer: $e');
+    }
+  }
+
+  // Refresh the question
   Future<void> refreshQuestion() async {
     await _fetchTodayQuestion();
   }
 
-  void explainAnswer(BuildContext context, String? selectedOption) {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => ChangeNotifierProvider.value(
-          value: this,
-          child: QOTDExplanationScreen(selectedOption: selectedOption),
-        ),
-      ),
-    );
+  // Navigate to explanation screen
+  void explainAnswer(BuildContext context) {
+    if (_questionOfDay == null) return;
+    
+    Navigator.pushNamed(context, '/qotd-explanation', arguments: {
+      'question': _questionOfDay,
+      'selectedOption': _selectedOptionNumber?.toString(),
+    });
   }
 
+  // Navigate to more questions screen
   void showMore(BuildContext context) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => ChangeNotifierProvider.value(
-          value: this,
-          child: const QOTDDetailScreen(),
-        ),
-      ),
-    );
+    Navigator.pushNamed(context, '/qotd-detail');
   }
 }

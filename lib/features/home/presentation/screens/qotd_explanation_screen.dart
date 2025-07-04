@@ -94,7 +94,11 @@ class QOTDExplanationScreen extends StatelessWidget {
                       const SizedBox(height: 20),
                       
                       // Options with correct/incorrect highlighting
-                      ...question.options.map((option) => _buildOptionCard(option, question)),
+                      // Replace the mapping with individual option cards
+                      _buildOptionCard(1, question),
+                      _buildOptionCard(2, question),
+                      _buildOptionCard(3, question),
+                      _buildOptionCard(4, question),
                       
                       const SizedBox(height: 24),
                       
@@ -128,10 +132,12 @@ class QOTDExplanationScreen extends StatelessWidget {
     });
   }
 
-  // Update the method to use the passed selectedOption
-  Widget _buildOptionCard(option, question) {
-    final bool isSelected = selectedOption == option.prefix;
-    final bool isCorrect = question.correctOption == option.prefix;
+  // Update the method to use option numbers instead of option objects
+  Widget _buildOptionCard(int option, question) {
+    // Convert the selected option string to int for comparison
+    final int? selectedOptionNumber = selectedOption != null ? int.tryParse(selectedOption!) : null;
+    final bool isSelected = selectedOptionNumber == option;
+    final bool isCorrect = question.answerNr == option;
     
     // Determine the background color based on selection and correctness
     Color backgroundColor = Colors.white;
@@ -151,48 +157,38 @@ class QOTDExplanationScreen extends StatelessWidget {
       borderColor = Colors.green;
     }
 
+    // Get the option text based on the option number
+    String optionText = '';
+    switch (option) {
+      case 1: optionText = question.option1; break;
+      case 2: optionText = question.option2; break;
+      case 3: optionText = question.option3; break;
+      case 4: optionText = question.option4; break;
+    }
+
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: backgroundColor,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: borderColor, width: 1.5),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.shade100,
-            offset: const Offset(0, 2),
-            blurRadius: 4,
-          ),
-        ],
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: borderColor),
       ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              '${option.prefix}.',
-              style: const TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Text(
-                option.text,
-                style: const TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ),
-            if (isCorrect)
-              const Icon(Icons.check_circle, color: Colors.green, size: 20),
-            if (isSelected && !isCorrect)
-              const Icon(Icons.cancel, color: Colors.red, size: 20),
-          ],
-        ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            '$option. ',
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
+          Expanded(
+            child: Text(optionText),
+          ),
+          if (isCorrect)
+            const Icon(Icons.check_circle, color: Colors.green),
+          if (isSelected && !isCorrect)
+            const Icon(Icons.cancel, color: Colors.red),
+        ],
       ),
     );
   }
