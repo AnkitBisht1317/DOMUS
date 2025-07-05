@@ -1,3 +1,4 @@
+import 'package:domus/features/Entrance/presentation/screens/entrance_screen.dart';
 import 'package:domus/features/ntet/presentation/screens/ntet_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -153,6 +154,13 @@ class CategoryTabs extends StatelessWidget {
                     context,
                     MaterialPageRoute(
                       builder: (context) => const MedicosCorner(),
+                    ),
+                  );
+                } else if (icon.title == 'Entrance') {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const EntranceScreen(),
                     ),
                   );
                 } else if (icon.onTap != null) {
