@@ -75,31 +75,55 @@ class QuestionViewModel extends ChangeNotifier {
       if (questionDoc != null) {
         print('Question data received: ${questionDoc.toString()}');
         
-        // Try to fetch answer stats directly from the database collection
+        // Try to fetch answer stats from the database document's questions array
         Map<String, dynamic>? answerStats;
         try {
-          final querySnapshot = await _firestore
+          final docSnapshot = await _firestore
               .collection('database')
               .doc(questionDoc['activityName'])
-              .collection('questions')
-              .where('question', isEqualTo: questionDoc['question'])
-              .limit(1)
               .get();
               
-          if (querySnapshot.docs.isNotEmpty) {
-            final dbQuestionDoc = querySnapshot.docs.first;
-            if (dbQuestionDoc.data().containsKey('answerStats')) {
-              answerStats = Map<String, dynamic>.from(dbQuestionDoc.data()['answerStats']);
+          if (docSnapshot.exists) {
+            print('Document data: ${docSnapshot.data()}');
+            
+            // Check for both "Questions" and "questions" field names
+            String questionsField = 'Questions'; // Try the capitalized version first
+            if (!docSnapshot.data()!.containsKey(questionsField)) {
+              questionsField = 'questions'; // Try lowercase if capitalized doesn't exist
+              if (!docSnapshot.data()!.containsKey(questionsField)) {
+                print('Neither "Questions" nor "questions" field found in document');
+                return Question.fromMap({
+                  ...questionDoc,
+                  'date': Timestamp.fromDate(today),
+                });
+              }
+            }
+            
+            List<dynamic> questions = List.from(docSnapshot.data()![questionsField]);
+            print('Found ${questions.length} questions in the array using field "$questionsField"');
+            
+            // Find the question in the array
+            for (var question in questions) {
+              if (question['question'] == questionDoc['question']) {
+                print('Found matching question: ${question['question']}');
+                if (question.containsKey('answerStats')) {
+                  answerStats = Map<String, dynamic>.from(question['answerStats']);
+                  print('Found answer stats: $answerStats');
+                } else {
+                  print('No answer stats found for this question');
+                }
+                break;
+              }
             }
           }
         } catch (e) {
           print('Error fetching answer stats: $e');
         }
         
-        // Add the date to the question data as a Timestamp
+        // Add the date and answer stats to the question data
         final questionData = {
           ...questionDoc,
-          'date': Timestamp.fromDate(today),  // Convert DateTime to Timestamp
+          'date': Timestamp.fromDate(today),
           if (answerStats != null) 'answerStats': answerStats,
         };
         
@@ -192,59 +216,92 @@ class QuestionViewModel extends ChangeNotifier {
     }
   }
   
-  // New method to update answer statistics
+  // Update answer statistics in the database collection
+  // Update answer statistics directly in the database document's questions array
   Future<void> _updateAnswerStats(String selectedOption) async {
     try {
       if (_questionOfDay == null) return;
       
-      // Get the activity name and question number
       final activityName = _questionOfDay!.activityName;
+      print('Updating answer stats for question: ${_questionOfDay!.question}');
+      print('Activity name: $activityName');
       
-      // Find the question in the database collection
-      final querySnapshot = await _firestore
-          .collection('database')
-          .doc(activityName)
-          .collection('questions')
-          .where('question', isEqualTo: _questionOfDay!.question)
-          .limit(1)
-          .get();
+      // Get a reference to the database document
+      final docRef = _firestore.collection('database').doc(activityName);
       
-      if (querySnapshot.docs.isEmpty) {
-        print('Question not found in database');
-        return;
-      }
-      
-      final questionDoc = querySnapshot.docs.first;
-      final questionRef = questionDoc.reference;
-      
-      // Use a transaction to safely update the answer stats
+      // Run a transaction to safely update the document
       await _firestore.runTransaction((transaction) async {
-        final docSnapshot = await transaction.get(questionRef);
+        // Get the current document
+        final docSnapshot = await transaction.get(docRef);
         
-        // Get current answer stats or create new ones
+        if (!docSnapshot.exists) {
+          print('Activity document not found: $activityName');
+          return;
+        }
+        
+        print('Document data: ${docSnapshot.data()}');
+        
+        // Check for both lowercase and uppercase field names
+        String questionsField = 'Questions'; // Try the capitalized version first
+        if (!docSnapshot.data()!.containsKey(questionsField)) {
+          questionsField = 'questions'; // Try lowercase if capitalized doesn't exist
+          if (!docSnapshot.data()!.containsKey(questionsField)) {
+            print('Neither "Questions" nor "questions" field found in document');
+            return;
+          }
+        }
+        
+        // Get the questions array
+        List<dynamic> questions = List.from(docSnapshot.data()![questionsField]);
+        print('Found ${questions.length} questions in the array using field "$questionsField"');
+        
+        // Find the index of the current question
+        int questionIndex = -1;
+        for (int i = 0; i < questions.length; i++) {
+          if (questions[i]['question'] == _questionOfDay!.question) {
+            questionIndex = i;
+            print('Found question at index $i');
+            break;
+          }
+        }
+        
+        if (questionIndex == -1) {
+          print('Question not found in the array: ${_questionOfDay!.question}');
+          return;
+        }
+        
+        // Get or initialize answer stats
         Map<String, dynamic> answerStats = {};
-        if (docSnapshot.exists && docSnapshot.data()!.containsKey('answerStats')) {
-          answerStats = Map<String, dynamic>.from(docSnapshot.data()!['answerStats']);
+        if (questions[questionIndex].containsKey('answerStats')) {
+          answerStats = Map<String, dynamic>.from(questions[questionIndex]['answerStats']);
+          print('Existing answer stats: $answerStats');
         } else {
-          // Initialize with zeros
+          print('Initializing new answer stats');
           answerStats = {
-            'totalAttempted': 0,
-            'option1Selected': 0,
-            'option2Selected': 0,
-            'option3Selected': 0,
-            'option4Selected': 0,
+            'Total Answered': 0,
+            'option1 selected': 0,
+            'option2 selected': 0,
+            'option3 selected': 0,
+            'option4 selected': 0,
+            'option5 selected': 0,
           };
         }
         
         // Update the stats
-        answerStats['totalAttempted'] = (answerStats['totalAttempted'] ?? 0) + 1;
+        answerStats['Total Answered'] = (answerStats['Total Answered'] ?? 0) + 1;
         
         // Increment the selected option counter
-        final optionKey = 'option${selectedOption}Selected';
+        final optionKey = 'option$selectedOption selected';
         answerStats[optionKey] = (answerStats[optionKey] ?? 0) + 1;
         
-        // Update the document
-        transaction.update(questionRef, {'answerStats': answerStats});
+        print('Updated answer stats: $answerStats');
+        
+        // Update the question in the array
+        questions[questionIndex]['answerStats'] = answerStats;
+        
+        // Update the document with the modified questions array
+        transaction.update(docRef, {questionsField: questions});
+        print('Transaction completed successfully');
       });
       
       // Fetch the updated question to refresh the UI

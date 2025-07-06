@@ -198,10 +198,13 @@ class _QuestionOfDaySectionState extends State<QuestionOfDaySection> {
     String percentageText = '';
     if (showResult && question.answerStats != null) {
       final stats = question.answerStats!;
-      final totalAttempted = stats['totalAttempted'] ?? 0;
+      
+      // Use the correct field name for total attempted
+      final totalAttempted = stats['Total Answered'] ?? 0;
       
       if (totalAttempted > 0) {
-        final optionSelected = stats['option${optionNumber}Selected'] ?? 0;
+        // Use the correct field name for option selected
+        final optionSelected = stats['option${optionNumber} selected'] ?? 0;
         final percentage = (optionSelected / totalAttempted * 100).round();
         percentageText = '$percentage%';
       }
@@ -272,10 +275,10 @@ class _QuestionOfDaySectionState extends State<QuestionOfDaySection> {
                             ),
                           ),
                         ),
-                      if (isCorrect)
+                      /*if (isCorrect)
                         const Icon(Icons.check_circle, color: Colors.green, size: 20),
                       if (isSelected && !isCorrect)
-                        const Icon(Icons.cancel, color: Colors.red, size: 20),
+                        const Icon(Icons.cancel, color: Colors.red, size: 20),*/
                     ],
                   ),
               ],

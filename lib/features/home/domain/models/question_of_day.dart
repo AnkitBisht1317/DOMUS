@@ -8,9 +8,10 @@ class Question {
   final String option2;
   final String option3;
   final String option4;
+  final String option5;
   final String question;
   final DateTime date;
-  final Map<String, dynamic>? answerStats; // Added field for answer statistics
+  final Map<String, dynamic>? answerStats; // Stores answer statistics
 
   Question({
     required this.activityName,
@@ -20,6 +21,7 @@ class Question {
     required this.option2,
     required this.option3,
     required this.option4,
+    required this.option5,
     required this.question,
     required this.date,
     this.answerStats,
@@ -46,6 +48,7 @@ class Question {
       option2: map['option2'] ?? '',
       option3: map['option3'] ?? '',
       option4: map['option4'] ?? '',
+      option5: map['option5'] ?? '',
       question: map['question'] ?? '',
       date: (map['date'] as Timestamp?)?.toDate() ?? DateTime.now(),
       answerStats: map['answerStats'] as Map<String, dynamic>?,
@@ -62,6 +65,7 @@ class Question {
       'option2': option2,
       'option3': option3,
       'option4': option4,
+      'option5': option5,
       'question': question,
       'date': Timestamp.fromDate(date),
       if (answerStats != null) 'answerStats': answerStats,
