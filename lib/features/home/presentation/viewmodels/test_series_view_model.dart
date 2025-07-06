@@ -1,9 +1,11 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+
+import '../../../PaidMock/presentation/screen/paid_mock.dart';
 import '../../domain/models/test_series.dart';
 
 class TestSeriesViewModel extends ChangeNotifier {
   TestSeries? _testSeries;
-  
+
   TestSeries? get testSeries => _testSeries;
 
   TestSeriesViewModel() {
@@ -21,11 +23,15 @@ class TestSeriesViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void onFreeMockTap() {
-    // Implement free mock test functionality
+  void onFreeMockTap(BuildContext context) {
+    // Implement FreeMock navigation if needed
   }
 
-  void onPaidMockTap() {
-    // Implement paid mock test functionality
+  void onPaidMockTap(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (_) => const PaidMock()), // your PaidMock screen
+    );
   }
-} 
+}

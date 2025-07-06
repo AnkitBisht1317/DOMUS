@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import '../viewmodels/test_series_view_model.dart';
 
 class TestSeriesSection extends StatelessWidget {
@@ -47,7 +48,7 @@ class TestSeriesSection extends StatelessWidget {
                           height: 45,
                           margin: const EdgeInsets.only(right: 8),
                           child: ElevatedButton(
-                            onPressed: viewModel.onFreeMockTap,
+                            onPressed: () => viewModel.onFreeMockTap(context),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFF001F54),
                               foregroundColor: Colors.white,
@@ -71,7 +72,7 @@ class TestSeriesSection extends StatelessWidget {
                           height: 45,
                           margin: const EdgeInsets.only(left: 8),
                           child: ElevatedButton(
-                            onPressed: viewModel.onPaidMockTap,
+                            onPressed: () => viewModel.onPaidMockTap(context),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFF001F54),
                               foregroundColor: Colors.white,
@@ -100,4 +101,4 @@ class TestSeriesSection extends StatelessWidget {
       },
     );
   }
-} 
+}
