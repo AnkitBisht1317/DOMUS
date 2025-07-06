@@ -14,7 +14,7 @@ class QuestionOfDaySection extends StatefulWidget {
 class _QuestionOfDaySectionState extends State<QuestionOfDaySection> {
   @override
   Widget build(BuildContext context) {
-    return Consumer<QuestionViewModel>(  
+    return Consumer<QuestionViewModel>(
       builder: (context, viewModel, _) {
         final question = viewModel.questionOfDay;
         if (question == null) return const SizedBox.shrink();
@@ -91,6 +91,9 @@ class _QuestionOfDaySectionState extends State<QuestionOfDaySection> {
                       _buildOptionCard(2, question.option2, question, viewModel),
                       _buildOptionCard(3, question.option3, question, viewModel),
                       _buildOptionCard(4, question.option4, question, viewModel),
+                      // Only show option 5 if it's not empty
+                      if (question.option5.isNotEmpty)
+                        _buildOptionCard(5, question.option5, question, viewModel),
                       
                       const SizedBox(height: 16),
                       // Bottom buttons
@@ -204,9 +207,13 @@ class _QuestionOfDaySectionState extends State<QuestionOfDaySection> {
       
       if (totalAttempted > 0) {
         // Use the correct field name for option selected
-        final optionSelected = stats['option${optionNumber} selected'] ?? 0;
-        final percentage = (optionSelected / totalAttempted * 100).round();
-        percentageText = '$percentage%';
+        final optionKey = 'option${optionNumber} selected';
+        // Only calculate percentage if the option exists in stats
+        if (stats.containsKey(optionKey)) {
+          final optionSelected = stats[optionKey] ?? 0;
+          final percentage = (optionSelected / totalAttempted * 100).round();
+          percentageText = '$percentage%';
+        }
       }
     }
 

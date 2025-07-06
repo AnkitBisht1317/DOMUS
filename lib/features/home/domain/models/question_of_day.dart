@@ -34,6 +34,7 @@ class Question {
       case 2: return option2;
       case 3: return option3;
       case 4: return option4;
+      case 5: return option5.isNotEmpty ? option5 : '';
       default: return '';
     }
   }

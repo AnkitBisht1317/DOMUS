@@ -283,7 +283,8 @@ class QuestionViewModel extends ChangeNotifier {
             'option2 selected': 0,
             'option3 selected': 0,
             'option4 selected': 0,
-            'option5 selected': 0,
+            // Initialize option5 counter only if option5 exists and is not empty
+            if (_questionOfDay!.option5.isNotEmpty) 'option5 selected': 0,
           };
         }
         
