@@ -194,6 +194,19 @@ class _QuestionOfDaySectionState extends State<QuestionOfDaySection> {
       borderColor = Colors.blue.shade300;
     }
 
+    // Calculate percentage if answer stats are available
+    String percentageText = '';
+    if (showResult && question.answerStats != null) {
+      final stats = question.answerStats!;
+      final totalAttempted = stats['totalAttempted'] ?? 0;
+      
+      if (totalAttempted > 0) {
+        final optionSelected = stats['option${optionNumber}Selected'] ?? 0;
+        final percentage = (optionSelected / totalAttempted * 100).round();
+        percentageText = '$percentage%';
+      }
+    }
+
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
@@ -238,10 +251,33 @@ class _QuestionOfDaySectionState extends State<QuestionOfDaySection> {
                     ),
                   ),
                 ),
-                if (showResult && isCorrect)
-                  const Icon(Icons.check_circle, color: Colors.green, size: 20),
-                if (showResult && isSelected && !isCorrect)
-                  const Icon(Icons.cancel, color: Colors.red, size: 20),
+                // Show both icon and percentage
+                if (showResult)
+                  Row(
+                    children: [
+                      if (percentageText.isNotEmpty)
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                          margin: const EdgeInsets.only(right: 8),
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade200,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(
+                            percentageText,
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.grey.shade800,
+                            ),
+                          ),
+                        ),
+                      if (isCorrect)
+                        const Icon(Icons.check_circle, color: Colors.green, size: 20),
+                      if (isSelected && !isCorrect)
+                        const Icon(Icons.cancel, color: Colors.red, size: 20),
+                    ],
+                  ),
               ],
             ),
           ),

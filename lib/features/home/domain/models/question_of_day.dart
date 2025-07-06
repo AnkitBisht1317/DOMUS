@@ -10,6 +10,7 @@ class Question {
   final String option4;
   final String question;
   final DateTime date;
+  final Map<String, dynamic>? answerStats; // Added field for answer statistics
 
   Question({
     required this.activityName,
@@ -21,6 +22,7 @@ class Question {
     required this.option4,
     required this.question,
     required this.date,
+    this.answerStats,
   });
 
   // Get the correct option text based on the answer number
@@ -46,6 +48,7 @@ class Question {
       option4: map['option4'] ?? '',
       question: map['question'] ?? '',
       date: (map['date'] as Timestamp?)?.toDate() ?? DateTime.now(),
+      answerStats: map['answerStats'] as Map<String, dynamic>?,
     );
   }
 
@@ -61,6 +64,7 @@ class Question {
       'option4': option4,
       'question': question,
       'date': Timestamp.fromDate(date),
+      if (answerStats != null) 'answerStats': answerStats,
     };
   }
 }

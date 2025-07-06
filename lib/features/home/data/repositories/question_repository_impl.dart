@@ -126,9 +126,7 @@ class QuestionRepositoryImpl implements QuestionRepository {
       final docSnapshot = await _firestore
           .collection('users')
           .doc(phoneNumber)
-          .collection('quizData')
-          .doc('qotd')
-          .collection('answers')
+          .collection('qotd')
           .doc(questionDate)
           .get();
           
@@ -193,9 +191,7 @@ class QuestionRepositoryImpl implements QuestionRepository {
       await _firestore
           .collection('users')
           .doc(phoneNumber)
-          .collection('quizData')
-          .doc('qotd')
-          .collection('answers')
+          .collection('qotd')
           .doc(questionDate)
           .set(answerData);
     } catch (e) {

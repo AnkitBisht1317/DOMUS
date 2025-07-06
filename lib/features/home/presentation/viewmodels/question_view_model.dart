@@ -8,6 +8,7 @@ import '../../domain/repositories/question_repository.dart';
 class QuestionViewModel extends ChangeNotifier {
   final QuestionRepository _questionRepository;
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   
   Question? _questionOfDay;
   int? _selectedOptionNumber;
@@ -73,10 +74,33 @@ class QuestionViewModel extends ChangeNotifier {
       
       if (questionDoc != null) {
         print('Question data received: ${questionDoc.toString()}');
+        
+        // Try to fetch answer stats directly from the database collection
+        Map<String, dynamic>? answerStats;
+        try {
+          final querySnapshot = await _firestore
+              .collection('database')
+              .doc(questionDoc['activityName'])
+              .collection('questions')
+              .where('question', isEqualTo: questionDoc['question'])
+              .limit(1)
+              .get();
+              
+          if (querySnapshot.docs.isNotEmpty) {
+            final dbQuestionDoc = querySnapshot.docs.first;
+            if (dbQuestionDoc.data().containsKey('answerStats')) {
+              answerStats = Map<String, dynamic>.from(dbQuestionDoc.data()['answerStats']);
+            }
+          }
+        } catch (e) {
+          print('Error fetching answer stats: $e');
+        }
+        
         // Add the date to the question data as a Timestamp
         final questionData = {
           ...questionDoc,
           'date': Timestamp.fromDate(today),  // Convert DateTime to Timestamp
+          if (answerStats != null) 'answerStats': answerStats,
         };
         
         return Question.fromMap(questionData);
@@ -160,8 +184,73 @@ class QuestionViewModel extends ChangeNotifier {
       
       // Save to Firestore
       await _questionRepository.saveUserAnswer(phoneNumber, questionDate, answerData);
+      
+      // Update answer statistics in the database
+      await _updateAnswerStats(optionNumber);
     } catch (e) {
       print('Error saving user answer: $e');
+    }
+  }
+  
+  // New method to update answer statistics
+  Future<void> _updateAnswerStats(String selectedOption) async {
+    try {
+      if (_questionOfDay == null) return;
+      
+      // Get the activity name and question number
+      final activityName = _questionOfDay!.activityName;
+      
+      // Find the question in the database collection
+      final querySnapshot = await _firestore
+          .collection('database')
+          .doc(activityName)
+          .collection('questions')
+          .where('question', isEqualTo: _questionOfDay!.question)
+          .limit(1)
+          .get();
+      
+      if (querySnapshot.docs.isEmpty) {
+        print('Question not found in database');
+        return;
+      }
+      
+      final questionDoc = querySnapshot.docs.first;
+      final questionRef = questionDoc.reference;
+      
+      // Use a transaction to safely update the answer stats
+      await _firestore.runTransaction((transaction) async {
+        final docSnapshot = await transaction.get(questionRef);
+        
+        // Get current answer stats or create new ones
+        Map<String, dynamic> answerStats = {};
+        if (docSnapshot.exists && docSnapshot.data()!.containsKey('answerStats')) {
+          answerStats = Map<String, dynamic>.from(docSnapshot.data()!['answerStats']);
+        } else {
+          // Initialize with zeros
+          answerStats = {
+            'totalAttempted': 0,
+            'option1Selected': 0,
+            'option2Selected': 0,
+            'option3Selected': 0,
+            'option4Selected': 0,
+          };
+        }
+        
+        // Update the stats
+        answerStats['totalAttempted'] = (answerStats['totalAttempted'] ?? 0) + 1;
+        
+        // Increment the selected option counter
+        final optionKey = 'option${selectedOption}Selected';
+        answerStats[optionKey] = (answerStats[optionKey] ?? 0) + 1;
+        
+        // Update the document
+        transaction.update(questionRef, {'answerStats': answerStats});
+      });
+      
+      // Fetch the updated question to refresh the UI
+      await _fetchTodayQuestion();
+    } catch (e) {
+      print('Error updating answer stats: $e');
     }
   }
 
