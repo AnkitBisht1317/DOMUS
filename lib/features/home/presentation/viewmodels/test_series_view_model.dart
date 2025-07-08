@@ -1,3 +1,4 @@
+import 'package:domus/features/FreeMock/presentation/screen/free_mock_screen.dart';
 import 'package:flutter/material.dart';
 
 import '../../../PaidMock/presentation/screen/paid_mock.dart';
@@ -24,7 +25,11 @@ class TestSeriesViewModel extends ChangeNotifier {
   }
 
   void onFreeMockTap(BuildContext context) {
-    // Implement FreeMock navigation if needed
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (_) => const FreeMockScreen()), // your PaidMock screen
+    );
   }
 
   void onPaidMockTap(BuildContext context) {
