@@ -12,4 +12,6 @@ abstract class QuestionRepository {
   
   /// Gets the user's answer for a specific question
   Future<Map<String, dynamic>?> getUserAnswer(String phoneNumber, String questionDate);
+  
+  Future<Question?> getTodayQuestion();
 }

@@ -1,4 +1,5 @@
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:domus/features/home/domain/services/question_sequence_service.dart';
 import 'package:domus/features/home/presentation/viewmodels/aim_academy_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -89,7 +90,9 @@ class _HomeScreenState extends State<HomeScreen> {
         ChangeNotifierProvider(create: (_) => CourseCarouselViewModel()),
         // Replace it with:
         Provider<QuestionRepository>(
-          create: (_) => QuestionRepositoryImpl(),
+          create: (_) => QuestionRepositoryImpl(
+            sequenceService: QuestionSequenceService(),
+          ),
         ),
         ChangeNotifierProvider(
           create: (context) => QuestionViewModel(context.read<QuestionRepository>()),

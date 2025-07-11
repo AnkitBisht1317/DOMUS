@@ -39,23 +39,16 @@ class QuestionViewModel extends ChangeNotifier {
       _error = null;
       notifyListeners();
       
-      print('Fetching question from ALLEN 01 document...');
-      // Try to fetch question from ALLEN 01 document
-      var question = await _fetchQuestionFromFirestore('ALLEN 01');
-      
+      // Fetch today's question using the repository
+      final question = await _questionRepository.getTodayQuestion();
       if (question != null) {
-        print('Question fetched successfully: ${question.question}');
         _questionOfDay = question;
-        
-        // Check if user has already answered this question
         await _checkUserAnswer();
       } else {
-        print('No question available from ALLEN 01');
         _error = 'No question available';
       }
     } catch (e) {
-      print('Error fetching question: $e');
-      _error = 'Error fetching question: $e';
+      _error = 'Error fetching question: \$e';
     } finally {
       _isLoading = false;
       notifyListeners();

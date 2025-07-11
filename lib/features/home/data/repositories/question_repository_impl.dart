@@ -1,9 +1,19 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../domain/models/question_of_day.dart';
 import '../../domain/repositories/question_repository.dart';
+import '../../domain/services/question_sequence_service.dart';
 
 class QuestionRepositoryImpl implements QuestionRepository {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final QuestionSequenceService _sequenceService;
+
+  QuestionRepositoryImpl({QuestionSequenceService? sequenceService})
+      : _sequenceService = sequenceService ?? QuestionSequenceService();
+
+  @override
+  Future<Question?> getTodayQuestion() async {
+    return _sequenceService.getQuestionForToday();
+  }
   
   // Track the current position in the sequence
   int _currentSequenceIndex = 0;
