@@ -3,8 +3,20 @@ import 'package:provider/provider.dart';
 
 import '../viewmodels/quick_fact_viewmodel.dart';
 
-class QuickFactScreen extends StatelessWidget {
+class QuickFactScreen extends StatefulWidget {
   const QuickFactScreen({super.key});
+
+  @override
+  State<QuickFactScreen> createState() => _QuickFactScreenState();
+}
+
+class _QuickFactScreenState extends State<QuickFactScreen> {
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(() =>
+        Provider.of<QuickFactViewModel>(context, listen: false).loadFacts());
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -43,74 +55,76 @@ class QuickFactScreen extends StatelessWidget {
               child: Container(
                 width: double.infinity,
                 color: Colors.white,
-                child: SingleChildScrollView(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Center(
+                child: facts.isEmpty
+                    ? const Center(child: CircularProgressIndicator())
+                    : SingleChildScrollView(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 16),
                         child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              'QUICK FACTS',
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 20,
-                                color: Colors.black87,
+                            const Center(
+                              child: Column(
+                                children: [
+                                  Text(
+                                    'QUICK FACTS',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 20,
+                                      color: Colors.black87,
+                                    ),
+                                  ),
+                                  SizedBox(height: 4),
+                                  Text(
+                                    'Enhancing your Day,\nOne Fact at a Time',
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      fontSize: 15,
+                                      color: Colors.black54,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
-                            SizedBox(height: 4),
-                            Text(
-                              'Enhancing your Day,\nOne Fact at a Time',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontSize: 15,
-                                color: Colors.black54,
+                            const SizedBox(height: 16),
+                            Center(
+                              child: Image.asset(
+                                'assets/quizfa.jpg',
+                                height: screenHeight * 0.25,
                               ),
                             ),
+                            const SizedBox(height: 24),
+                            ...facts.asMap().entries.map((entry) {
+                              int index = entry.key + 1;
+                              final fact = entry.value;
+                              return Padding(
+                                padding: const EdgeInsets.only(bottom: 20),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      '$index. ${fact.title}',
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 17,
+                                        color: Colors.black87,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 6),
+                                    Text(
+                                      fact.description,
+                                      style: const TextStyle(
+                                        fontSize: 15.5,
+                                        color: Colors.black87,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            }).toList(),
                           ],
                         ),
                       ),
-                      const SizedBox(height: 16),
-                      Center(
-                        child: Image.asset(
-                          'assets/quizfa.jpg',
-                          height: screenHeight * 0.25,
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-                      ...facts.asMap().entries.map((entry) {
-                        int index = entry.key + 1;
-                        final fact = entry.value;
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 20),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                '$index. ${fact.title}',
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 17,
-                                  color: Colors.black87,
-                                ),
-                              ),
-                              const SizedBox(height: 6),
-                              Text(
-                                fact.description,
-                                style: const TextStyle(
-                                  fontSize: 15.5,
-                                  color: Colors.black87,
-                                ),
-                              ),
-                            ],
-                          ),
-                        );
-                      }).toList(),
-                    ],
-                  ),
-                ),
               ),
             ),
           ),
