@@ -19,13 +19,12 @@ class TestimonialsCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Avatar + Name
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 CircleAvatar(
                   radius: screenWidth * 0.08,
-                  backgroundImage: AssetImage(doctor.profileImage),
+                  backgroundImage: NetworkImage(doctor.profileImage),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -40,13 +39,11 @@ class TestimonialsCard extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 10),
-
             _buildLabeledLine('Subject', doctor.subject),
             _buildLabeledLine('Qualification', doctor.qualification),
             _buildLabeledLine('Experience', doctor.experience),
             _buildLabeledLine('Specialization', doctor.specialization),
             _buildLabeledLine('Teaching Style', doctor.teachingStyle),
-
             const SizedBox(height: 10),
             const Text(
               'Achievements:',
@@ -68,24 +65,20 @@ class TestimonialsCard extends StatelessWidget {
     );
   }
 
-  /// Label and value aligned properly with wrapping
   Widget _buildLabeledLine(String label, String value) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 2),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          /// Fixed width for labels (ensures values wrap correctly)
           SizedBox(
-            width: 120, // adjust as needed
+            width: 120,
             child: Text(
               "$label :",
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
           ),
-          Expanded(
-            child: Text(value),
-          ),
+          Expanded(child: Text(value)),
         ],
       ),
     );

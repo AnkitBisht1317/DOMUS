@@ -18,4 +18,17 @@ class DoctorModel {
     required this.achievements,
     required this.profileImage,
   });
+
+  factory DoctorModel.fromMap(Map<String, dynamic> map) {
+    return DoctorModel(
+      name: map['name'] ?? '',
+      subject: map['subject'] ?? '',
+      qualification: map['qualification'] ?? '',
+      experience: map['experience'] ?? '',
+      specialization: map['specialization'] ?? '',
+      teachingStyle: map['teachingStyle'] ?? '',
+      profileImage: map['profileImage'] ?? '',
+      achievements: List<String>.from(map['achievements'] ?? []),
+    );
+  }
 }

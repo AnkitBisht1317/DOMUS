@@ -1,7 +1,7 @@
-import 'package:domus/features/home/presentation/viewmodels/testimonials_drawer_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../viewmodels/testimonials_drawer_view_model.dart';
 import '../widgets/testimonials_card.dart';
 
 class TestimonialsDrawer extends StatelessWidget {
@@ -44,13 +44,16 @@ class TestimonialsDrawer extends StatelessWidget {
                   topRight: Radius.circular(20),
                 ),
               ),
-              child: ListView.builder(
-                padding: const EdgeInsets.only(top: 12, bottom: 24),
-                itemCount: viewModel.doctors.length,
-                itemBuilder: (context, index) {
-                  return TestimonialsCard(doctor: viewModel.doctors[index]);
-                },
-              ),
+              child: viewModel.isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : ListView.builder(
+                      padding: const EdgeInsets.only(top: 12, bottom: 24),
+                      itemCount: viewModel.doctors.length,
+                      itemBuilder: (context, index) {
+                        return TestimonialsCard(
+                            doctor: viewModel.doctors[index]);
+                      },
+                    ),
             ),
           ),
         ],
