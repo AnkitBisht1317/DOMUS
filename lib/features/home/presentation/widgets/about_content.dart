@@ -12,6 +12,10 @@ class AboutContent extends StatelessWidget {
     final paragraphs = viewModel.paragraphs;
     final width = MediaQuery.of(context).size.width;
 
+    if (viewModel.isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12),
       child: Column(
@@ -22,7 +26,6 @@ class AboutContent extends StatelessWidget {
               children: [
                 Text(
                   'AIM Homoeopathy',
-                  textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: width * 0.05,
                     fontWeight: FontWeight.bold,
@@ -32,7 +35,6 @@ class AboutContent extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   'Quest for Excellence',
-                  textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: width * 0.038,
                     fontWeight: FontWeight.w600,

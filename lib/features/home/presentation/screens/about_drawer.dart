@@ -11,6 +11,7 @@ class AboutDrawer extends StatelessWidget {
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
     final height = MediaQuery.of(context).size.height;
+
     return ChangeNotifierProvider(
       create: (_) => AboutViewModel(),
       child: Scaffold(
