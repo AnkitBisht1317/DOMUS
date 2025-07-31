@@ -166,6 +166,8 @@ class QOTDExplanationScreen extends StatelessWidget {
       case 4: optionText = question.option4; break;
     }
 
+
+
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),

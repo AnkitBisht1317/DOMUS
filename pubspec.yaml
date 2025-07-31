@@ -51,6 +51,8 @@ dependencies:
   page_transition: ^2.2.1
   firebase_messaging: ^14.7.10
   flutter_local_notifications: ^18.0.0  # Update to the latest version
+  flutter_pdfview: ^1.3.2  # For viewing PDF files
+  path_provider: ^2.1.2  # For handling file paths
 
 
 

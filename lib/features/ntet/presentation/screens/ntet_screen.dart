@@ -4,6 +4,10 @@ import 'package:provider/provider.dart';
 import '../../../shared/widgets/blue_white_container.dart';
 import '../viewmodels/ntet_view_model.dart';
 import '../../domain/models/ntet_lecture.dart';
+import '../widgets/note_item.dart';
+import '../widgets/mcq_item.dart';
+import '../widgets/purchase_dialog.dart';
+import '../widgets/bookmark_button.dart';
 
 class NTETScreen extends StatelessWidget {
   const NTETScreen({Key? key}) : super(key: key);
@@ -86,7 +90,23 @@ class NTETScreen extends StatelessWidget {
                               padding: const EdgeInsets.all(16),
                               itemCount: viewModel.lectures.length,
                               itemBuilder: (context, index) {
-                                return _buildLectureItem(viewModel.lectures[index]);
+                                return _buildLectureItem(viewModel.lectures[index], context);
+                              },
+                            );
+                          } else if (viewModel.selectedTab == "Notes") {
+                            return ListView.builder(
+                              padding: const EdgeInsets.all(16),
+                              itemCount: viewModel.notes.length,
+                              itemBuilder: (context, index) {
+                                return NoteItem(note: viewModel.notes[index]);
+                              },
+                            );
+                          } else if (viewModel.selectedTab == "MCQs") {
+                            return ListView.builder(
+                              padding: const EdgeInsets.all(16),
+                              itemCount: viewModel.mcqs.length,
+                              itemBuilder: (context, index) {
+                                return MCQItem(mcq: viewModel.mcqs[index]);
                               },
                             );
                           } else {
@@ -143,7 +163,7 @@ class NTETScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildLectureItem(NTETLecture lecture) {
+  Widget _buildLectureItem(NTETLecture lecture, BuildContext context) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12), // Reduced margin for more compact layout
       decoration: BoxDecoration(
@@ -162,89 +182,111 @@ class NTETScreen extends StatelessWidget {
       child: Stack(
         children: [
           // Main content row
-          Row(
-            children: [
-              // Lecture image - made larger
-              Container(
-                width: 100, // Increased from 80
-                height: 70, // Increased from 80
-                padding: const EdgeInsets.all(4), // Reduced padding
-                child: Image.asset(
-                  'assets/physics.png',
-                  fit: BoxFit.fill,
-                ),
-              ),
-              
-              // Lecture details
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10), // Adjusted padding
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "${lecture.chapter} || ${lecture.lectureNumber}", // Combined format as shown in screenshot
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                          color: Colors.white
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      // Progress indicator
-                      if (!lecture.isLocked) ...[  
-                        const SizedBox(height: 8),
-                        LinearProgressIndicator(
-                          value: lecture.progress,
-                          backgroundColor: Colors.grey[200],
-                          valueColor: AlwaysStoppedAnimation<Color>(const Color(0xFF001F54)),
-                          minHeight: 5,
-                        ),
-                      ],
-                      const SizedBox(height: 8),
-                      Text(
-                        lecture.duration,
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 14,
-                        ),
-                      ),
-                    ],
+          Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: () {
+                if (lecture.isLocked) {
+                  // Show purchase dialog for locked lectures
+                  PurchaseDialog.show(context);
+                } else {
+                  // Navigate to lecture view or play lecture
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Playing lecture...'),
+                      duration: Duration(seconds: 1),
+                    ),
+                  );
+                }
+              },
+              borderRadius: BorderRadius.circular(12),
+              child: Row(
+                children: [
+                  // Lecture image - made larger
+                  Container(
+                    width: 100, // Increased from 80
+                    height: 70, // Increased from 80
+                    padding: const EdgeInsets.all(4), // Reduced padding
+                    child: Image.asset(
+                      'assets/physics.png',
+                      fit: BoxFit.fill,
+                    ),
                   ),
-                ),
+                  
+                  // Lecture details
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10), // Adjusted padding
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "${lecture.chapter} || ${lecture.lectureNumber}", // Combined format as shown in screenshot
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                              color: Colors.white
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          // Progress indicator
+                          if (!lecture.isLocked) ...[  
+                            const SizedBox(height: 8),
+                            LinearProgressIndicator(
+                              value: lecture.progress,
+                              backgroundColor: Colors.grey[200],
+                              valueColor: AlwaysStoppedAnimation<Color>(const Color(0xFF001F54)),
+                              minHeight: 5,
+                            ),
+                          ],
+                          const SizedBox(height: 8),
+                          Text(
+                            lecture.duration,
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  
+                  // Bookmark button instead of menu icon
+                  BookmarkButton(),
+                ],
               ),
-              
-              // Menu icon
-              Padding(
-                padding: const EdgeInsets.all(8),
-                child: Icon(
-                  Icons.more_vert,
-                  color: Colors.white,
-                  size: 24,
-                ),
-              ),
-            ],
+            ),
           ),
           
           // Lock overlay for locked lectures
           if (lecture.isLocked)
             Positioned.fill(
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.5), // Semi-transparent white overlay
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Center(
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: () {
+                    // Show purchase dialog for locked lectures
+                    PurchaseDialog.show(context);
+                  },
                   child: Container(
-                    padding: const EdgeInsets.all(4),
                     decoration: BoxDecoration(
-                      color: Colors.amber[700],
-                      shape: BoxShape.circle,
+                      color: Colors.white.withOpacity(0.5), // Semi-transparent white overlay
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                    child: const Icon(
-                      Icons.lock,
-                      color: Colors.white,
-                      size: 20,
+                    child: Center(
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          color: Colors.amber[700],
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.lock,
+                          color: Colors.white,
+                          size: 20,
+                        ),
+                      ),
                     ),
                   ),
                 ),

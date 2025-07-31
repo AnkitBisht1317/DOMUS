@@ -46,6 +46,8 @@ class QuestionSequenceService {
       // Default values if no progress exists yet
       Map<String, int> lastQuestionIndexes = {};
       DateTime lastShownDay = DateTime(2000); // Default old date
+      String lastActivityName = ""; // Track the last activity shown
+      int currentSequencePosition = 0; // Track position in the sequence
       
       // If we have saved progress, use it
       if (progressDoc.exists && progressDoc.data() != null) {
@@ -71,25 +73,39 @@ class QuestionSequenceService {
             lastShownDay = timestamp.toDate();
           }
         }
+        
+        // Get the last activity name shown
+        if (progressData.containsKey('lastActivityName')) {
+          final activity = progressData['lastActivityName'];
+          if (activity is String) {
+            lastActivityName = activity;
+            // Find the position in the sequence
+            final index = activitySequence.indexOf(lastActivityName);
+            if (index >= 0) {
+              currentSequencePosition = index;
+            }
+          }
+        }
       }
       
       print('Last question indexes: $lastQuestionIndexes');
       print('Last shown day: $lastShownDay');
+      print('Last activity: $lastActivityName');
+      print('Current sequence position: $currentSequencePosition');
       print('Sequence: $activitySequence');
       
       // Check if we need to refresh the question based on time (9 AM IST)
       final shouldRefresh = shouldRefreshQuestion(lastShownDay);
       if (!shouldRefresh) {
-        // If we don't need to refresh, try to get the last shown question
+        // If we don't need to refresh, return the last shown question
         // This is for when the app is opened multiple times on the same day
-        final lastActivity = _findLastShownActivity(lastQuestionIndexes, activitySequence);
-        if (lastActivity != null) {
-          final lastIndex = lastQuestionIndexes[lastActivity] ?? 0;
+        if (lastActivityName.isNotEmpty) {
+          final lastIndex = lastQuestionIndexes[lastActivityName] ?? 0;
           if (lastIndex > 0) {
-            final question = await _fetchQuestionFromActivity(lastActivity, lastIndex);
+            final question = await _fetchQuestionFromActivity(lastActivityName, lastIndex);
             if (question != null) {
               final questionWithDate = Map<String, dynamic>.from(question);
-              questionWithDate['activityName'] = lastActivity;
+              questionWithDate['activityName'] = lastActivityName;
               questionWithDate['date'] = Timestamp.fromDate(today);
               return Question.fromMap(questionWithDate);
             }
@@ -103,13 +119,19 @@ class QuestionSequenceService {
       }
       
       // 3. Determine which activity to use next based on the sequence
-      // Find the next activity in the sequence that has questions available
       String selectedActivity = "";
       int selectedQuestionIndex = 0;
       
-      // Try each activity in the sequence
-      for (int i = 0; i < activitySequence.length; i++) {
-        final activity = activitySequence[i];
+      // If we need to refresh, move to the next activity in the sequence
+      if (shouldRefresh) {
+        // Move to the next position in the sequence
+        currentSequencePosition = (currentSequencePosition + 1) % activitySequence.length;
+      }
+      
+      // Try to find a valid question starting from the current sequence position
+      int attempts = 0;
+      while (attempts < activitySequence.length) {
+        final activity = activitySequence[currentSequencePosition];
         final currentIndex = lastQuestionIndexes[activity] ?? 0;
         final nextIndex = currentIndex + 1;
         
@@ -120,27 +142,36 @@ class QuestionSequenceService {
           selectedQuestionIndex = nextIndex;
           break;
         }
+        
+        // If no more questions in this activity, move to the next one
+        currentSequencePosition = (currentSequencePosition + 1) % activitySequence.length;
+        attempts++;
       }
       
-      // If we couldn't find a valid next question in the sequence, start over with higher indexes
+      // If we couldn't find a valid question after checking all activities, reset indexes and try again
       if (selectedActivity.isEmpty) {
-        // Increment all indexes and try again
+        // Reset all indexes to 0
         for (final activity in activitySequence) {
-          lastQuestionIndexes[activity] = (lastQuestionIndexes[activity] ?? 0) + 1;
+          lastQuestionIndexes[activity] = 0;
         }
         
-        // Try again with the incremented indexes
-        for (int i = 0; i < activitySequence.length; i++) {
-          final activity = activitySequence[i];
-          final currentIndex = lastQuestionIndexes[activity] ?? 0;
+        // Try again with reset indexes
+        attempts = 0;
+        while (attempts < activitySequence.length) {
+          final activity = activitySequence[currentSequencePosition];
+          final nextIndex = 1; // Start from the first question again
           
-          // Check if this activity has questions at the new index
+          // Check if this activity has questions
           if (_activityQuestionCounts.containsKey(activity) && 
-              currentIndex <= _activityQuestionCounts[activity]!) {
+              _activityQuestionCounts[activity]! > 0) {
             selectedActivity = activity;
-            selectedQuestionIndex = currentIndex;
+            selectedQuestionIndex = nextIndex;
             break;
           }
+          
+          // Move to the next activity
+          currentSequencePosition = (currentSequencePosition + 1) % activitySequence.length;
+          attempts++;
         }
       }
       
@@ -167,7 +198,9 @@ class QuestionSequenceService {
         // 6. Save the updated progress to QOTDQuestions/QOTDProgress
         await _firestore.collection('QOTDQuestions').doc('QOTDProgress').set({
           'lastQuestionIndexes': lastQuestionIndexes,
-          'lastShownDay': Timestamp.now()
+          'lastShownDay': Timestamp.now(),
+          'lastActivityName': selectedActivity,
+          'currentSequencePosition': currentSequencePosition
         });
         
         return Question.fromMap(questionWithDate);
@@ -179,22 +212,6 @@ class QuestionSequenceService {
       print('Error getting question for today: $e');
       return null;
     }
-  }
-  
-  // Find the last activity that was shown based on lastQuestionIndexes
-  String? _findLastShownActivity(Map<String, int> lastQuestionIndexes, List<String> activitySequence) {
-    String? lastActivity;
-    int highestIndex = -1;
-    
-    for (final activity in activitySequence) {
-      final index = lastQuestionIndexes[activity] ?? 0;
-      if (index > 0 && (lastActivity == null || index > highestIndex)) {
-        lastActivity = activity;
-        highestIndex = index;
-      }
-    }
-    
-    return lastActivity;
   }
   
   // Load the question counts for all activities in the sequence
