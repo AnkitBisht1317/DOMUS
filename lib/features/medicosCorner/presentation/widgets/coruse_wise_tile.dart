@@ -27,7 +27,7 @@ class CoruseWiseTile extends StatelessWidget {
           const SizedBox(width: 14),
           Expanded(
             child: Text(
-              subject.title,
+              subject.title, // This is your subject name
               style: TextStyle(
                 color: Colors.white,
                 fontSize: width * 0.045,

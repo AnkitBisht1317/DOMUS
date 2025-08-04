@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../domain/model/course_wise_model.dart';
 import '../viewmodels/course_wise_view_model.dart';
+import '../viewmodels/subject_wise_view_model.dart';
 import '../widgets/coruse_wise_tile.dart';
+import 'subject_wise_screen.dart'; // Make sure to import the screen here
 
 class CourseWiseScreen extends StatelessWidget {
   final String courseTitle;
@@ -60,7 +63,23 @@ class CourseWiseScreen extends StatelessWidget {
             child: ListView.builder(
               itemCount: subjects.length,
               itemBuilder: (context, index) {
-                return CoruseWiseTile(subject: subjects[index]);
+                final subject = subjects[index];
+                return GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => ChangeNotifierProvider(
+                          create: (_) => SubjectWiseViewModel(),
+                          child: SubjectWiseScreen(
+                            subjectTitle: subject.title,
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                  child: CoruseWiseTile(subject: subject),
+                );
               },
             ),
           );
