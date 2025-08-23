@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../shared/widgets/blue_white_container.dart';
+import '../../../shared/screenUI/lecture_player_screen.dart';
 import '../viewmodels/ntet_view_model.dart';
 import '../../domain/models/ntet_lecture.dart';
 import '../widgets/note_item.dart';
 import '../widgets/mcq_item.dart';
 import '../widgets/purchase_dialog.dart';
-import '../widgets/bookmark_button.dart';
 
 class NTETScreen extends StatelessWidget {
   const NTETScreen({Key? key}) : super(key: key);
@@ -190,11 +190,16 @@ class NTETScreen extends StatelessWidget {
                   // Show purchase dialog for locked lectures
                   PurchaseDialog.show(context);
                 } else {
-                  // Navigate to lecture view or play lecture
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Playing lecture...'),
-                      duration: Duration(seconds: 1),
+                  // Navigate to lecture player screen
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => LecturePlayerScreen(
+                        title: lecture.title,
+                        batchName: 'NTET Batch',
+                        duration: lecture.duration,
+                        progress: lecture.progress,
+                      ),
                     ),
                   );
                 }
@@ -216,15 +221,15 @@ class NTETScreen extends StatelessWidget {
                   // Lecture details
                   Expanded(
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10), // Adjusted padding
+                      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            "${lecture.chapter} || ${lecture.lectureNumber}", // Combined format as shown in screenshot
+                            "${lecture.chapter} || ${lecture.lectureNumber}",
                             style: const TextStyle(
                               fontWeight: FontWeight.bold,
-                              fontSize: 16,
+                              fontSize: 14,
                               color: Colors.white
                             ),
                           ),
@@ -244,7 +249,7 @@ class NTETScreen extends StatelessWidget {
                             lecture.duration,
                             style: TextStyle(
                               color: Colors.white,
-                              fontSize: 14,
+                              fontSize: 12,
                             ),
                           ),
                         ],
@@ -252,8 +257,37 @@ class NTETScreen extends StatelessWidget {
                     ),
                   ),
                   
-                  // Bookmark button instead of menu icon
-                  BookmarkButton(),
+                  // Three-dot menu icon
+                  IconButton(
+                    icon: const Icon(Icons.more_vert, color: Colors.white),
+                    onPressed: () {
+                      // Show options menu
+                      showModalBottomSheet(
+                        context: context,
+                        builder: (context) => Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            ListTile(
+                              leading: const Icon(Icons.bookmark_border),
+                              title: const Text('Bookmark'),
+                              onTap: () {
+                                Navigator.pop(context);
+                                // Add bookmark functionality
+                              },
+                            ),
+                            ListTile(
+                              leading: const Icon(Icons.share),
+                              title: const Text('Share'),
+                              onTap: () {
+                                Navigator.pop(context);
+                                // Add share functionality
+                              },
+                            )
+                          ],
+                        ),
+                      );
+                    },
+                  ),
                 ],
               ),
             ),
