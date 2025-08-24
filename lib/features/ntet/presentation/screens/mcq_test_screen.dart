@@ -146,6 +146,7 @@ class _MCQTestScreenState extends State<MCQTestScreen> {
             onPressed: () {
               Navigator.pop(context); // Close dialog
               Navigator.pop(context); // Go back to previous screen
+              Navigator.pop(context); // Go back to previous screen
             },
             child: const Text(
               'Yes',
