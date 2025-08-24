@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'mcq_test_screen.dart';
 
 class MCQInstructionsScreen extends StatelessWidget {
   final String title;
@@ -119,8 +120,13 @@ class MCQInstructionsScreen extends StatelessWidget {
                         width: double.infinity,
                         child: ElevatedButton(
                           onPressed: () {
-                            // Navigate to MCQ test screen (to be implemented)
-
+                            // Navigate to MCQ test screen
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => MCQTestScreen(title: title),
+                              ),
+                            );
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFF001F54),
