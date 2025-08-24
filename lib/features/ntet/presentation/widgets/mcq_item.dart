@@ -2,11 +2,122 @@ import 'package:flutter/material.dart';
 import '../../domain/models/ntet_mcq.dart';
 import 'purchase_dialog.dart';
 import 'bookmark_button.dart';
+import '../../../shared/widgets/blue_white_container.dart';
+import '../screens/mcq_instructions_screen.dart';
 
 class MCQItem extends StatelessWidget {
   final NTETMCQ mcq;
 
   const MCQItem({Key? key, required this.mcq}) : super(key: key);
+  
+  // Show confirmation dialog for unlocked MCQs
+  void _showConfirmationDialog(BuildContext context, NTETMCQ mcq) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: BlueWhiteContainer(
+            title: "Physics Chapter 1 Mock Test Series",
+            margin: EdgeInsets.zero,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Image.asset(
+                  'assets/domus_logo.png',
+                  height: 80,
+                ),
+                const SizedBox(height: 20),
+                const Text(
+                  "Please Read the Instructions Carefully",
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                const Text(
+                  "GENERAL INSTRUCTIONS:",
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                _buildInstructionItem("Make sure you have selected the correct subject before proceeding."),
+                _buildInstructionItem("Read all the questions carefully before answering."),
+                _buildInstructionItem("Ensure a stable and uninterrupted internet connection throughout the exam."),
+                _buildInstructionItem("Do not refresh or close the browser/tab during the exam session."),
+                _buildInstructionItem("Once an answer is submitted or time runs out, you may not be able to go back."),
+                _buildInstructionItem("Avoid switching tabs or opening other applications — it may lead to disqualification."),
+                _buildInstructionItem("The exam system may track your activity for security and fairness."),
+                _buildInstructionItem("Only use the allowed materials or tools if mentioned in the instructions."),
+                const SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    // Navigate to MCQ test screen (to be implemented)
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Starting MCQ Test...'),
+                        duration: Duration(seconds: 1),
+                      ),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF001F54),
+                    padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: const Text(
+                    "Ok",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+  
+  Widget _buildInstructionItem(String text) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8.0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            "• ",
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          Expanded(
+            child: Text(
+              text,
+              style: const TextStyle(
+                fontSize: 14,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -31,11 +142,13 @@ class MCQItem extends StatelessWidget {
             child: InkWell(
               onTap: () {
                 if (!mcq.isLocked) {
-                  // Navigate to MCQ test screen (to be implemented)
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('MCQ Test will be implemented soon'),
-                      duration: Duration(seconds: 1),
+                  // Navigate to MCQ instructions screen for unlocked MCQs
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => MCQInstructionsScreen(
+                        title: mcq.title,
+                      ),
                     ),
                   );
                 } else {
