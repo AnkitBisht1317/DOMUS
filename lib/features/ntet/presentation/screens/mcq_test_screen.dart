@@ -118,75 +118,53 @@ class _MCQTestScreenState extends State<MCQTestScreen> {
     }
   }
   
-  void _showExitConfirmation() {
-    showDialog(
+  Future<bool> _onWillPop() async {
+    return await showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(15),
-        ),
-        title: const Text('Do you really want to exit?'),
-        titleTextStyle: const TextStyle(
-          fontSize: 18,
-          fontWeight: FontWeight.bold,
-          color: Colors.black,
-        ),
+        title: const Text('Exit Test?'),
+        content: const Text('Are you sure you want to exit the test? Your progress will be lost.'),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text(
-              'No',
-              style: TextStyle(
-                color: Color(0xFF001F54),
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('No'),
           ),
           TextButton(
             onPressed: () {
-              Navigator.pop(context); // Close dialog
-              Navigator.pop(context); // Go back to previous screen
-              Navigator.pop(context); // Go back to previous screen
+              Navigator.of(context).pop(true);
             },
-            child: const Text(
-              'Yes',
-              style: TextStyle(
-                color: Color(0xFF001F54),
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+            child: const Text('Yes'),
           ),
         ],
       ),
-    );
+    ) ?? false;
   }
   
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
-      onWillPop: () async {
-        _showExitConfirmation();
-        return false;
-      },
+      onWillPop: _onWillPop,
       child: Scaffold(
         backgroundColor: const Color(0xFF001F54),
         body: SafeArea(
           child: Column(
             children: [
-              // Top container with title and back button
+              // Top header with title and submit button
               Container(
-                width: double.infinity,
-                color: const Color(0xFF001F54),
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 child: Row(
                   children: [
                     IconButton(
                       icon: const Icon(Icons.arrow_back, color: Colors.white),
-                      onPressed: _showExitConfirmation,
+                      onPressed: () {
+                        _onWillPop().then((value) {
+                          if (value) {
+                            Navigator.of(context).pop();
+                          }
+                        });
+                      },
                       padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(),
                     ),
-                    const SizedBox(width: 16),
                     Expanded(
                       child: Text(
                         widget.title,
@@ -206,6 +184,13 @@ class _MCQTestScreenState extends State<MCQTestScreen> {
                       padding: EdgeInsets.zero,
                     ),
                     TextButton(
+                      style: TextButton.styleFrom(
+                        backgroundColor: const Color(0xFF94B449),
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
                       onPressed: () {
                         // Submit test
                       },
@@ -221,204 +206,277 @@ class _MCQTestScreenState extends State<MCQTestScreen> {
                 ),
               ),
               
-              // Controls and timer
+              // Controls and timer - Fixed in a Card with elevation
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.all(6),
-                decoration: const BoxDecoration(
+                margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
                   color: Colors.white,
-                ),
-                child: Row(
-                  children: [
-                    // Font size controls
-                    IconButton(
-                      icon: const Text('A+', style: TextStyle(fontWeight: FontWeight.bold)),
-                      onPressed: () {
-                        // Increase font size
-                      },
-                    ),
-                    IconButton(
-                      icon: const Text('A-', style: TextStyle(fontWeight: FontWeight.bold)),
-                      onPressed: () {
-                        // Decrease font size
-                      },
-                    ),
-                    
-                    // Language selector
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.grey),
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: DropdownButton<String>(
-                        value: 'English',
-                        underline: Container(),
-                        items: const [
-                          DropdownMenuItem(
-                            value: 'English',
-                            child: Text('English'),
-                          ),
-                        ],
-                        onChanged: (value) {
-                          // Change language
-                        },
-                      ),
-                    ),
-                    
-                    const Spacer(),
-                    
-                    // +4/-1 indicators
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: Colors.green,
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: const Text(
-                        '+4',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: Colors.red,
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: const Text(
-                        '-1',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    
-                    // Timer
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF001F54),
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Text(
-                        _formatTime(_remainingTime),
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
+                  borderRadius: BorderRadius.circular(4),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.3),
+                      spreadRadius: 1,
+                      blurRadius: 3,
+                      offset: const Offset(0, 2),
                     ),
                   ],
                 ),
+                child: Padding(
+                  padding: const EdgeInsets.all(6),
+                  child: Row(
+                    children: [
+                      // Font size controls
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.grey[300],
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: IconButton(
+                          icon: const Text('A+', style: TextStyle(fontWeight: FontWeight.bold)),
+                          onPressed: () {
+                            // Increase font size
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.grey[300],
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: IconButton(
+                          icon: const Text('A-', style: TextStyle(fontWeight: FontWeight.bold)),
+                          onPressed: () {
+                            // Decrease font size
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      
+                      // Language selector
+                      Expanded(
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.grey),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: DropdownButton<String>(
+                            value: 'English',
+                            isExpanded: true,
+                            underline: Container(),
+                            items: ['English', 'Hindi', 'Tamil', 'Telugu']
+                                .map((String value) {
+                              return DropdownMenuItem<String>(
+                                value: value,
+                                child: Text(value),
+                              );
+                            }).toList(),
+                            onChanged: (String? newValue) {
+                              // Change language
+                            },
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      
+                      // +4 button
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: Colors.green,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: const Text(
+                          '+4',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      
+                      // -1 button
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: Colors.red,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: const Text(
+                          '-1',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      
+                      // Timer
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF001F54),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(
+                          _formatTime(_remainingTime),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
               
-              // Question and options
+              // Question and options - Expanded with scrollable content
               Expanded(
                 child: Container(
                   color: Colors.white,
-                  child: SingleChildScrollView(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Question
-                        Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Q${_currentQuestionIndex + 1}: ',
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              Expanded(
-                                child: Text(
-                                  currentQuestion['question'],
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                decoration: BoxDecoration(
-                                  border: Border.all(color: Colors.grey),
-                                  borderRadius: BorderRadius.circular(4),
-                                ),
-                                child: const Text(
-                                  '00:04',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        
-                        // Options
-                        ...List.generate(
-                          currentQuestion['options'].length,
-                          (index) => Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                            child: InkWell(
-                              onTap: () => _selectAnswer(index),
-                              child: Row(
-                                children: [
-                                  Container(
-                                    width: 24,
-                                    height: 24,
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      border: Border.all(
-                                        color: _selectedAnswerIndex == index
-                                            ? const Color(0xFF001F54)
-                                            : Colors.grey,
-                                        width: 2,
-                                      ),
-                                      color: _selectedAnswerIndex == index
-                                          ? Colors.white
-                                          : Colors.transparent,
-                                    ),
-                                    child: _selectedAnswerIndex == index
-                                        ? const Center(
-                                            child: Icon(
-                                              Icons.circle,
-                                              size: 12,
-                                              color: Color(0xFF001F54),
-                                            ),
-                                          )
-                                        : null,
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Expanded(
-                                    child: Text(
-                                      currentQuestion['options'][index],
-                                      style: TextStyle(
-                                        fontSize: 15,
-                                        color: _selectedAnswerIndex == index
-                                            ? const Color(0xFF001F54)
-                                            : Colors.black,
-                                      ),
-                                    ),
+                  child: LayoutBuilder(
+                    builder: (context, constraints) {
+                      return SingleChildScrollView(
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Question Card
+                            Container(
+                              width: double.infinity,
+                              margin: const EdgeInsets.all(16.0),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(4),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.grey.withOpacity(0.3),
+                                    spreadRadius: 1,
+                                    blurRadius: 3,
+                                    offset: const Offset(0, 2),
                                   ),
                                 ],
                               ),
+                              child: Padding(
+                                padding: const EdgeInsets.all(16.0),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Q${_currentQuestionIndex + 1}: ',
+                                      style: const TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: Text(
+                                        currentQuestion['question'],
+                                        style: const TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                      decoration: BoxDecoration(
+                                        border: Border.all(color: Colors.grey),
+                                        borderRadius: BorderRadius.circular(4),
+                                      ),
+                                      child: const Text(
+                                        '00:04',
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
                             ),
-                          ),
+                            
+                            // Options Card
+                            Container(
+                              width: double.infinity,
+                              margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(4),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.grey.withOpacity(0.3),
+                                    spreadRadius: 1,
+                                    blurRadius: 3,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ],
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                                child: Column(
+                                  children: List.generate(
+                                    currentQuestion['options'].length,
+                                    (index) => Padding(
+                                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                      child: InkWell(
+                                        onTap: () => _selectAnswer(index),
+                                        child: Row(
+                                          children: [
+                                            Container(
+                                              width: 24,
+                                              height: 24,
+                                              decoration: BoxDecoration(
+                                                shape: BoxShape.circle,
+                                                border: Border.all(
+                                                  color: _selectedAnswerIndex == index
+                                                      ? const Color(0xFF001F54)
+                                                      : Colors.grey,
+                                                  width: 2,
+                                                ),
+                                                color: _selectedAnswerIndex == index
+                                                    ? Colors.white
+                                                    : Colors.transparent,
+                                              ),
+                                              child: _selectedAnswerIndex == index
+                                                  ? const Center(
+                                                      child: Icon(
+                                                        Icons.circle,
+                                                        size: 12,
+                                                        color: Color(0xFF001F54),
+                                                      ),
+                                                    )
+                                                  : null,
+                                            ),
+                                            const SizedBox(width: 12),
+                                            Expanded(
+                                              child: Text(
+                                                currentQuestion['options'][index],
+                                                style: TextStyle(
+                                                  fontSize: 15,
+                                                  color: _selectedAnswerIndex == index
+                                                      ? const Color(0xFF001F54)
+                                                      : Colors.black,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
+                      );
+                    },
                   ),
                 ),
               ),
@@ -456,98 +514,10 @@ class _MCQTestScreenState extends State<MCQTestScreen> {
                           style: TextStyle(color: Colors.black),
                         ),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFFF9FDFD),
+                          backgroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(vertical: 12),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              
-              // Bottom action buttons
-              Container(
-                color: const Color(0xFF94B449),
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: () {
-                          // Save and next
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.green,
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                        child: const Text(
-                          'SAVE & NEXT',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: () {
-                          // Clear selection
-                          setState(() {
-                            _selectedAnswerIndex = -1;
-                          });
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.red,
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                        child: const Text(
-                          'CLEAR',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              
-              // Mark for review buttons
-              Container(
-                color: const Color(0xFF94B449),
-                padding: const EdgeInsets.all(8),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: () {
-                          // Mark for review and next
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF3F51B5),
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                        child: const Text(
-                          'MARK FOR REVIEW & NEXT',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 12,
                           ),
                         ),
                       ),
@@ -585,5 +555,3 @@ class _MCQTestScreenState extends State<MCQTestScreen> {
     );
   }
 }
-
-// Add Timer import at the top
