@@ -29,9 +29,15 @@ class _MCQTestSummaryView extends StatefulWidget {
 }
 
 class _MCQTestSummaryViewState extends State<_MCQTestSummaryView> {
+  // Store the current question index when entering the summary screen
+  late int _previousQuestionIndex;
+  
   @override
   void initState() {
     super.initState();
+    // Store the current question index
+    _previousQuestionIndex = widget.testViewModel.currentQuestionIndex;
+    
     // Load user profile when the screen is initialized
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<ProfileViewModel>(context, listen: false).loadUserData();
@@ -51,152 +57,110 @@ class _MCQTestSummaryViewState extends State<_MCQTestSummaryView> {
         ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () {
+            // Return to the previous question when going back
+            widget.testViewModel.navigateToQuestion(_previousQuestionIndex);
+            Navigator.of(context).pop();
+          },
         ),
       ),
-      // Make the entire screen scrollable with blue-white gradient
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Color(0xFF001F54), Colors.white],
-            stops: [0.0, 0.3],
-          ),
-        ),
-        child: SingleChildScrollView(
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
           child: Column(
             children: [
-              // User name card - removed circle avatar
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Card(
-                  elevation: 4,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    side: const BorderSide(color: Colors.black, width: 1),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Row(
-                      children: [
-                        Text(
-                          profileViewModel.isLoading 
-                              ? 'Loading...' 
-                              : (profileViewModel.nameController.text.isNotEmpty 
-                                  ? profileViewModel.nameController.text 
-                                  : 'User'),
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
+              // User name card
+              Card(
+                elevation: 4,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  side: const BorderSide(color: Colors.black, width: 1),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Row(
+                    children: [
+                      Text(
+                        profileViewModel.isLoading 
+                            ? 'Loading...' 
+                            : (profileViewModel.nameController.text.isNotEmpty 
+                                ? profileViewModel.nameController.text 
+                                : 'User'),
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
               ),
               
-              // Questions section header
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: Row(
-                  children: [
-                    const Text(
-                      'Questions:',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                    const Spacer(),
-                    Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: Colors.black,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: const Row(
-                        children: [
-                          Icon(Icons.info, color: Colors.white, size: 16),
-                          SizedBox(width: 4),
-                          Text(
-                            'section instruction',
-                            style: TextStyle(color: Colors.white, fontSize: 14),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+              const SizedBox(height: 20),
               
-              // Question status summary
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Card(
-                  elevation: 4,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    side: const BorderSide(color: Colors.black, width: 1),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      children: [
-                        _buildStatusRow(
-                          context,
-                          Colors.grey[300]!,
-                          widget.testViewModel.getNotVisitedCount(),
-                          'Not Visited',
-                        ),
-                        const SizedBox(height: 12),
-                        _buildStatusRow(
-                          context,
-                          Colors.green,
-                          widget.testViewModel.getAnsweredCount(),
-                          'Answered',
-                        ),
-                        const SizedBox(height: 12),
-                        _buildStatusRow(
-                          context,
-                          Colors.red,
-                          widget.testViewModel.getNotAnsweredCount(),
-                          'Not Answered',
-                        ),
-                        const SizedBox(height: 12),
-                        _buildStatusRow(
-                          context,
-                          Colors.purple,
-                          widget.testViewModel.getMarkedForReviewCount(),
-                          'Marked for Review',
-                        ),
-                        const SizedBox(height: 12),
-                        _buildStatusRow(
-                          context,
-                          Colors.purple,
-                          widget.testViewModel.getAnsweredAndMarkedCount(),
-                          'Answered & Marked for review\n(Will be considered for evolution)',
-                        ),
-                      ],
-                    ),
+              // Question status summary card
+              Card(
+                elevation: 4,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  side: const BorderSide(color: Colors.black, width: 1),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    children: [
+                      _buildStatusRow(
+                        context,
+                        Colors.grey[300]!,
+                        widget.testViewModel.getNotVisitedCount(),
+                        'Not Visited',
+                      ),
+                      const SizedBox(height: 12),
+                      _buildStatusRow(
+                        context,
+                        Colors.green,
+                        widget.testViewModel.getAnsweredCount(),
+                        'Answered',
+                      ),
+                      const SizedBox(height: 12),
+                      _buildStatusRow(
+                        context,
+                        Colors.red,
+                        widget.testViewModel.getNotAnsweredCount(),
+                        'Not Answered',
+                      ),
+                      const SizedBox(height: 12),
+                      _buildStatusRow(
+                        context,
+                        Colors.purple,
+                        widget.testViewModel.getMarkedForReviewCount(),
+                        'Marked for Review',
+                      ),
+                      const SizedBox(height: 12),
+                      _buildStatusRow(
+                        context,
+                        Colors.purple,
+                        widget.testViewModel.getAnsweredAndMarkedCount(),
+                        'Answered & Marked for review\n(Will be considered for evolution)',
+                      ),
+                    ],
                   ),
                 ),
               ),
               
-              // Question number grid - make it vertically scrollable with fixed height
-              Container(
-                height: 300, // Fixed height for the grid
-                padding: const EdgeInsets.all(16.0),
-                child: Card(
-                  elevation: 4,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    side: const BorderSide(color: Colors.black, width: 1),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
+              const SizedBox(height: 20),
+              
+              // Question number grid card
+              Card(
+                elevation: 4,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  side: const BorderSide(color: Colors.black, width: 1),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: SizedBox(
+                    height: 300, // Fixed height for the grid
                     child: GridView.builder(
                       // Enable vertical scrolling
                       physics: const AlwaysScrollableScrollPhysics(),
