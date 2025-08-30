@@ -101,7 +101,13 @@ class MCQTestViewModel extends ChangeNotifier {
 
   void nextQuestion() {
     if (_state.currentQuestionIndex < _state.test!.questions.length - 1) {
+      // Mark current question as visited
+      _visitedQuestions[_state.currentQuestionIndex] = true;
+      
       final nextIndex = _state.currentQuestionIndex + 1;
+      // Mark next question as visited
+      _visitedQuestions[nextIndex] = true;
+      
       _updateState(_state.copyWith(
         currentQuestionIndex: nextIndex,
         selectedAnswerIndex: _state.selectedAnswers[nextIndex],
@@ -111,7 +117,13 @@ class MCQTestViewModel extends ChangeNotifier {
 
   void previousQuestion() {
     if (_state.currentQuestionIndex > 0) {
+      // Mark current question as visited
+      _visitedQuestions[_state.currentQuestionIndex] = true;
+      
       final prevIndex = _state.currentQuestionIndex - 1;
+      // Mark previous question as visited
+      _visitedQuestions[prevIndex] = true;
+      
       _updateState(_state.copyWith(
         currentQuestionIndex: prevIndex,
         selectedAnswerIndex: _state.selectedAnswers[prevIndex],
