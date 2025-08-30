@@ -1,10 +1,13 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../domain/models/mcq_test_model.dart';
 import '../../domain/usecases/get_mcq_test_usecase.dart';
 import '../../domain/usecases/submit_mcq_test_usecase.dart';
 import '../../domain/usecases/save_mcq_progress_usecase.dart';
+import '../../di/user_injection.dart';
 import '../state/mcq_test_state.dart';
+import '../screens/mcq_test_result_screen.dart';
 
 // Question status enum for the summary screen
 enum QuestionStatus {
@@ -29,7 +32,7 @@ class MCQTestViewModel extends ChangeNotifier {
   List<bool> _markedForReview = [];
 
   // Getters that delegate to state
-  MCQTest get test => _state.test!;
+  MCQTest? get test => _state.test;
   bool get isLoading => _state.isLoading;
   String? get error => _state.error;
   int get currentQuestionIndex => _state.currentQuestionIndex;
@@ -39,7 +42,7 @@ class MCQTestViewModel extends ChangeNotifier {
   int get remainingTime => _state.remainingTime;
   double get fontSize => _state.fontSize;
   String get selectedLanguage => _state.selectedLanguage;
-  MCQQuestion get currentQuestion => _state.test!.questions[_state.currentQuestionIndex];
+  MCQQuestion? get currentQuestion => _state.test?.questions.isNotEmpty == true ? _state.test!.questions[_state.currentQuestionIndex] : null;
   bool get hasTimer => _timer != null;
 
   MCQTestViewModel(
@@ -131,11 +134,26 @@ class MCQTestViewModel extends ChangeNotifier {
     }
   }
 
-  Future<void> submitTest() async {
+  Future<void> submitTest(BuildContext context) async {
     if (hasTimer) {
       _timer!.cancel();
     }
     await _submitMCQTestUseCase.execute(_state.test!.title, _state.selectedAnswers, _state.timeSpent);
+    
+    // Calculate total time spent
+    int totalTimeSpent = _state.timeSpent.fold(0, (sum, time) => sum + time);
+    
+    // Navigate to result screen without wrapping in MultiProvider
+    // Use pushReplacement instead of pushAndRemoveUntil to maintain the provider tree
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(
+        builder: (context) => MCQTestResultScreen(
+          test: _state.test!,
+          selectedAnswers: _state.selectedAnswers,
+          totalTimeSpent: totalTimeSpent,
+        ),
+      ),
+    );
   }
 
   void _startTimer() {

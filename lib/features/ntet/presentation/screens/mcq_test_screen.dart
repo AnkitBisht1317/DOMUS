@@ -142,26 +142,38 @@ class _MCQTestViewState extends State<_MCQTestView> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   // Question text
-                                  Text(
-                                    viewModel.currentQuestion.question,
-                                    style: TextStyle(
-                                      fontSize: viewModel.fontSize,
-                                      fontWeight: FontWeight.bold,
+                                  if (viewModel.currentQuestion != null) ...[
+                                    Text(
+                                      viewModel.currentQuestion!.question,
+                                      style: TextStyle(
+                                        fontSize: viewModel.fontSize,
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                     ),
-                                  ),
-                                  const SizedBox(height: 24),
-                                  
-                                  // Options
-                                  ...List.generate(
-                                    viewModel.currentQuestion.options.length,
-                                    (index) => _buildOptionItem(
-                                      context,
-                                      index,
-                                      viewModel.currentQuestion.options[index],
-                                      viewModel.selectedAnswerIndex == index,
-                                      viewModel,
+                                    const SizedBox(height: 24),
+                                    
+                                    // Options
+                                    ...List.generate(
+                                      viewModel.currentQuestion!.options.length,
+                                      (index) => _buildOptionItem(
+                                        context,
+                                        index,
+                                        viewModel.currentQuestion!.options[index],
+                                        viewModel.selectedAnswerIndex == index,
+                                        viewModel,
+                                      ),
                                     ),
-                                  ),
+                                  ] else ...[
+                                    const Center(
+                                      child: Text(
+                                        "Loading question...",
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ],
                               ),
                             ),
@@ -233,15 +245,8 @@ class _MCQTestViewState extends State<_MCQTestView> {
               ),
             ),
             onPressed: () {
-              // Submit test
-              viewModel.submitTest().then((_) {
-                Navigator.of(context).pop();
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Test submitted successfully!'),
-                  ),
-                );
-              });
+              // Submit test and navigate to result screen
+              viewModel.submitTest(context);
             },
             child: const Text(
               'Submit',
@@ -257,6 +262,16 @@ class _MCQTestViewState extends State<_MCQTestView> {
   }
   
   Widget _buildControlsBar(MCQTestViewModel viewModel) {
+    // Add null check to prevent null pointer exception
+    if (viewModel.test == null) {
+      return Container(
+        padding: const EdgeInsets.all(16),
+        child: const Center(
+          child: Text("Loading test data...", style: TextStyle(fontWeight: FontWeight.bold)),
+        ),
+      );
+    }
+    
     return Container(
       padding: const EdgeInsets.all(16),
       child: Row(
@@ -264,7 +279,7 @@ class _MCQTestViewState extends State<_MCQTestView> {
         children: [
           // Question number
           Text(
-            'Question ${viewModel.currentQuestionIndex + 1}/${viewModel.test.questions.length}',
+            'Question ${viewModel.currentQuestionIndex + 1}/${viewModel.test?.questions.length ?? 0}',
             style: const TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 16,
@@ -423,7 +438,7 @@ class _MCQTestViewState extends State<_MCQTestView> {
                     borderRadius: BorderRadius.circular(8),
                   ),
                 ),
-                onPressed: viewModel.currentQuestionIndex < viewModel.test.questions.length - 1
+                onPressed: viewModel.currentQuestionIndex < (viewModel.test?.questions.length ?? 0) - 1
                     ? viewModel.nextQuestion
                     : null,
                 child: const Text(

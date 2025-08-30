@@ -170,7 +170,7 @@ class _MCQTestSummaryViewState extends State<_MCQTestSummaryView> {
                         crossAxisSpacing: 8,
                         mainAxisSpacing: 8,
                       ),
-                      itemCount: widget.testViewModel.test.questions.length,
+                      itemCount: widget.testViewModel.test?.questions.length ?? 0,
                       itemBuilder: (context, index) {
                         return _buildQuestionNumberCard(context, index, widget.testViewModel);
                       },

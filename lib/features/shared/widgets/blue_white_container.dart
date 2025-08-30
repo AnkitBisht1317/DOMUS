@@ -29,11 +29,14 @@ class BlueWhiteContainer extends StatelessWidget {
         ),
       ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: MainAxisSize.min,
         children: [
           // Header section
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 20),
             child: Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
                   title,

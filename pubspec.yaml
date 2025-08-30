@@ -95,6 +95,8 @@ flutter:
     - assets/squash.png
     - assets/books.png
     - assets/domus_logo.png
+    - assets/analysis_stats.png
+    - assets/exam_board.png
 
 
   # An image asset can refer to one or more resolution-specific "variants", see
