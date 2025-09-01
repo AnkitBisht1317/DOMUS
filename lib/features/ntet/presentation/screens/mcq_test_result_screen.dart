@@ -1,6 +1,7 @@
 import 'package:domus/features/ntet/domain/models/mcq_test_model.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:animated_segmented_tab_control/animated_segmented_tab_control.dart';
 import '../viewmodels/mcq_test_result_view_model.dart';
 import '../widgets/mcq_result_tabs.dart';
 import '../../../shared/widgets/blue_white_container.dart';
@@ -149,92 +150,32 @@ class _MCQTestResultScreenState extends State<MCQTestResultScreen> with SingleTi
   Widget _buildTabBar() {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-      height: 50,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(8),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.3),
-            spreadRadius: 1,
-            blurRadius: 3,
-            offset: const Offset(0, 2),
+      child: SegmentedTabControl(
+        // Customization of widget
+        // backgroundColor: Colors.white,
+        // indicatorColor: const Color(0xFF76B947),
+        tabTextColor: Colors.black,
+        selectedTabTextColor: Colors.white,
+        squeezeIntensity: 2,
+        tabPadding: const EdgeInsets.symmetric(horizontal: 8),
+        textStyle: const TextStyle(
+          fontWeight: FontWeight.bold,
+          fontSize: 14,
+        ),
+        // Tabs
+        tabs: [
+          SegmentTab(
+            label: 'Status',
+            backgroundColor: Colors.white,
+            color: const Color(0xFF76B947),
+          ),
+          SegmentTab(
+            label: 'Answer analysis',
+            backgroundColor: Colors.white,
+            color: const Color(0xFF76B947),
           ),
         ],
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: GestureDetector(
-              onTap: () => _tabController.animateTo(0),
-              child: Container(
-                height: double.infinity,
-                decoration: BoxDecoration(
-                  color: _tabController.index == 0 
-                      ? const Color(0xFF76B947) 
-                      : Colors.white,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.assignment_outlined,
-                      size: 20,
-                      color: _tabController.index == 0 ? Colors.white : Colors.black,
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      'Status',
-                      style: TextStyle(
-                        color: _tabController.index == 0 
-                            ? Colors.white 
-                            : Colors.black,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 14,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          Expanded(
-            child: GestureDetector(
-              onTap: () => _tabController.animateTo(1),
-              child: Container(
-                height: double.infinity,
-                decoration: BoxDecoration(
-                  color: _tabController.index == 1 
-                      ? const Color(0xFF76B947) 
-                      : Colors.white,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.analytics_outlined,
-                      size: 20,
-                      color: _tabController.index == 1 ? Colors.white : Colors.black,
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      'Answer analysis',
-                      style: TextStyle(
-                        color: _tabController.index == 1 
-                            ? Colors.white 
-                            : Colors.black,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 14,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ],
+        controller: _tabController,
       ),
     );
   }

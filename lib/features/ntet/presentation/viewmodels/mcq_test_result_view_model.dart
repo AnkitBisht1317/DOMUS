@@ -74,8 +74,8 @@ class MCQTestResultViewModel extends ChangeNotifier {
     
     percentageScore = (correctAnswers / totalQuestions) * 100;
     
-    // Calculate marks
-    marksObtained = correctAnswers * 4 - incorrectAnswers;
+    // Calculate marks using the marking scheme: 4 marks for correct, -1 for incorrect
+    marksObtained = (correctAnswers * 4) - incorrectAnswers;
     totalMarks = totalQuestions * 4;
     
     // Calculate formatted time from totalTimeSpent

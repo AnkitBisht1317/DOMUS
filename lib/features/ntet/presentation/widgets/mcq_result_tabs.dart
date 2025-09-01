@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:dashed_circular_progress_bar/dashed_circular_progress_bar.dart';
+import 'package:animated_segmented_tab_control/animated_segmented_tab_control.dart';
 import '../viewmodels/mcq_test_result_view_model.dart';
 import 'mcq_result_widgets.dart';
 
@@ -25,6 +27,56 @@ class StatusTabWidget extends StatelessWidget {
     } else {
       return '${displayNumber}th';
     }
+  }
+  
+  // Custom card widget for displaying marks
+  Widget _buildMarkCard(String title, String marks, Color backgroundColor, Color textColor, BorderRadius borderRadius) {
+    return Card(
+      margin: EdgeInsets.zero,
+      elevation: 3,
+      shape: RoundedRectangleBorder(
+        borderRadius: borderRadius,
+      ),
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+        decoration: BoxDecoration(
+          color: backgroundColor,
+          borderRadius: borderRadius,
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Flexible(
+              flex: 1,
+              child: Text(
+                title,
+                style: TextStyle(
+                  color: textColor,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 10,
+                ),
+                overflow: TextOverflow.visible,
+              ),
+            ),
+            const SizedBox(width: 4),
+            const SizedBox(height: 40),
+            Flexible(
+              flex: 1,
+              child: Text(
+                '$marks marks',
+                style: TextStyle(
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
+                ),
+                textAlign: TextAlign.end,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   @override
@@ -63,23 +115,29 @@ class StatusTabWidget extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Row(
-            children: [
-              const Icon(
-                Icons.emoji_events,
-                color: Color(0xFFFFD700),
-                size: 24,
-              ),
-              const SizedBox(width: 8),
-              Text(
-                'DR.${viewModel.userName}\'s Performance',
-                style: const TextStyle(
-                  color: Color(0xFF76B947),
-                  fontWeight: FontWeight.bold,
-                  fontSize: 12,
+          Flexible(
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(
+                  Icons.emoji_events,
+                  color: Color(0xFFFFD700),
+                  size: 24,
                 ),
-              ),
-            ],
+                const SizedBox(width: 8),
+                Flexible(
+                  child: Text(
+                    '${viewModel.userName}\'s Performance',
+                    style: const TextStyle(
+                      color: Color(0xFF76B947),
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
           ),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
@@ -387,59 +445,49 @@ class StatusTabWidget extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
                     _buildPercentageCircle(
-                      '${viewModel.percentageScore.toInt()}%',
+                      '${(viewModel.correctAnswers * 100 ~/ viewModel.totalQuestions)}%',
                       'Correct',
-                      Colors.blue,
+                      Colors.green,
                     ),
                     _buildPercentageCircle(
-                      '${(100 - viewModel.percentageScore).toInt()}%',
+                      '${(viewModel.incorrectAnswers * 100 ~/ viewModel.totalQuestions)}%',
                       'Incorrect',
-                      Colors.grey,
+                      Colors.red,
                     ),
                     _buildPercentageCircle(
                       '${viewModel.unansweredQuestions * 100 ~/ viewModel.totalQuestions}%',
                       'Unanswered',
-                      Colors.purple,
+                      Colors.amber,
                     ),
                   ],
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
                 child: Row(
                   children: [
                     Expanded(
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(vertical: 8),
-                        color: Colors.pink.shade100,
-                        child: Center(
-                          child: Text(
-                            'MARKS OBTAINED\n${viewModel.marksObtained} marks',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: Colors.pink.shade700,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 12,
-                            ),
-                          ),
+                      child: _buildMarkCard(
+                        'MARKS OBTAINED',
+                        '${viewModel.marksObtained}',
+                        Colors.pink.shade100,
+                        Colors.pink.shade700,
+                        BorderRadius.only(
+                          topLeft: Radius.circular(12),
+                          bottomRight: Radius.circular(12),
                         ),
                       ),
                     ),
-                    const SizedBox(width: 4),
+                    const SizedBox(width: 8),
                     Expanded(
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(vertical: 8),
-                        color: Colors.green.shade100,
-                        child: Center(
-                          child: Text(
-                            'CORRECT\n${viewModel.correctAnswers} marks',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: Colors.green.shade700,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 12,
-                            ),
-                          ),
+                      child: _buildMarkCard(
+                        'CORRECT',
+                        '${viewModel.correctAnswers}',
+                        Colors.green.shade100,
+                        Colors.green.shade700,
+                        BorderRadius.only(
+                          topLeft: Radius.circular(12),
+                          bottomRight: Radius.circular(12),
                         ),
                       ),
                     ),
@@ -447,41 +495,31 @@ class StatusTabWidget extends StatelessWidget {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
                 child: Row(
                   children: [
                     Expanded(
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(vertical: 8),
-                        color: Colors.red.shade100,
-                        child: Center(
-                          child: Text(
-                            'INCORRECT\n${viewModel.incorrectAnswers} marks',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: Colors.red.shade700,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 12,
-                            ),
-                          ),
+                      child: _buildMarkCard(
+                        'INCORRECT',
+                        '${viewModel.incorrectAnswers}',
+                        Colors.red.shade100,
+                        Colors.red.shade700,
+                        BorderRadius.only(
+                          topLeft: Radius.circular(12),
+                          bottomRight: Radius.circular(12),
                         ),
                       ),
                     ),
-                    const SizedBox(width: 4),
+                    const SizedBox(width: 8),
                     Expanded(
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(vertical: 8),
-                        color: Colors.yellow.shade100,
-                        child: Center(
-                          child: Text(
-                            'UNANSWERED\n${viewModel.unansweredQuestions} marks',
-                            textAlign: TextAlign.end,
-                            style: TextStyle(
-                              color: Colors.amber.shade700,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 12,
-                            ),
-                          ),
+                      child: _buildMarkCard(
+                        'UNANSWERED',
+                        '${viewModel.unansweredQuestions * 4}',
+                        Colors.amber.shade100,
+                        Colors.amber.shade700,
+                        BorderRadius.only(
+                          topLeft: Radius.circular(12),
+                          bottomRight: Radius.circular(12),
                         ),
                       ),
                     ),
@@ -496,34 +534,66 @@ class StatusTabWidget extends StatelessWidget {
   }
   
   Widget _buildPercentageCircle(String percentage, String label, Color color) {
+    // Parse the percentage value
+    final percentValue = int.tryParse(percentage.replaceAll('%', '')) ?? 0;
+    
+    // Determine color based on label and percentage
+    Color circleColor;
+    if (percentValue == 0) {
+      // Use grey for 0% regardless of category
+      circleColor = Colors.grey;
+    } else {
+      // Use appropriate colors for each category
+      switch (label) {
+        case 'Correct':
+          circleColor = Colors.green;
+          break;
+        case 'Incorrect':
+          circleColor = Colors.red;
+          break;
+        case 'Unanswered':
+          circleColor = Colors.amber;
+          break;
+        default:
+          circleColor = color;
+      }
+    }
+    
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Container(
-          width: 60,
-          height: 60,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            border: Border.all(color: color, width: 2),
-          ),
-          child: Center(
-            child: Text(
-              percentage,
-              style: TextStyle(
-                color: color,
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
+        SizedBox(
+          width: 80,
+          height: 80,
+          child: DashedCircularProgressBar.square(
+            dimensions: 80,
+            progress: percentValue.toDouble(),
+            maxProgress: 100,
+            foregroundColor: circleColor,
+            backgroundColor: Colors.grey.shade300,
+            foregroundStrokeWidth: 8,
+            backgroundStrokeWidth: 8,
+            animation: true,
+            animationDuration: const Duration(seconds: 1),
+            child: Center(
+              child: Text(
+                '$percentValue%',
+                style: TextStyle(
+                  color: percentValue > 0 ? circleColor : Colors.grey,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                ),
               ),
             ),
           ),
         ),
-        const SizedBox(height: 4),
+        const SizedBox(height: 8),
         Text(
           label,
           style: TextStyle(
-            color: color,
-            fontWeight: FontWeight.w500,
-            fontSize: 12,
+            color: percentValue > 0 ? circleColor : Colors.grey,
+            fontWeight: FontWeight.w600,
+            fontSize: 14,
           ),
         ),
       ],
