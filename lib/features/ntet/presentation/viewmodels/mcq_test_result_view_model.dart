@@ -1,13 +1,15 @@
 import 'package:domus/features/ntet/domain/models/mcq_test_model.dart';
 import 'package:flutter/material.dart';
+import '../../services/user_service.dart';
 
 class MCQTestResultViewModel extends ChangeNotifier {
   final MCQTest test;
   final List<int> selectedAnswers;
   final int totalTimeSpent;
+  final UserService _userService = UserService();
   
   // User info
-  String userName = "Dr.Ankit";
+  String userName = "User";
   int rank = 65;
   int attemptNumber = 1; // Default to 1st attempt if not specified
   
@@ -48,6 +50,9 @@ class MCQTestResultViewModel extends ChangeNotifier {
     this.attemptNumber = attemptNumber;
     
     calculateResults();
+    
+    // Load the user's name
+    _loadUserName();
     generateLeaderboard();
   }
 
@@ -87,6 +92,23 @@ class MCQTestResultViewModel extends ChangeNotifier {
     // In a real app, this would fetch data from a repository
     // For now, we'll use the mock data initialized above
     leaderboard[0]['score'] = marksObtained.toString();
+  }
+  
+  // Load the user's name from the UserService
+  Future<void> _loadUserName() async {
+    try {
+      // Get the user's first name (before the first space)
+      final name = await _userService.getCurrentUserName();
+      userName = name;
+      
+      // Update the leaderboard with the new name
+      leaderboard[0]['name'] = '${userName}\'s';
+      
+      // Notify listeners to update the UI
+      notifyListeners();
+    } catch (e) {
+      debugPrint('Error loading user name: $e');
+    }
   }
   
   String getFormattedDateTime(DateTime dateTime) {

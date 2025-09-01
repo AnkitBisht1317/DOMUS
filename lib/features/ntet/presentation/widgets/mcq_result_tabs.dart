@@ -72,7 +72,7 @@ class StatusTabWidget extends StatelessWidget {
               ),
               const SizedBox(width: 8),
               Text(
-                '${viewModel.userName}\'s Performance',
+                'DR.${viewModel.userName}\'s Performance',
                 style: const TextStyle(
                   color: Color(0xFF76B947),
                   fontWeight: FontWeight.bold,
