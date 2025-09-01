@@ -120,11 +120,15 @@ class MCQInstructionsScreen extends StatelessWidget {
                         width: double.infinity,
                         child: ElevatedButton(
                           onPressed: () {
-                            // Navigate to MCQ test screen
+                            // Record start time and navigate to MCQ test screen
+                            final startTime = DateTime.now();
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => MCQTestScreen(title: title),
+                                builder: (context) => MCQTestScreen(
+                                  title: title,
+                                  startTime: startTime,
+                                ),
                               ),
                             );
                           },

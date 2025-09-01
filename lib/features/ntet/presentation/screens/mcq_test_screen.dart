@@ -6,10 +6,12 @@ import 'mcq_test_summary_screen.dart';
 
 class MCQTestScreen extends StatefulWidget {
   final String title;
+  final DateTime? startTime;
 
   const MCQTestScreen({
     Key? key,
     required this.title,
+    this.startTime,
   }) : super(key: key);
 
   @override
@@ -21,17 +23,22 @@ class _MCQTestScreenState extends State<MCQTestScreen> {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: MCQTestInjection.providers,
-      child: _MCQTestView(title: widget.title),
+      child: _MCQTestView(
+        title: widget.title,
+        startTime: widget.startTime,
+      ),
     );
   }
 }
 
 class _MCQTestView extends StatefulWidget {
   final String title;
+  final DateTime? startTime;
 
   const _MCQTestView({
     Key? key,
     required this.title,
+    this.startTime,
   }) : super(key: key);
 
   @override
@@ -48,7 +55,7 @@ class _MCQTestViewState extends State<_MCQTestView> {
     viewModel = Provider.of<MCQTestViewModel>(context, listen: false);
     // Load the test data
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      viewModel.loadTest(widget.title);
+      viewModel.loadTest(widget.title, startTime: widget.startTime);
     });
   }
   

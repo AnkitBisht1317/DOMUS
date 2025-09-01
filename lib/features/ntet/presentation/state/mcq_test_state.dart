@@ -12,6 +12,9 @@ class MCQTestState {
   final List<int> selectedAnswers;
   final double fontSize;
   final String selectedLanguage;
+  final DateTime? startTime;
+  final DateTime? endTime;
+  final int attemptCount;
 
   const MCQTestState({
     this.isLoading = false,
@@ -24,6 +27,9 @@ class MCQTestState {
     this.selectedAnswers = const [],
     this.fontSize = 16.0,
     this.selectedLanguage = 'English',
+    this.startTime,
+    this.endTime,
+    this.attemptCount = 0,
   });
 
   // Create a copy of the state with updated values
@@ -38,6 +44,9 @@ class MCQTestState {
     List<int>? selectedAnswers,
     double? fontSize,
     String? selectedLanguage,
+    DateTime? startTime,
+    DateTime? endTime,
+    int? attemptCount,
   }) {
     return MCQTestState(
       isLoading: isLoading ?? this.isLoading,
@@ -48,6 +57,9 @@ class MCQTestState {
       remainingTime: remainingTime ?? this.remainingTime,
       timeSpent: timeSpent ?? this.timeSpent,
       selectedAnswers: selectedAnswers ?? this.selectedAnswers,
+      startTime: startTime ?? this.startTime,
+      endTime: endTime ?? this.endTime,
+      attemptCount: attemptCount ?? this.attemptCount,
       fontSize: fontSize ?? this.fontSize,
       selectedLanguage: selectedLanguage ?? this.selectedLanguage,
     );

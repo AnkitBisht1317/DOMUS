@@ -57,7 +57,7 @@ class MCQTestViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> loadTest(String title) async {
+  Future<void> loadTest(String title, {DateTime? startTime}) async {
     _updateState(_state.copyWith(isLoading: true, error: null));
 
     try {
@@ -72,12 +72,16 @@ class MCQTestViewModel extends ChangeNotifier {
       // Mark first question as visited
       _visitedQuestions[0] = true;
       
+      // Use provided start time or record current time
+      final actualStartTime = startTime ?? DateTime.now();
+      
       _updateState(_state.copyWith(
         isLoading: false,
         test: test,
         selectedAnswers: selectedAnswers,
         timeSpent: timeSpent,
         remainingTime: test.totalTime,
+        startTime: actualStartTime,
       ));
       
       _startTimer();
@@ -138,6 +142,14 @@ class MCQTestViewModel extends ChangeNotifier {
     if (hasTimer) {
       _timer!.cancel();
     }
+    
+    // Record end time
+    final endTime = DateTime.now();
+    _updateState(_state.copyWith(endTime: endTime));
+    
+    // Increment attempt count for this test
+    final attemptCount = await _incrementAttemptCount(_state.test!.title);
+    
     await _submitMCQTestUseCase.execute(_state.test!.title, _state.selectedAnswers, _state.timeSpent);
     
     // Calculate total time spent
@@ -151,9 +163,19 @@ class MCQTestViewModel extends ChangeNotifier {
           test: _state.test!,
           selectedAnswers: _state.selectedAnswers,
           totalTimeSpent: totalTimeSpent,
+          startTime: _state.startTime,
+          endTime: endTime,
+          attemptCount: attemptCount,
         ),
       ),
     );
+  }
+  
+  // Helper method to increment and retrieve attempt count
+  Future<int> _incrementAttemptCount(String testTitle) async {
+    // In a real app, this would use shared preferences or a database
+    // For now, we'll simulate by returning a value
+    return UserInjection.getUserAttemptCount(testTitle);
   }
 
   void _startTimer() {

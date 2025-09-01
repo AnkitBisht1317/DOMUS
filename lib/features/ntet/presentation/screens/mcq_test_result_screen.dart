@@ -9,12 +9,18 @@ class MCQTestResultScreen extends StatefulWidget {
   final MCQTest test;
   final List<int> selectedAnswers;
   final int totalTimeSpent;
+  final DateTime? startTime;
+  final DateTime? endTime;
+  final int attemptCount;
 
   const MCQTestResultScreen({
     Key? key,
     required this.test,
     required this.selectedAnswers,
     required this.totalTimeSpent,
+    this.startTime,
+    this.endTime,
+    this.attemptCount = 0,
   }) : super(key: key);
 
   @override

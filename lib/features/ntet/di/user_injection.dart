@@ -15,6 +15,18 @@ class UserInjection {
   // Use cases
   static final GetUserInfoUseCase _getUserInfoUseCase = GetUserInfoUseCase(_repository);
   
+  // Map to store attempt counts for each test
+  static final Map<String, int> _testAttempts = {};
+  
+  // Get and increment attempt count for a test
+  static int getUserAttemptCount(String testTitle) {
+    if (!_testAttempts.containsKey(testTitle)) {
+      _testAttempts[testTitle] = 0;
+    }
+    _testAttempts[testTitle] = _testAttempts[testTitle]! + 1;
+    return _testAttempts[testTitle]!;
+  }
+  
   // Provider list for MultiProvider
   static final List<ChangeNotifierProvider> providers = [
     ChangeNotifierProvider<UserViewModel>(

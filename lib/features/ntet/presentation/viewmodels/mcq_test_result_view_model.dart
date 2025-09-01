@@ -9,7 +9,7 @@ class MCQTestResultViewModel extends ChangeNotifier {
   // User info
   String userName = "Dr.Ankit";
   int rank = 65;
-  int attemptNumber = 3;
+  int attemptNumber = 1; // Default to 1st attempt if not specified
   
   // Calculated values
   late int correctAnswers;
@@ -38,7 +38,15 @@ class MCQTestResultViewModel extends ChangeNotifier {
     required this.test,
     required this.selectedAnswers,
     required this.totalTimeSpent,
+    DateTime? startTime,
+    DateTime? endTime,
+    int attemptNumber = 0,
   }) {
+    // Use provided values or defaults
+    this.startTime = startTime ?? DateTime.now().subtract(Duration(seconds: totalTimeSpent));
+    this.endTime = endTime ?? DateTime.now();
+    this.attemptNumber = attemptNumber;
+    
     calculateResults();
     generateLeaderboard();
   }

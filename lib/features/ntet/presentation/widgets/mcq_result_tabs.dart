@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../viewmodels/mcq_test_result_view_model.dart';
 import 'mcq_result_widgets.dart';
 
@@ -12,14 +13,17 @@ class StatusTabWidget extends StatelessWidget {
 
   // Helper method for ordinal numbers (1st, 2nd, 3rd, etc.)
   String _getOrdinal(int number) {
-    if (number == 1) {
+    // Ensure number is at least 1 (no 0th attempt)
+    int displayNumber = number < 1 ? 1 : number;
+    
+    if (displayNumber == 1) {
       return '1st';
-    } else if (number == 2) {
+    } else if (displayNumber == 2) {
       return '2nd';
-    } else if (number == 3) {
+    } else if (displayNumber == 3) {
       return '3rd';
     } else {
-      return '${number}th';
+      return '${displayNumber}th';
     }
   }
 
@@ -99,14 +103,11 @@ class StatusTabWidget extends StatelessWidget {
   }
 
   Widget _buildPerformanceStats(BuildContext context) {
-    // Get current time for start and end time display
-    final now = DateTime.now();
-    final startTime = now.subtract(const Duration(minutes: 3));
-    final endTime = now;
+    final viewModel = Provider.of<MCQTestResultViewModel>(context);
     
-    // Format times
-    final startTimeFormatted = '${startTime.hour}:${startTime.minute.toString().padLeft(2, '0')}:${startTime.second.toString().padLeft(2, '0')}${startTime.hour >= 12 ? 'PM' : 'AM'}';
-    final endTimeFormatted = '${endTime.hour}:${endTime.minute.toString().padLeft(2, '0')}:${endTime.second.toString().padLeft(2, '0')}${endTime.hour >= 12 ? 'PM' : 'AM'}';
+    // Format times using the actual recorded start and end times
+    final startTimeFormatted = '${viewModel.startTime.hour % 12 == 0 ? 12 : viewModel.startTime.hour % 12}:${viewModel.startTime.minute.toString().padLeft(2, '0')}:${viewModel.startTime.second.toString().padLeft(2, '0')}${viewModel.startTime.hour >= 12 ? 'PM' : 'AM'}';
+    final endTimeFormatted = '${viewModel.endTime.hour % 12 == 0 ? 12 : viewModel.endTime.hour % 12}:${viewModel.endTime.minute.toString().padLeft(2, '0')}:${viewModel.endTime.second.toString().padLeft(2, '0')}${viewModel.endTime.hour >= 12 ? 'PM' : 'AM'}';
     
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -122,7 +123,7 @@ class StatusTabWidget extends StatelessWidget {
               BoxShadow(
                 color: Colors.grey.withOpacity(0.1),
                 spreadRadius: 1,
-                blurRadius: 5,
+                blurRadius: 3,
                 offset: const Offset(0, 2),
               ),
             ],
