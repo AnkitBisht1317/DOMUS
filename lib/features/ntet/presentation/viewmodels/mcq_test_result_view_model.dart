@@ -97,12 +97,15 @@ class MCQTestResultViewModel extends ChangeNotifier {
   // Load the user's name from the UserService
   Future<void> _loadUserName() async {
     try {
-      // Get the user's first name (before the first space)
-      final name = await _userService.getCurrentUserName();
-      userName = name;
+      // Get the user's first name for the performance header
+      final firstName = await _userService.getCurrentUserName();
+      userName = firstName;
       
-      // Update the leaderboard with the new name
-      leaderboard[0]['name'] = '${userName}\'s';
+      // Get the user's full name for the leaderboard
+      final fullName = await _userService.getCurrentUserFullName();
+      
+      // Update the leaderboard with the full name (no apostrophe 's')
+      leaderboard[0]['name'] = fullName;
       
       // Notify listeners to update the UI
       notifyListeners();

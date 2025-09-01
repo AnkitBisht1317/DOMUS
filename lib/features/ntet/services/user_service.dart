@@ -14,8 +14,8 @@ class UserService {
     return _instance;
   }
   
-  // Get the current user's name
-  Future<String> getCurrentUserName() async {
+  // Get the current user's full name
+  Future<String> getCurrentUserFullName() async {
     try {
       final user = _auth.currentUser;
       if (user?.phoneNumber == null) {
@@ -34,14 +34,14 @@ class UserService {
         
         // Check if fullName exists directly in the document
         if (data.containsKey('fullName') && data['fullName'] != null) {
-          return _getFirstName(data['fullName']);
+          return data['fullName'];
         }
         
         // Check if it's in personalDetails
         if (data.containsKey('personalDetails') && 
             data['personalDetails'] is Map && 
             data['personalDetails']['fullName'] != null) {
-          return _getFirstName(data['personalDetails']['fullName']);
+          return data['personalDetails']['fullName'];
         }
       }
       
@@ -49,6 +49,17 @@ class UserService {
       return "User";
     } catch (e) {
       print('Error getting user name: $e');
+      return "User";
+    }
+  }
+  
+  // Get the current user's first name
+  Future<String> getCurrentUserName() async {
+    try {
+      final fullName = await getCurrentUserFullName();
+      return _getFirstName(fullName);
+    } catch (e) {
+      print('Error getting user first name: $e');
       return "User";
     }
   }
