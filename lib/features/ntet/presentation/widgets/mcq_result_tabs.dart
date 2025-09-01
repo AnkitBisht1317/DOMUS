@@ -39,10 +39,63 @@ class StatusTabWidget extends StatelessWidget {
     );
   }
   
-  // This method is intentionally left empty as we're removing the duplicate header
+  // Performance header that will now be part of the scrollable content
   Widget _buildUserPerformanceHeader(BuildContext context) {
-    // Return an empty container as we don't want this section anymore
-    return Container();
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.2),
+            spreadRadius: 1,
+            blurRadius: 3,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(
+            children: [
+              const Icon(
+                Icons.emoji_events,
+                color: Color(0xFFFFD700),
+                size: 24,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                '${viewModel.userName}\'s Performance',
+                style: const TextStyle(
+                  color: Color(0xFF76B947),
+                  fontWeight: FontWeight.bold,
+                  fontSize: 12,
+                ),
+              ),
+            ],
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+            decoration: BoxDecoration(
+              color: const Color(0xFF76B947),
+              borderRadius: BorderRadius.circular(4),
+            ),
+            child: Text(
+              'Rank : ${viewModel.rank}',
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 12,
+              ),
+            ),
+          ),
+        ],
+
+      ),
+    );
   }
 
   Widget _buildPerformanceStats(BuildContext context) {
@@ -421,7 +474,7 @@ class StatusTabWidget extends StatelessWidget {
                         child: Center(
                           child: Text(
                             'UNANSWERED\n${viewModel.unansweredQuestions} marks',
-                            textAlign: TextAlign.center,
+                            textAlign: TextAlign.end,
                             style: TextStyle(
                               color: Colors.amber.shade700,
                               fontWeight: FontWeight.bold,

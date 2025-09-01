@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../viewmodels/mcq_test_result_view_model.dart';
 import '../widgets/mcq_result_tabs.dart';
+import '../../../shared/widgets/blue_white_container.dart';
 
 class MCQTestResultScreen extends StatefulWidget {
   final MCQTest test;
@@ -51,14 +52,30 @@ class _MCQTestResultScreenState extends State<MCQTestResultScreen> with SingleTi
     return ChangeNotifierProvider.value(
       value: _viewModel,
       child: Scaffold(
+        backgroundColor: const Color(0xFF001F54),
         appBar: _buildAppBar(context),
-        body: Container(
-          color: const Color(0xFFF5F5F5),
+        body: SafeArea(
           child: Column(
             children: [
-              _buildTabBar(),
-              _tabController.index == 0 ? _buildPerformanceHeader() : Container(),
-              _buildTabView(),
+              // Main content with white container
+              Expanded(
+                child: Container(
+                  width: double.infinity,
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(20),
+                      topRight: Radius.circular(20),
+                    ),
+                  ),
+                  child: Column(
+                    children: [
+                      _buildTabBar(),
+                      _buildTabView(),
+                    ],
+                  ),
+                ),
+              ),
             ],
           ),
         ),
@@ -67,20 +84,32 @@ class _MCQTestResultScreenState extends State<MCQTestResultScreen> with SingleTi
   }
   
   PreferredSizeWidget _buildAppBar(BuildContext context) {
+    // Calculate available width for title
+    final screenWidth = MediaQuery.of(context).size.width;
+    final leadingWidth = 40.0; // Approximate width of back button
+    final actionWidth = 100.0; // Approximate width of reattempt button
+    final availableTitleWidth = screenWidth - leadingWidth - actionWidth - 32; // 32 for padding
+    
     return AppBar(
       backgroundColor: const Color(0xFF001F54),
-      foregroundColor: Colors.white,
-      title: Text(
-        widget.test.title,
-        style: const TextStyle(
-          fontSize: 18,
-          fontWeight: FontWeight.bold,
-          color: Colors.white,
-        ),
-      ),
+      elevation: 0,
+      titleSpacing: 0,
       leading: IconButton(
         icon: const Icon(Icons.arrow_back, color: Colors.white),
         onPressed: () => Navigator.of(context).pop(),
+      ),
+      title: Container(
+        width: availableTitleWidth,
+        child: Text(
+          widget.test.title,
+          style: const TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+          overflow: TextOverflow.ellipsis,
+          maxLines: 1,
+        ),
       ),
       actions: [
         Padding(
@@ -113,11 +142,11 @@ class _MCQTestResultScreenState extends State<MCQTestResultScreen> with SingleTi
   
   Widget _buildTabBar() {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-      height: 40,
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      height: 50,
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(4),
+        borderRadius: BorderRadius.circular(8),
         boxShadow: [
           BoxShadow(
             color: Colors.grey.withOpacity(0.3),
@@ -133,11 +162,12 @@ class _MCQTestResultScreenState extends State<MCQTestResultScreen> with SingleTi
             child: GestureDetector(
               onTap: () => _tabController.animateTo(0),
               child: Container(
+                height: double.infinity,
                 decoration: BoxDecoration(
                   color: _tabController.index == 0 
                       ? const Color(0xFF76B947) 
                       : Colors.white,
-                  borderRadius: BorderRadius.circular(4),
+                  borderRadius: BorderRadius.circular(8),
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -167,11 +197,12 @@ class _MCQTestResultScreenState extends State<MCQTestResultScreen> with SingleTi
             child: GestureDetector(
               onTap: () => _tabController.animateTo(1),
               child: Container(
+                height: double.infinity,
                 decoration: BoxDecoration(
                   color: _tabController.index == 1 
                       ? const Color(0xFF76B947) 
                       : Colors.white,
-                  borderRadius: BorderRadius.circular(4),
+                  borderRadius: BorderRadius.circular(8),
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -204,14 +235,14 @@ class _MCQTestResultScreenState extends State<MCQTestResultScreen> with SingleTi
   
   Widget _buildPerformanceHeader() {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(4),
+        borderRadius: BorderRadius.circular(8),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.3),
+            color: Colors.grey.withOpacity(0.2),
             spreadRadius: 1,
             blurRadius: 3,
             offset: const Offset(0, 2),
@@ -241,7 +272,7 @@ class _MCQTestResultScreenState extends State<MCQTestResultScreen> with SingleTi
               ],
             ),
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+              padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
               decoration: BoxDecoration(
                 color: const Color(0xFF76B947),
                 borderRadius: BorderRadius.circular(4),
@@ -251,7 +282,7 @@ class _MCQTestResultScreenState extends State<MCQTestResultScreen> with SingleTi
                 style: const TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
-                  fontSize: 14,
+                  fontSize: 12,
                 ),
               ),
             ),
@@ -263,16 +294,19 @@ class _MCQTestResultScreenState extends State<MCQTestResultScreen> with SingleTi
   
   Widget _buildTabView() {
     return Expanded(
-      child: TabBarView(
-        controller: _tabController,
-        children: [
-          Consumer<MCQTestResultViewModel>(
-            builder: (context, viewModel, _) => StatusTabWidget(viewModel: viewModel),
-          ),
-          Consumer<MCQTestResultViewModel>(
-            builder: (context, viewModel, _) => AnswerAnalysisTabWidget(viewModel: viewModel),
-          ),
-        ],
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8),
+        child: TabBarView(
+          controller: _tabController,
+          children: [
+            Consumer<MCQTestResultViewModel>(
+              builder: (context, viewModel, _) => StatusTabWidget(viewModel: viewModel),
+            ),
+            Consumer<MCQTestResultViewModel>(
+              builder: (context, viewModel, _) => AnswerAnalysisTabWidget(viewModel: viewModel),
+            ),
+          ],
+        ),
       ),
     );
   }
