@@ -166,11 +166,14 @@ class _MCQTestResultScreenState extends State<MCQTestResultScreen> with SingleTi
         tabs: [
           SegmentTab(
             label: 'Status',
+            splashColor: Color(0xFF204770),
             backgroundColor: Colors.white,
             color: const Color(0xFF76B947),
+
           ),
           SegmentTab(
             label: 'Answer analysis',
+            splashColor: Color(0xFF204770),
             backgroundColor: Colors.white,
             color: const Color(0xFF76B947),
           ),

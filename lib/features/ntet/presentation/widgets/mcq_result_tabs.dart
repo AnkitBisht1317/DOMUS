@@ -30,51 +30,52 @@ class StatusTabWidget extends StatelessWidget {
   }
   
   // Custom card widget for displaying marks
-  Widget _buildMarkCard(String title, String marks, Color backgroundColor, Color textColor, BorderRadius borderRadius) {
-    return Card(
-      margin: EdgeInsets.zero,
-      elevation: 3,
-      shape: RoundedRectangleBorder(
-        borderRadius: borderRadius,
+  Widget _buildMarkCard(String title, String marks, Color backgroundColor, Color textColor, {bool isCorrect = false}) {
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 3),
+      height: 60,
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        borderRadius: const BorderRadius.only(
+          topRight: Radius.circular(12),
+          bottomRight: Radius.circular(12),
+          bottomLeft: Radius.circular(12),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 3,
+            offset: const Offset(0, 1),
+          ),
+        ],
       ),
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
-        decoration: BoxDecoration(
-          color: backgroundColor,
-          borderRadius: borderRadius,
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Flexible(
-              flex: 1,
-              child: Text(
-                title,
-                style: TextStyle(
-                  color: textColor,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 10,
-                ),
-                overflow: TextOverflow.visible,
+      child: Stack(
+        children: [
+          Positioned(
+            top: 8,
+            left: 12,
+            child: Text(
+              title,
+              style: TextStyle(
+                color: textColor,
+                fontWeight: FontWeight.bold,
+                fontSize: 14,
               ),
             ),
-            const SizedBox(width: 4),
-            const SizedBox(height: 40),
-            Flexible(
-              flex: 1,
-              child: Text(
-                '$marks marks',
-                style: TextStyle(
-                  color: Colors.black,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 14,
-                ),
-                textAlign: TextAlign.end,
-                overflow: TextOverflow.ellipsis,
+          ),
+          Positioned(
+            bottom: 8,
+            right: 12,
+            child: Text(
+              isCorrect ? '$marks questions' : '$marks marks',
+              style: const TextStyle(
+                color: Colors.black,
+                fontWeight: FontWeight.bold,
+                fontSize: 22,
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -127,7 +128,7 @@ class StatusTabWidget extends StatelessWidget {
                 const SizedBox(width: 8),
                 Flexible(
                   child: Text(
-                    '${viewModel.userName}\'s Performance',
+                    'DR.${viewModel.userName}\'s Performance',
                     style: const TextStyle(
                       color: Color(0xFF76B947),
                       fontWeight: FontWeight.bold,
@@ -417,6 +418,7 @@ class StatusTabWidget extends StatelessWidget {
             children: [
               Container(
                 padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                height: 60,
                 decoration: BoxDecoration(
                   color: Colors.green.shade100,
                   borderRadius: const BorderRadius.only(
@@ -426,14 +428,14 @@ class StatusTabWidget extends StatelessWidget {
                 ),
                 child: Row(
                   children: [
-                    Icon(Icons.pie_chart, color: Colors.green.shade700, size: 18),
+                    Icon(Icons.pie_chart, color: Colors.green.shade700, size: 20),
                     const SizedBox(width: 8),
                     Text(
                       'Percentage Status',
                       style: TextStyle(
                         color: Colors.green.shade700,
                         fontWeight: FontWeight.bold,
-                        fontSize: 14,
+                        fontSize: 20,
                       ),
                     ),
                   ],
@@ -464,64 +466,32 @@ class StatusTabWidget extends StatelessWidget {
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                child: Row(
+                child: Column(
                   children: [
-                    Expanded(
-                      child: _buildMarkCard(
-                        'MARKS OBTAINED',
-                        '${viewModel.marksObtained}',
-                        Colors.pink.shade100,
-                        Colors.pink.shade700,
-                        BorderRadius.only(
-                          topLeft: Radius.circular(12),
-                          bottomRight: Radius.circular(12),
-                        ),
-                      ),
+                    _buildMarkCard(
+                      'MARKS OBTAINED',
+                      '${viewModel.marksObtained}',
+                      Colors.purple.shade100,
+                      Colors.purple.shade700,
                     ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: _buildMarkCard(
-                        'CORRECT',
-                        '${viewModel.correctAnswers}',
-                        Colors.green.shade100,
-                        Colors.green.shade700,
-                        BorderRadius.only(
-                          topLeft: Radius.circular(12),
-                          bottomRight: Radius.circular(12),
-                        ),
-                      ),
+                    _buildMarkCard(
+                      'CORRECT',
+                      '${viewModel.correctAnswers}',
+                      Colors.green.shade100,
+                      Colors.green.shade700,
+                      isCorrect: true,
                     ),
-                  ],
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: _buildMarkCard(
-                        'INCORRECT',
-                        '${viewModel.incorrectAnswers}',
-                        Colors.red.shade100,
-                        Colors.red.shade700,
-                        BorderRadius.only(
-                          topLeft: Radius.circular(12),
-                          bottomRight: Radius.circular(12),
-                        ),
-                      ),
+                    _buildMarkCard(
+                      'INCORRECT',
+                      '${viewModel.incorrectAnswers}',
+                      Colors.red.shade200,
+                      Colors.red.shade700,
                     ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: _buildMarkCard(
-                        'UNANSWERED',
-                        '${viewModel.unansweredQuestions * 4}',
-                        Colors.amber.shade100,
-                        Colors.amber.shade700,
-                        BorderRadius.only(
-                          topLeft: Radius.circular(12),
-                          bottomRight: Radius.circular(12),
-                        ),
-                      ),
+                    _buildMarkCard(
+                      'UNANSWERED',
+                      '${viewModel.unansweredQuestions * 4}',
+                      Colors.amber.shade100,
+                      Colors.amber.shade700,
                     ),
                   ],
                 ),
@@ -613,6 +583,7 @@ class StatusTabWidget extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
+            height: 60,
             padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
             decoration: BoxDecoration(
               color: Colors.amber.shade100,
@@ -623,14 +594,14 @@ class StatusTabWidget extends StatelessWidget {
             ),
             child: Row(
               children: [
-                Icon(Icons.emoji_events, color: Colors.amber.shade700, size: 18),
+                Icon(Icons.emoji_events, color: Colors.amber.shade700, size: 20),
                 const SizedBox(width: 8),
                 Text(
                   'Leaderboard',
                   style: TextStyle(
                     color: Colors.amber.shade700,
                     fontWeight: FontWeight.bold,
-                    fontSize: 14,
+                    fontSize: 20,
                   ),
                 ),
               ],
