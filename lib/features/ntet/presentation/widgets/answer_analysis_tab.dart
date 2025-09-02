@@ -102,11 +102,17 @@ class _AnswerAnalysisTabWidgetState extends State<AnswerAnalysisTabWidget>
             tabs: [
               SegmentTab(
                 label: 'Answer Key',
+                // Note: To add an icon, you would need to modify the SegmentTab widget
+                // in the animated_segmented_tab_control package to accept a Widget instead of a String
+                // or create a custom implementation of the tab control
                 color: const Color(0xFF76B947),
                 backgroundColor: Colors.transparent,
               ),
               SegmentTab(
                 label: 'Description',
+                // Note: To add an icon, you would need to modify the SegmentTab widget
+                // in the animated_segmented_tab_control package to accept a Widget instead of a String
+                // or create a custom implementation of the tab control
                 color: const Color(0xFF76B947),
                 backgroundColor: Colors.transparent,
               ),

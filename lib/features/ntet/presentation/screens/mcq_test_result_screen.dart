@@ -180,41 +180,81 @@ class _MCQTestResultScreenState extends State<MCQTestResultScreen> with SingleTi
       ),
       // Set width to match parent container
       width: double.infinity,
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          // Calculate tab width based on available space
-          final tabWidth = constraints.maxWidth / 2;
-          
-          return SegmentedTabControl(
-            // Force rebuild on orientation change
-            key: ValueKey('segmented-tab-${orientation.toString()}-$screenWidth'),
-            tabTextColor: Colors.black87,
-            selectedTabTextColor: Colors.white,
-            squeezeIntensity: 2,
-            // Adjust height based on orientation
-            height: isPortrait ? 45 : 50,
-            // Adjust padding based on orientation
-            tabPadding: EdgeInsets.symmetric(horizontal: isPortrait ? 8 : 16),
-            textStyle: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: isPortrait ? 14 : 16,
+      child: Row(
+        children: [
+          Expanded(
+            child: GestureDetector(
+              onTap: () {
+                _tabController.animateTo(0);
+              },
+              child: Container(
+                height: isPortrait ? 45 : 50,
+                decoration: BoxDecoration(
+                  color: _tabController.index == 0 
+                      ? const Color(0xFF76B947) 
+                      : Colors.transparent,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Image.asset(
+                      'assets/exam_board.png',
+                      width: 24,
+                      height: 24,
+                      // No color property to preserve the original colors
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Status',
+                      style: TextStyle(
+                        color: _tabController.index == 0 ? Colors.white : Colors.black87,
+                        fontWeight: FontWeight.bold,
+                        fontSize: isPortrait ? 14 : 16,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
-            // Tabs with dynamic width calculation
-            tabs: [
-              SegmentTab(
-                label: 'Status',
-                color: const Color(0xFF76B947),
-                backgroundColor: Colors.transparent,
+          ),
+          Expanded(
+            child: GestureDetector(
+              onTap: () {
+                _tabController.animateTo(1);
+              },
+              child: Container(
+                height: isPortrait ? 45 : 50,
+                decoration: BoxDecoration(
+                  color: _tabController.index == 1 
+                      ? const Color(0xFF76B947) 
+                      : Colors.transparent,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Image.asset(
+                      'assets/analysis_stats.png',
+                      width: 24,
+                      height: 24,
+                      // No color property to preserve the original colors
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Answer analysis',
+                      style: TextStyle(
+                        color: _tabController.index == 1 ? Colors.white : Colors.black87,
+                        fontWeight: FontWeight.bold,
+                        fontSize: isPortrait ? 14 : 16,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-              SegmentTab(
-                label: 'Answer analysis',
-                color: const Color(0xFF76B947),
-                backgroundColor: Colors.transparent,
-              ),
-            ],
-            controller: _tabController,
-          );
-        }
+            ),
+          ),
+        ],
       ),
     );
   }
