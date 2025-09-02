@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:animated_segmented_tab_control/animated_segmented_tab_control.dart';
 import '../viewmodels/mcq_test_result_view_model.dart';
-import '../widgets/mcq_result_tabs.dart';
+import '../widgets/mcq_result_tabs.dart' hide AnswerAnalysisTabWidget;
+import '../widgets/questions_tab.dart';
+import '../widgets/answer_analysis_tab.dart';
 import '../../../shared/widgets/blue_white_container.dart';
 
 class MCQTestResultScreen extends StatefulWidget {
@@ -45,6 +47,9 @@ class _MCQTestResultScreenState extends State<MCQTestResultScreen> with SingleTi
       test: widget.test,
       selectedAnswers: widget.selectedAnswers,
       totalTimeSpent: widget.totalTimeSpent,
+      startTime: widget.startTime,
+      endTime: widget.endTime,
+      attemptNumber: widget.attemptCount,
     );
   }
 
@@ -169,7 +174,6 @@ class _MCQTestResultScreenState extends State<MCQTestResultScreen> with SingleTi
             splashColor: Color(0xFF204770),
             backgroundColor: Colors.white,
             color: const Color(0xFF76B947),
-
           ),
           SegmentTab(
             label: 'Answer analysis',

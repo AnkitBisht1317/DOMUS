@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../../services/user_service.dart';
 
 class MCQTestResultViewModel extends ChangeNotifier {
-  final MCQTest test;
+  MCQTest test; // Removed final to allow updating questions with explanations
   final List<int> selectedAnswers;
   final int totalTimeSpent;
   final UserService _userService = UserService();
@@ -54,6 +54,9 @@ class MCQTestResultViewModel extends ChangeNotifier {
     // Load the user's name
     _loadUserName();
     generateLeaderboard();
+    
+    // Add sample explanations to questions for the Description tab
+    _addSampleExplanations();
   }
 
   void calculateResults() {
@@ -112,6 +115,42 @@ class MCQTestResultViewModel extends ChangeNotifier {
     } catch (e) {
       debugPrint('Error loading user name: $e');
     }
+  }
+  
+  void _addSampleExplanations() {
+    // This is a temporary method to add sample explanations to questions
+    // In a real app, these would come from the backend
+    final List<String> sampleExplanations = [
+      "Aconitum Napellus is primarily indicated in inflammatory fevers with sudden onset, restlessness, and anxiety.",
+      "Sensitivity to noise, especially music, is a characteristic symptom of Aconitum Napellus in ear complaints.",
+      "Aconitum Napellus is often used in the first stage of inflammatory conditions with high fever.",
+      "Aconitum Napellus is indicated when there is fear, anxiety, and restlessness accompanying physical symptoms.",
+      "Aconitum Napellus is particularly useful in conditions triggered by exposure to cold, dry winds."
+    ];
+    
+    // Create a new list of questions with explanations
+    final updatedQuestions = <MCQQuestion>[];
+    
+    for (int i = 0; i < test.questions.length; i++) {
+      final question = test.questions[i];
+      final explanation = i < sampleExplanations.length ? sampleExplanations[i] : "No explanation available for this question.";
+      
+      // Create a new question with the same properties plus an explanation
+      updatedQuestions.add(MCQQuestion(
+        question: question.question,
+        options: question.options,
+        correctAnswer: question.correctAnswer,
+        timeSpent: question.timeSpent,
+        explanation: explanation,
+      ));
+    }
+    
+    // Replace the test questions with the updated ones
+    test = MCQTest(
+      title: test.title,
+      questions: updatedQuestions,
+      totalTime: test.totalTime,
+    );
   }
   
   String getFormattedDateTime(DateTime dateTime) {
