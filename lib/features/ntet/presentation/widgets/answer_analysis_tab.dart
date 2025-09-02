@@ -154,42 +154,62 @@ class _AnswerAnalysisTabWidgetState extends State<AnswerAnalysisTabWidget>
             ),
             const SizedBox(height: 16),
 
-            // Options
-            ...List.generate(
-              question.options.length,
-              (optionIndex) => _buildOptionItem(
-                optionIndex,
-                question.options[optionIndex],
-                optionIndex == correctAnswer,
-                optionIndex == selectedAnswer,
-              ),
-            ),
-            
-            // Show explanation if Description tab is selected
-            if (_selectedTabIndex == 1 && question.explanation != null && question.explanation!.isNotEmpty)
-              Padding(
-                padding: const EdgeInsets.only(top: 16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Explanation:',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                        color: Color(0xFF76B947),
-                      ),
+            // Show all options in Answer Key tab, but only correct option in Description tab
+            if (_selectedTabIndex == 0)
+              ...List.generate(
+                question.options.length,
+                (optionIndex) => _buildOptionItem(
+                  optionIndex,
+                  question.options[optionIndex],
+                  optionIndex == correctAnswer,
+                  optionIndex == selectedAnswer,
+                ),
+              )
+            else
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Only show the correct answer in Description tab
+                  Text(
+                    'Correct Answer: ${question.options[correctAnswer]}',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      color: Color(0xFF76B947),
                     ),
-                    const SizedBox(height: 8),
+                  ),
+                  const SizedBox(height: 12),
+                  
+                  // Show description label
+                  const Text(
+                    'Description:',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      color: Colors.black87,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  
+                  // Show explanation if available
+                  if (question.explanation != null && question.explanation!.isNotEmpty)
                     Text(
                       question.explanation!,
                       style: const TextStyle(
                         fontSize: 14,
                         color: Colors.black87,
                       ),
+                    )
+                  else
+                    const Text(
+                      'No description available for this question.',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.black54,
+                        fontStyle: FontStyle.italic,
+                      ),
                     ),
-                  ],
-                ),
+                ],
               ),
           ],
         ),
