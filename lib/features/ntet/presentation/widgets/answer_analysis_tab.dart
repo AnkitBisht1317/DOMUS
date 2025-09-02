@@ -64,35 +64,56 @@ class _AnswerAnalysisTabWidgetState extends State<AnswerAnalysisTabWidget>
   }
 
   Widget _buildTabButtons() {
+    // Get the current orientation to adapt the UI
+    final orientation = MediaQuery.of(context).orientation;
+    final isPortrait = orientation == Orientation.portrait;
+    
+    // Force rebuild when orientation changes to ensure proper sizing
+    final screenWidth = MediaQuery.of(context).size.width;
+    
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
         color: Colors.grey.shade200,
         borderRadius: BorderRadius.circular(10),
       ),
-      child: SegmentedTabControl(
-        tabTextColor: Colors.black87,
-        selectedTabTextColor: Colors.white,
-        squeezeIntensity: 2,
-        height: 45,
-        tabPadding: const EdgeInsets.symmetric(horizontal: 8),
-        textStyle: const TextStyle(
-          fontWeight: FontWeight.bold,
-          fontSize: 14,
-        ),
-        tabs: const [
-          SegmentTab(
-            label: 'Answer Key',
-            color: Color(0xFF76B947),
-            backgroundColor: Colors.transparent,
-          ),
-          SegmentTab(
-            label: 'Description',
-            color: Color(0xFF76B947),
-            backgroundColor: Colors.transparent,
-          ),
-        ],
-        controller: _tabController,
+      // Set width to match parent container
+      width: double.infinity,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          // Calculate tab width based on available space
+          final tabWidth = constraints.maxWidth / 2;
+          
+          return SegmentedTabControl(
+            // Force rebuild on orientation change
+            key: ValueKey('analysis-tab-${orientation.toString()}-$screenWidth'),
+            tabTextColor: Colors.black87,
+            selectedTabTextColor: Colors.white,
+            squeezeIntensity: 2,
+            // Adjust height based on orientation
+            height: isPortrait ? 45 : 50,
+            // Adjust padding based on orientation
+            tabPadding: EdgeInsets.symmetric(horizontal: isPortrait ? 8 : 16),
+            textStyle: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: isPortrait ? 14 : 16,
+            ),
+            // Tabs with dynamic width calculation
+            tabs: [
+              SegmentTab(
+                label: 'Answer Key',
+                color: const Color(0xFF76B947),
+                backgroundColor: Colors.transparent,
+              ),
+              SegmentTab(
+                label: 'Description',
+                color: const Color(0xFF76B947),
+                backgroundColor: Colors.transparent,
+              ),
+            ],
+            controller: _tabController,
+          );
+        }
       ),
     );
   }

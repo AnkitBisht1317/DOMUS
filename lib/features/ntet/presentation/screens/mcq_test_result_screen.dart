@@ -61,6 +61,14 @@ class _MCQTestResultScreenState extends State<MCQTestResultScreen> with SingleTi
 
   @override
   Widget build(BuildContext context) {
+    // Force rebuild tab controller on orientation change
+    if (_tabController.length != 2) {
+      _tabController = TabController(length: 2, vsync: this);
+      _tabController.addListener(() {
+        setState(() {});
+      });
+    }
+    
     return ChangeNotifierProvider.value(
       value: _viewModel,
       child: Scaffold(
@@ -80,11 +88,15 @@ class _MCQTestResultScreenState extends State<MCQTestResultScreen> with SingleTi
                       topRight: Radius.circular(20),
                     ),
                   ),
-                  child: Column(
-                    children: [
-                      _buildTabBar(),
-                      _buildTabView(),
-                    ],
+                  child: OrientationBuilder(
+                    builder: (context, orientation) {
+                      return Column(
+                        children: [
+                          _buildTabBar(),
+                          _buildTabView(),
+                        ],
+                      );
+                    }
                   ),
                 ),
               ),
@@ -153,36 +165,56 @@ class _MCQTestResultScreenState extends State<MCQTestResultScreen> with SingleTi
   }
   
   Widget _buildTabBar() {
+    // Get the current orientation to adapt the UI
+    final orientation = MediaQuery.of(context).orientation;
+    final isPortrait = orientation == Orientation.portrait;
+    
+    // Force rebuild when orientation changes to ensure proper sizing
+    final screenWidth = MediaQuery.of(context).size.width;
+    
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-      child: SegmentedTabControl(
-        // Customization of widget
-        // backgroundColor: Colors.white,
-        // indicatorColor: const Color(0xFF76B947),
-        tabTextColor: Colors.black,
-        selectedTabTextColor: Colors.white,
-        squeezeIntensity: 2,
-        tabPadding: const EdgeInsets.symmetric(horizontal: 8),
-        textStyle: const TextStyle(
-          fontWeight: FontWeight.bold,
-          fontSize: 14,
-        ),
-        // Tabs
-        tabs: [
-          SegmentTab(
-            label: 'Status',
-            splashColor: Color(0xFF204770),
-            backgroundColor: Colors.white,
-            color: const Color(0xFF76B947),
-          ),
-          SegmentTab(
-            label: 'Answer analysis',
-            splashColor: Color(0xFF204770),
-            backgroundColor: Colors.white,
-            color: const Color(0xFF76B947),
-          ),
-        ],
-        controller: _tabController,
+      decoration: BoxDecoration(
+        color: Colors.grey.shade200,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      // Set width to match parent container
+      width: double.infinity,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          // Calculate tab width based on available space
+          final tabWidth = constraints.maxWidth / 2;
+          
+          return SegmentedTabControl(
+            // Force rebuild on orientation change
+            key: ValueKey('segmented-tab-${orientation.toString()}-$screenWidth'),
+            tabTextColor: Colors.black87,
+            selectedTabTextColor: Colors.white,
+            squeezeIntensity: 2,
+            // Adjust height based on orientation
+            height: isPortrait ? 45 : 50,
+            // Adjust padding based on orientation
+            tabPadding: EdgeInsets.symmetric(horizontal: isPortrait ? 8 : 16),
+            textStyle: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: isPortrait ? 14 : 16,
+            ),
+            // Tabs with dynamic width calculation
+            tabs: [
+              SegmentTab(
+                label: 'Status',
+                color: const Color(0xFF76B947),
+                backgroundColor: Colors.transparent,
+              ),
+              SegmentTab(
+                label: 'Answer analysis',
+                color: const Color(0xFF76B947),
+                backgroundColor: Colors.transparent,
+              ),
+            ],
+            controller: _tabController,
+          );
+        }
       ),
     );
   }
@@ -264,8 +296,4 @@ class _MCQTestResultScreenState extends State<MCQTestResultScreen> with SingleTi
       ),
     );
   }
-
-
-
-
 }
