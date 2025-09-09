@@ -6,6 +6,7 @@ import '../widgets/lecture_action_buttons.dart';
 import '../widgets/blue_white_container.dart';
 import '../widgets/content_item_card.dart';
 import 'lecture_player_screen.dart';
+import 'pdf_viewer_screen.dart';
 import '../../ntet/presentation/widgets/purchase_dialog.dart';
 
 /// An example screen that demonstrates how to use the shared UI components
@@ -230,8 +231,13 @@ class _TabbedContentScreenState extends State<TabbedContentScreen> with SingleTi
           isLocked: !note['isUnlocked'],
           onTap: () {
             if (note['isUnlocked']) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Opening ${note['title']}')),
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => PDFViewerScreen(
+                    title: note['title'],
+                    pdfPath: 'assets/sample.pdf',
+                  ),
+                ),
               );
             } else {
               PurchaseDialog.show(context);
@@ -263,9 +269,11 @@ class _TabbedContentScreenState extends State<TabbedContentScreen> with SingleTi
           isLocked: !mcq['isUnlocked'],
           onTap: () {
             if (mcq['isUnlocked']) {
+              // Navigate to MCQ test screen instead of PDF viewer
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Opening ${mcq['title']}')),
+                const SnackBar(content: Text('Opening MCQ test...')),
               );
+              // You can implement a proper MCQ test screen navigation here
             } else {
               PurchaseDialog.show(context);
             }

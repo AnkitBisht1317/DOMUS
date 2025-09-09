@@ -55,6 +55,7 @@ dependencies:
   path_provider: ^2.1.2  # For handling file paths
   animated_segmented_tab_control: ^2.0.0
   dashed_circular_progress_bar: ^0.0.6
+  pdf: ^3.11.3
 
 
 
@@ -98,6 +99,7 @@ flutter:
     - assets/books.png
     - assets/domus_logo.png
     - assets/analysis_stats.png
+    - assets/pdfs/
     - assets/exam_board.png
 
 

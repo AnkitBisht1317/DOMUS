@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../shared/widgets/content_item_card.dart';
 import '../../../shared/screenUI/lecture_player_screen.dart';
 import '../../../shared/screenUI/tabbed_content_screen.dart';
+import '../../../shared/screenUI/pdf_viewer_screen.dart';
 import '../viewmodel/entrance_content_view_model.dart';
 import '../../domain/model/entrance_content_model.dart';
 
@@ -125,9 +126,7 @@ class _EntranceContentScreenState extends State<EntranceContentScreen> with Sing
           progress: progress,
           isLocked: false, // All notes are unlocked as per requirement
           onTap: () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Opening ${note.title}')),
-            );
+            _openPDFViewer(context, note.title);
           },
           onMenuPressed: () {
             ScaffoldMessenger.of(context).showSnackBar(
@@ -183,5 +182,24 @@ class _EntranceContentScreenState extends State<EntranceContentScreen> with Sing
         ),
       ),
     );
+  }
+
+  void _openPDFViewer(BuildContext context, String title) {
+    // In a real app, you would pass the actual PDF path or URL
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => PDFViewerScreen(
+          title: title,
+          // For demo purposes, we're providing a sample PDF path
+          // In a real app, you would get this from your data model
+          pdfPath: 'assets/sample.pdf',
+          // pdfUrl: 'https://example.com/pdf.pdf',
+        ),
+      ),
+    ).then((_) {
+      print('Returned from PDF viewer');
+      // This will be called when returning from the PDF viewer
+      print('Returned from PDF viewer');
+    });
   }
 }
