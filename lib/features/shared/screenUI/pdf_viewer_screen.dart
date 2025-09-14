@@ -4,6 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_pdfview/flutter_pdfview.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:flutter/widgets.dart';
+import '../widgets/pdf_controls.dart';
+// Temporarily comment out these imports to see if they're causing the build issue
+// import 'package:pdf/pdf.dart';
+// import 'package:pdf/widgets.dart' as pw;
 
 class PDFViewerScreen extends StatefulWidget {
   final String title;
@@ -28,11 +33,26 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
   int _currentPage = 0;
   bool _swipeHorizontal = false;
   PDFViewController? _pdfViewController;
+  double _currentScale = 1.0;
+  double _baseScale = 1.0;
+  static const double _minScale = 1.0;
+  static const double _maxScale = 3.0;
+  // Orientation tracking
+  Orientation? _currentOrientation;
+  // Controller for interactive viewer
+  late TransformationController _transformationController;
 
   @override
   void initState() {
     super.initState();
+    _transformationController = TransformationController();
     _initPDF();
+  }
+
+  @override
+  void dispose() {
+    _transformationController.dispose();
+    super.dispose();
   }
 
   Future<void> _initPDF() async {
@@ -62,22 +82,12 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
         } catch (e) {
           print('Error loading asset PDF file: $e');
           // Try to load a default PDF if the specified one fails
-          try {
-            final ByteData defaultData = await rootBundle.load('assets/pdfs/sample_notes.pdf');
-            final List<int> defaultBytes = defaultData.buffer.asUint8List();
-            await file.writeAsBytes(defaultBytes);
-            
-            setState(() {
-              _localPdfPath = file.path;
-              print('Loaded default PDF instead');
-            });
-          } catch (defaultError) {
-            print('Error loading default PDF: $defaultError');
-            setState(() {
-              _localPdfPath = null; // Force showing the sample content
-            });
-          }
+          await _loadDefaultPdf();
         }
+      } else if (widget.pdfUrl != null) {
+        // TODO: Implement URL download functionality
+        print('PDF URL provided but download not implemented yet: ${widget.pdfUrl}');
+        await _loadDefaultPdf();
       } else if (widget.pdfPath != null) {
         try {
           // Check if the file exists and is valid
@@ -91,50 +101,16 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
           } else {
             // File doesn't exist, try to load default PDF from assets
             print('PDF file does not exist: ${widget.pdfPath}');
-            try {
-              final dir = await getApplicationDocumentsDirectory();
-              final file = File('${dir.path}/default.pdf');
-              final ByteData defaultData = await rootBundle.load('assets/pdfs/sample_notes.pdf');
-              final List<int> defaultBytes = defaultData.buffer.asUint8List();
-              await file.writeAsBytes(defaultBytes);
-              
-              setState(() {
-                _localPdfPath = file.path;
-                print('Loaded default PDF instead');
-              });
-            } catch (defaultError) {
-              print('Error loading default PDF: $defaultError');
-              setState(() {
-                _localPdfPath = null; // Force showing the sample content
-              });
-            }
+            await _loadDefaultPdf();
           }
         } catch (e) {
           print('Error checking file: $e');
-          setState(() {
-            _localPdfPath = null; // Force showing the sample content
-          });
+          await _loadDefaultPdf();
         }
       } else {
         // No PDF provided, try to load default PDF from assets
         print('No PDF path provided, trying to load default PDF');
-        try {
-          final dir = await getApplicationDocumentsDirectory();
-          final file = File('${dir.path}/default.pdf');
-          final ByteData defaultData = await rootBundle.load('assets/pdfs/sample_notes.pdf');
-          final List<int> defaultBytes = defaultData.buffer.asUint8List();
-          await file.writeAsBytes(defaultBytes);
-          
-          setState(() {
-            _localPdfPath = file.path;
-            print('Loaded default PDF');
-          });
-        } catch (defaultError) {
-          print('Error loading default PDF: $defaultError');
-          setState(() {
-            _localPdfPath = null; // Force showing the sample content
-          });
-        }
+        await _loadDefaultPdf();
       }
       
       // Set initial page count
@@ -152,10 +128,55 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
       });
     }
   }
+  
+  // Helper method to load default PDF
+  Future<void> _loadDefaultPdf() async {
+    try {
+      final dir = await getApplicationDocumentsDirectory();
+      final file = File('${dir.path}/default.pdf');
+      
+      // Use the specific PDF path requested by the user
+      final String pdfAssetPath = 'assets/pdfs/sample_notes.pdf';
+      print('Loading PDF from asset: $pdfAssetPath');
+      
+      final ByteData defaultData = await rootBundle.load(pdfAssetPath);
+      final List<int> defaultBytes = defaultData.buffer.asUint8List();
+      await file.writeAsBytes(defaultBytes);
+      
+      setState(() {
+        _localPdfPath = file.path;
+        print('Loaded default PDF: $pdfAssetPath');
+      });
+    } catch (defaultError) {
+      print('Error loading default PDF: $defaultError');
+      setState(() {
+        _localPdfPath = null; // Force showing the sample content
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     print('Building PDF Viewer with isLoading: $_isLoading, localPdfPath: $_localPdfPath');
+    
+    // Check for orientation changes
+    final currentOrientation = MediaQuery.of(context).orientation;
+    if (_currentOrientation != currentOrientation) {
+      _currentOrientation = currentOrientation;
+      
+      // Apply default zoom for landscape mode
+      if (currentOrientation == Orientation.landscape && _transformationController.value.getMaxScaleOnAxis() < 1.5) {
+        // Use a slightly higher zoom for landscape to improve readability
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          // Create a Matrix4 with scale 1.5
+          final Matrix4 newMatrix = Matrix4.identity()..scale(1.5);
+          _transformationController.value = newMatrix;
+          setState(() {
+            _currentScale = 1.5;
+          });
+        });
+      }
+    }
     return Scaffold(
       backgroundColor: const Color(0xFF001F54),
       appBar: AppBar(
@@ -194,118 +215,99 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
               child: Column(
                 children: [
                   // Controls and page indicator - This stays fixed at the top
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 15, 20, 8),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        // Page counter
-                        Container(
-                          width: MediaQuery.of(context).size.width * 0.4,
-                          child: Text(
-                            'Page $_currentPage of $_totalPages',
-                            style: const TextStyle(
-                              color: Colors.black87,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                        // Control buttons
-                        Row(
-                          children: [
-                            // Zoom in button
-                            IconButton(
-                              icon: const Icon(Icons.zoom_in, color: Color(0xFF001F54)),
-                              onPressed: () {
-                                // Implement zoom in functionality
-                                print('Zoom in button pressed');
-                                if (_pdfViewController != null) {
-                                  // Attempt to zoom in - this is a placeholder as flutter_pdfview
-                                  // doesn't directly support zoom control
-                                }
-                              },
-                            ),
-                            // Zoom out button
-                            IconButton(
-                              icon: const Icon(Icons.zoom_out, color: Color(0xFF001F54)),
-                              onPressed: () {
-                                // Implement zoom out functionality
-                                print('Zoom out button pressed');
-                                if (_pdfViewController != null) {
-                                  // Attempt to zoom out - this is a placeholder as flutter_pdfview
-                                  // doesn't directly support zoom control
-                                }
-                              },
-                            ),
-                            // Download button
-                            IconButton(
-                              icon: const Icon(Icons.download_outlined, color: Color(0xFF001F54)),
-                              onPressed: () {
-                                // Implement download functionality
-                                print('Download button pressed');
-                                // Download functionality would be implemented here
-                              },
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
+                  PDFControls(
+                    currentPage: _currentPage,
+                    totalPages: _totalPages,
+                    pdfViewController: _pdfViewController,
+                    currentScale: _currentScale,
+                    onZoomChanged: (double newScale) {
+                      setState(() {
+                        _currentScale = newScale;
+                        // Update transformation matrix
+                        final Matrix4 newMatrix = Matrix4.identity()..scale(_currentScale);
+                        _transformationController.value = newMatrix;
+                      });
+                    },
+                    onDownload: _localPdfPath != null ? () async {
+                      // Implement download functionality
+                      try {
+                        final directory = await getExternalStorageDirectory();
+                        if (directory != null) {
+                          final fileName = widget.title.replaceAll(' ', '_') + '.pdf';
+                          final targetPath = '${directory.path}/$fileName';
+                          
+                          // Copy the PDF file to downloads directory
+                          final File sourceFile = File(_localPdfPath!);
+                          final File targetFile = File(targetPath);
+                          await sourceFile.copy(targetPath);
+                          
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('PDF saved to $targetPath'))
+                          );
+                        }
+                      } catch (e) {
+                        print('Error downloading PDF: $e');
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Failed to download PDF'))
+                        );
+                      }
+                    } : null,
                   ),
                   // PDF Viewer - This is scrollable
                   Expanded(
                     child: _isLoading
                         ? const Center(child: CircularProgressIndicator())
                         : _localPdfPath != null
-                            ? SingleChildScrollView(
-                                child: SizedBox(
-                                  height: MediaQuery.of(context).size.height * 0.8, // Set a fixed height for the PDF view
-                                  child: PDFView(
-                                    filePath: _localPdfPath!,
-                                    enableSwipe: true,
-                                    swipeHorizontal: _swipeHorizontal,
-                                    autoSpacing: true,
-                                    pageFling: true,
-                                    pageSnap: true,
-                                    defaultPage: _currentPage - 1, // Adjust for 0-based index
-                                    fitPolicy: FitPolicy.BOTH,
-                                    preventLinkNavigation: false,
-                                    onRender: (pages) {
-                                      setState(() {
-                                        _totalPages = pages ?? 0;
-                                        print('PDF rendered with $pages pages');
-                                      });
-                                    },
-                                    onError: (error) {
-                                      print('PDF error: $error');
-                                      // Handle error silently without showing SnackBar
-                                      if (error.toString().contains('java.io.IOException') || 
-                                          error.toString().contains('cannot create document')) {
+                            ? SizedBox(
+                                      width: double.infinity,
+                                      height: MediaQuery.of(context).size.height * 0.7,
+                                      child: PDFView(
+                                        filePath: _localPdfPath!,
+                                        enableSwipe: true,
+                                        swipeHorizontal: false,
+                                        autoSpacing: true,
+                                        pageFling: true,
+                                        pageSnap: false,
+                                        defaultPage: _currentPage - 1,
+                                        fitPolicy: FitPolicy.BOTH,
+                                        preventLinkNavigation: false,
+                                        onRender: (pages) {
+                                          print('PDF rendered with $pages pages');
+                                          setState(() {
+                                            _totalPages = pages ?? 0;
+                                            _currentPage = 1;
+                                          });
+                                        },
+                                      onError: (error) {
+                                        print('PDF error: $error');
+                                        // Handle error silently without showing SnackBar
+                                        if (error.toString().contains('java.io.IOException') || 
+                                            error.toString().contains('cannot create document')) {
+                                          setState(() {
+                                            _localPdfPath = null; // Show sample content instead
+                                          });
+                                        }
+                                      },
+                                      onPageError: (page, error) {
+                                        print('PDF page $page error: $error');
+                                        // Handle page error silently without showing SnackBar
+                                      },
+                                      onViewCreated: (PDFViewController pdfViewController) {
                                         setState(() {
-                                          _localPdfPath = null; // Show sample content instead
+                                          _pdfViewController = pdfViewController;
+                                          print('PDF view controller created');
                                         });
-                                      }
-                                    },
-                                    onPageError: (page, error) {
-                                      print('PDF page $page error: $error');
-                                      // Handle page error silently without showing SnackBar
-                                    },
-                                    onViewCreated: (PDFViewController pdfViewController) {
-                                      setState(() {
-                                        _pdfViewController = pdfViewController;
-                                        print('PDF view controller created');
-                                      });
-                                    },
-                                    onPageChanged: (int? page, int? total) {
-                                      if (page != null) {
-                                        setState(() {
-                                          _currentPage = page + 1; // Adjust for 0-based index
-                                          print('Page changed to ${page + 1} of $total');
-                                        });
-                                      }
-                                    },
-                                  ),
-                                ),
-                              )
+                                      },
+                                      onPageChanged: (int? page, int? total) {
+                                        if (page != null) {
+                                          setState(() {
+                                            _currentPage = page + 1; // Adjust for 0-based index
+                                            print('Page changed to ${page + 1} of $total');
+                                          });
+                                        }
+                                      },
+                                    ),
+                                  )
                             : SingleChildScrollView(
                                 child: Center(
                                   child: Column(

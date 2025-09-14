@@ -185,21 +185,19 @@ class _EntranceContentScreenState extends State<EntranceContentScreen> with Sing
   }
 
   void _openPDFViewer(BuildContext context, String title) {
-    // In a real app, you would pass the actual PDF path or URL
+    // Use the correct path to the sample_notes.pdf in assets
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => PDFViewerScreen(
           title: title,
-          // For demo purposes, we're providing a sample PDF path
-          // In a real app, you would get this from your data model
-          pdfPath: 'assets/sample.pdf',
+          // Use the correct path to the PDF in assets
+          pdfPath: 'assets/pdfs/sample_notes.pdf',
           // pdfUrl: 'https://example.com/pdf.pdf',
         ),
       ),
     ).then((_) {
       print('Returned from PDF viewer');
       // This will be called when returning from the PDF viewer
-      print('Returned from PDF viewer');
     });
   }
 }
